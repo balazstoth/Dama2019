@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace Dama.Data
+namespace Dama.Data.Interfaces
 {
     interface IRepository<T> where T : IEntity
     {

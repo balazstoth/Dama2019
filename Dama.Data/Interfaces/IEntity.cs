@@ -1,4 +1,4 @@
-﻿namespace Dama.Data
+﻿namespace Dama.Data.Interfaces
 {
     public interface IEntity
     {
