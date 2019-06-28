@@ -1,4 +1,5 @@
-﻿using Dama.Data.Interfaces;
+﻿using Dama.Data.Enums;
+using Dama.Data.Interfaces;
 using System.Collections.Generic;
 
 namespace Dama.Data.Models
@@ -6,7 +7,7 @@ namespace Dama.Data.Models
     public abstract class Activity : IActivity
     {
         #region Properties
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public Color Color { get; set; }

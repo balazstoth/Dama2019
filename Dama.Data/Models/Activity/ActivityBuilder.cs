@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Dama.Data.Enums;
+using System.Collections.Generic;
 
 namespace Dama.Data.Models
 {

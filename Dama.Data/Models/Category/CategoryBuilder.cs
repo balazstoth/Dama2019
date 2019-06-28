@@ -1,4 +1,6 @@
-﻿namespace Dama.Data.Models
+﻿using Dama.Data.Enums;
+
+namespace Dama.Data.Models
 {
     class CategoryBuilder
     {

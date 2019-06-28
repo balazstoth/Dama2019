@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using Dama.Data.Models;
+using System.Linq;
 
 namespace Dama.Data
 {

@@ -4,7 +4,7 @@ namespace Dama.Data.Models
 {
     public class Label : IEntity
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; }
         public string UserId { get; set; }
 

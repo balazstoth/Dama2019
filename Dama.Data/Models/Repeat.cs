@@ -6,7 +6,7 @@ namespace Dama.Data.Models
 {
     public class Repeat : IEntity
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public RepeatPeriod RepeatPeriod { get; set; }
         public DateTime EndDate { get; set; }
         public DateTime StartDay { get; set; }
@@ -34,13 +34,13 @@ namespace Dama.Data.Models
         public bool IsEventInInterval(Interval interval)
         {
             if (RepeatPeriod == RepeatPeriod.Single)
-                return IsDayInInterval(StartDay, interval.Start, interval.End);
+                return IsDayInInterval(StartDay, interval);
 
             DateTime startDay = StartDay;
 
             do
             {
-                if (IsDayInInterval(startDay, interval.Start, interval.End))
+                if (IsDayInInterval(startDay, interval))
                     return true;
 
                 startDay = startDay.AddDays((int)RepeatPeriod);

@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Dama.Data.Enums;
+using System;
 using System.Collections.Generic;
 
 namespace Dama.Data.Models
 {
-    class DeadlineActivity : Activity
+    public class DeadlineActivity : Activity
     {
         public DateTime Start { get; set; }
         public DateTime End { get; set; }

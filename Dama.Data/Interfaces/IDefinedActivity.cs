@@ -3,7 +3,7 @@ using System;
 
 namespace Dama.Data.Interfaces
 {
-    interface IDefinedActivity
+    public interface IDefinedActivity
     {
         int Priority { get; set; }
         TimeSpan TimeSpan { get; set; }
