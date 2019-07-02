@@ -205,7 +205,7 @@ namespace Dama.Organizer.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Each milestone values must be in {0} - {1} range!.
+        ///   Looks up a localized string similar to Milestone is out of range!.
         /// </summary>
         public static string Milestone_IncorrectRange {
             get {

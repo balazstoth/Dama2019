@@ -26,12 +26,13 @@ namespace Dama.Web.Attributes
             _startTime = startTime;
             _endDate = endDate;
             _endTime = endTime;
-            _emptyMilestoneMessage = Attribute.Milestone_EmptyMilestone;
-            _incorrectMilestoneMessage = Attribute.Milestone_IncorrectMilestoneName;
-            _invalidMilestoneRangeMessage = Attribute.Milestone_IncorrectRange;
             _minNameLength = 3;
             _maxNameLength = 20;
             _dateLength = 16;
+            _emptyMilestoneMessage = Attribute.Milestone_EmptyMilestone;
+            _incorrectMilestoneMessage = string.Format(Attribute.Milestone_IncorrectMilestoneName, _minNameLength, _maxNameLength);
+            _invalidMilestoneRangeMessage = Attribute.Milestone_IncorrectRange;
+           
         }
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)

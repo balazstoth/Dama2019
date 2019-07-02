@@ -169,7 +169,7 @@
     <comment>Default: 3-20</comment>
   </data>
   <data name="Milestone_IncorrectRange" xml:space="preserve">
-    <value>Each milestone values must be in {0} - {1} range!</value>
+    <value>Milestone is out of range!</value>
   </data>
   <data name="MinTime_EmptyMinTime" xml:space="preserve">
     <value>MinTime field cannot be empty!</value>

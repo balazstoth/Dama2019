@@ -7,7 +7,7 @@ namespace Dama.Web.Attributes
 {
     public class MaxTime : ValidationAttribute
     {
-        private string _minTime;
+        private readonly string _minTime;
         private int _maxTime;
         private readonly int _minValue;
         private readonly int _maxValue;
@@ -33,8 +33,8 @@ namespace Dama.Web.Attributes
             _maxValue = maxValue;
             _emptyMaxTimeMessage = Attribute.MaxTime_EmptyMaxTime;
             _incorrectMaxTimeMessage = Attribute.MaxTime_IncorrectMaxTime;
-            _incorrectDifferenceMessage = Attribute.MaxTime_IncorrectMaxTimeDifference;
-            _incorrectMaxTimeRangeMessage = Attribute.MaxTime_IncorrectMaxTimeRange;
+            _incorrectDifferenceMessage = string.Format(Attribute.MaxTime_IncorrectMaxTimeDifference, _difference);
+            _incorrectMaxTimeRangeMessage = string.Format(Attribute.MaxTime_IncorrectMaxTimeRange, _minValue, _maxValue);
         }
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)

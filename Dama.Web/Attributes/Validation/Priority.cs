@@ -25,12 +25,13 @@ namespace Dama.Web.Attributes
             _isCategory = isCategory;
             _minPriority = minPriority;
             _maxPriority = maxPriority;
-            _emptyPriorityMessage = Attribute.Priority_EmptyPriority;
-            _incorrectPriorityMessage = Attribute.Priority_IncorrectPriority;
-            _incorrectPriorityRangeMessage = Attribute.Priority_IncorrectPriorityRanged;
 
             if (minPriority == 0 && maxPriority == 0)
                 SetDefaultPriority();
+
+            _emptyPriorityMessage = Attribute.Priority_EmptyPriority;
+            _incorrectPriorityMessage = Attribute.Priority_IncorrectPriority;
+            _incorrectPriorityRangeMessage = string.Format(Attribute.Priority_IncorrectPriorityRanged, _minPriority, _maxPriority);
         }
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)

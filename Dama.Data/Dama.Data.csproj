@@ -80,7 +80,6 @@
     <Compile Include="Models\UnfixedActivity\UnfixedActivity.cs" />
     <Compile Include="Models\UnfixedActivity\UnfixedActivityBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Models\Role.cs" />
     <Compile Include="Models\User.cs" />
   </ItemGroup>
   <ItemGroup>

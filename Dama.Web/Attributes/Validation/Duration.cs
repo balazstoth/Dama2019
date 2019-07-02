@@ -25,7 +25,7 @@ namespace Dama.Web.Attributes
             _maxValue = maxValueInHours;
             _emptyDurationMessage = Attribute.Duration_EmptyDuration;
             _incorrectDurationMessage = Attribute.Duration_IncorrectFormat;
-            _incorrectDurationRangeMessage = Attribute.Duration_IncorrectRange;
+            _incorrectDurationRangeMessage = string.Format(Attribute.Duration_IncorrectRange, _minValue, _maxValue);
         }
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)

@@ -122,7 +122,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Attributes\Authentication\DisableUser.cs" />
     <Compile Include="Attributes\Authentication\SuperAdminAuthentication.cs" />
-    <Compile Include="Attributes\Repeat.cs" />
+    <Compile Include="Attributes\Validation\Repeat.cs" />
     <Compile Include="Attributes\Validation\Milestone.cs" />
     <Compile Include="Attributes\Validation\Deadline.cs" />
     <Compile Include="Attributes\Validation\End.cs" />

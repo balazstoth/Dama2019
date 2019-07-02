@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Attribute = Dama.Organizer.Resources.Attribute;
 
 namespace Dama.Web.Attributes
 {
@@ -22,6 +23,9 @@ namespace Dama.Web.Attributes
 
             _minValue = minValue;
             _maxValue = maxValue;
+            _emptyMinTimeMessage = Attribute.MinTime_EmptyMinTime;
+            _incorrectMinTimeMessage = Attribute.MinTime_IncorrectMinTime;
+            _incorrectMinTimeRangeMessage = string.Format(Attribute.MinTime_IncorrectMinTimeRange, _minValue, _maxValue);
         }
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
