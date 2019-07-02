@@ -19,10 +19,6 @@ namespace Dama.Data.Models
             Name = label.Name;
         }
 
-        public Label()
-        {
-        }
-
         public override string ToString()
         {
             return Name;

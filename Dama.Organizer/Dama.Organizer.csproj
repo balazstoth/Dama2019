@@ -41,8 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Comparers\LabelComparer.cs" />
     <Compile Include="Enums\ComparableEnums.cs" />
-    <Compile Include="Others\NameComparer.cs" />
+    <Compile Include="Comparers\NameComparer.cs" />
+    <Compile Include="Enums\ControllerNames.cs" />
+    <Compile Include="Enums\RedirectToAction.cs" />
+    <Compile Include="Enums\UserRole.cs" />
     <Compile Include="Others\OrderedLinkedList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\Attribute.Designer.cs">
@@ -55,6 +59,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Error.resx</DependentUpon>
     </Compile>
+    <Compile Include="Resources\Redirect.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Redirect.resx</DependentUpon>
+    </Compile>
     <Compile Include="Resources\Success.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -63,15 +72,19 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Attribute.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Attribute.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Error.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Error.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Redirect.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Redirect.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\Success.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Success.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>

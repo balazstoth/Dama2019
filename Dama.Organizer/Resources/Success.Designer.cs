@@ -22,7 +22,7 @@ namespace Dama.Organizer.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Success {
+    public class Success {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Dama.Organizer.Resources {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Dama.Organizer.Resources.Success", typeof(Success).Assembly);
@@ -51,7 +51,7 @@ namespace Dama.Organizer.Resources {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Activity removed successfully!.
         /// </summary>
-        internal static string ActivityRemovedSuccessfully {
+        public static string ActivityRemovedSuccessfully {
             get {
                 return ResourceManager.GetString("ActivityRemovedSuccessfully", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Category changed successfully!.
         /// </summary>
-        internal static string CategoryChangesSuccessfully {
+        public static string CategoryChangesSuccessfully {
             get {
                 return ResourceManager.GetString("CategoryChangesSuccessfully", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Category created successfully!.
         /// </summary>
-        internal static string CategoryCreatedSuccessfully {
+        public static string CategoryCreatedSuccessfully {
             get {
                 return ResourceManager.GetString("CategoryCreatedSuccessfully", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Category removed successfully!.
         /// </summary>
-        internal static string CategoryRemovedSuccessfully {
+        public static string CategoryRemovedSuccessfully {
             get {
                 return ResourceManager.GetString("CategoryRemovedSuccessfully", resourceCulture);
             }
@@ -99,7 +99,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Label created successfully!.
         /// </summary>
-        internal static string LabelCreatedSuccessfully {
+        public static string LabelCreatedSuccessfully {
             get {
                 return ResourceManager.GetString("LabelCreatedSuccessfully", resourceCulture);
             }
@@ -108,7 +108,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Label removed successfully!.
         /// </summary>
-        internal static string LabelRemovedSuccessfully {
+        public static string LabelRemovedSuccessfully {
             get {
                 return ResourceManager.GetString("LabelRemovedSuccessfully", resourceCulture);
             }
@@ -117,7 +117,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Password has changed!.
         /// </summary>
-        internal static string PasswordChangedSeccessfully {
+        public static string PasswordChangedSeccessfully {
             get {
                 return ResourceManager.GetString("PasswordChangedSeccessfully", resourceCulture);
             }
@@ -126,7 +126,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to User created successfully, you are now logged in!.
         /// </summary>
-        internal static string UserRegisteresSuccessfully {
+        public static string UserRegisteresSuccessfully {
             get {
                 return ResourceManager.GetString("UserRegisteresSuccessfully", resourceCulture);
             }

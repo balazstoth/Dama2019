@@ -120,6 +120,12 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Attributes\Authentication\DisableUser.cs" />
+    <Compile Include="Attributes\Authentication\SuperAdminAuthentication.cs" />
+    <Compile Include="Attributes\Validation\Duration.cs" />
+    <Compile Include="Attributes\Validation\MaxTime.cs" />
+    <Compile Include="Attributes\Validation\MinTime.cs" />
+    <Compile Include="Attributes\Validation\Priority.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -178,6 +184,12 @@
     <None Include="packages.config" />
     <Content Include="Scripts\jquery-3.3.1.slim.min.map" />
     <Content Include="Scripts\jquery-3.3.1.min.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dama.Organizer\Dama.Organizer.csproj">
+      <Project>{7129d0e1-47c0-42ff-9c7b-063c4a3a68f9}</Project>
+      <Name>Dama.Organizer</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -22,7 +22,7 @@ namespace Dama.Organizer.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Error {
+    public class Error {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Dama.Organizer.Resources {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Dama.Organizer.Resources.Error", typeof(Error).Assembly);
@@ -51,7 +51,7 @@ namespace Dama.Organizer.Resources {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Activity not found!.
         /// </summary>
-        internal static string ActivityNotFound {
+        public static string ActivityNotFound {
             get {
                 return ResourceManager.GetString("ActivityNotFound", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to You cannot execute this command!.
         /// </summary>
-        internal static string AuthenticationError {
+        public static string AuthenticationError {
             get {
                 return ResourceManager.GetString("AuthenticationError", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Category already exists!.
         /// </summary>
-        internal static string CategoryAlreadyExists {
+        public static string CategoryAlreadyExists {
             get {
                 return ResourceManager.GetString("CategoryAlreadyExists", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Category not found in database!.
         /// </summary>
-        internal static string CategoryNotFound {
+        public static string CategoryNotFound {
             get {
                 return ResourceManager.GetString("CategoryNotFound", resourceCulture);
             }
@@ -99,7 +99,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Invalid username or password!.
         /// </summary>
-        internal static string InvalidData {
+        public static string InvalidData {
             get {
                 return ResourceManager.GetString("InvalidData", resourceCulture);
             }
@@ -108,7 +108,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Invalid user ID!.
         /// </summary>
-        internal static string InvalidUserID {
+        public static string InvalidUserID {
             get {
                 return ResourceManager.GetString("InvalidUserID", resourceCulture);
             }
@@ -117,7 +117,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Label already exists!.
         /// </summary>
-        internal static string LabelAlreadyExists {
+        public static string LabelAlreadyExists {
             get {
                 return ResourceManager.GetString("LabelAlreadyExists", resourceCulture);
             }
@@ -126,7 +126,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Label not found in database!.
         /// </summary>
-        internal static string LabelNotFound {
+        public static string LabelNotFound {
             get {
                 return ResourceManager.GetString("LabelNotFound", resourceCulture);
             }
@@ -135,7 +135,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Cannot execute this method!.
         /// </summary>
-        internal static string RestricOwnAccount {
+        public static string RestricOwnAccount {
             get {
                 return ResourceManager.GetString("RestricOwnAccount", resourceCulture);
             }
@@ -144,7 +144,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to This account cannot be deleted!.
         /// </summary>
-        internal static string SuperAdminCannotBeDeleted {
+        public static string SuperAdminCannotBeDeleted {
             get {
                 return ResourceManager.GetString("SuperAdminCannotBeDeleted", resourceCulture);
             }
@@ -153,7 +153,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to You are blocked by an administrator!.
         /// </summary>
-        internal static string UserIsBlocked {
+        public static string UserIsBlocked {
             get {
                 return ResourceManager.GetString("UserIsBlocked", resourceCulture);
             }
@@ -162,7 +162,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to User not found in database!.
         /// </summary>
-        internal static string UserNotFound {
+        public static string UserNotFound {
             get {
                 return ResourceManager.GetString("UserNotFound", resourceCulture);
             }

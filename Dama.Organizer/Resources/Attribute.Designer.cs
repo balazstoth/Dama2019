@@ -22,7 +22,7 @@ namespace Dama.Organizer.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Attribute {
+    public class Attribute {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Dama.Organizer.Resources {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Dama.Organizer.Resources.Attribute", typeof(Attribute).Assembly);
@@ -51,7 +51,7 @@ namespace Dama.Organizer.Resources {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Values cannot be empty!.
         /// </summary>
-        internal static string Deadline_EmptyDeadline {
+        public static string Deadline_EmptyDeadline {
             get {
                 return ResourceManager.GetString("Deadline_EmptyDeadline", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to StartDate or EndDate is incorrect!.
         /// </summary>
-        internal static string Deadline_IncorrectDeadline {
+        public static string Deadline_IncorrectDeadline {
             get {
                 return ResourceManager.GetString("Deadline_IncorrectDeadline", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Invalid StartTime or EndTime value!.
         /// </summary>
-        internal static string Deadline_InvalidDeadline {
+        public static string Deadline_InvalidDeadline {
             get {
                 return ResourceManager.GetString("Deadline_InvalidDeadline", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Time field cannot be empty!.
         /// </summary>
-        internal static string Duration_EmptyDuration {
+        public static string Duration_EmptyDuration {
             get {
                 return ResourceManager.GetString("Duration_EmptyDuration", resourceCulture);
             }
@@ -99,7 +99,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Time field is incorrect, correct format is: &apos;hh:mm:ss&apos;.
         /// </summary>
-        internal static string Duration_IncorrectFormat {
+        public static string Duration_IncorrectFormat {
             get {
                 return ResourceManager.GetString("Duration_IncorrectFormat", resourceCulture);
             }
@@ -108,7 +108,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Only a given interval is allowed: [{0}m - {1}h]!.
         /// </summary>
-        internal static string Duration_IncorrectRange {
+        public static string Duration_IncorrectRange {
             get {
                 return ResourceManager.GetString("Duration_IncorrectRange", resourceCulture);
             }
@@ -117,7 +117,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to End field cannot be empty!.
         /// </summary>
-        internal static string End_EmptyEnd {
+        public static string End_EmptyEnd {
             get {
                 return ResourceManager.GetString("End_EmptyEnd", resourceCulture);
             }
@@ -126,7 +126,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to End field has an incorrect value!.
         /// </summary>
-        internal static string End_IncorrectEndValue {
+        public static string End_IncorrectEndValue {
             get {
                 return ResourceManager.GetString("End_IncorrectEndValue", resourceCulture);
             }
@@ -135,7 +135,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Invalid start or end value!.
         /// </summary>
-        internal static string End_InvalidEndValue {
+        public static string End_InvalidEndValue {
             get {
                 return ResourceManager.GetString("End_InvalidEndValue", resourceCulture);
             }
@@ -144,7 +144,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to MaxTime field cannot be empty!.
         /// </summary>
-        internal static string MaxTime_EmptyMaxTime {
+        public static string MaxTime_EmptyMaxTime {
             get {
                 return ResourceManager.GetString("MaxTime_EmptyMaxTime", resourceCulture);
             }
@@ -153,7 +153,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to MaxTime field has an incorrect value!.
         /// </summary>
-        internal static string MaxTime_IncorrectMaxTime {
+        public static string MaxTime_IncorrectMaxTime {
             get {
                 return ResourceManager.GetString("MaxTime_IncorrectMaxTime", resourceCulture);
             }
@@ -162,7 +162,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Difference must be at least {0} minutes!.
         /// </summary>
-        internal static string MaxTime_IncorrectMaxTimeDifference {
+        public static string MaxTime_IncorrectMaxTimeDifference {
             get {
                 return ResourceManager.GetString("MaxTime_IncorrectMaxTimeDifference", resourceCulture);
             }
@@ -171,7 +171,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to MaxTime value must be in {0} - {1} range!.
         /// </summary>
-        internal static string MaxTime_IncorrectMaxTimeRange {
+        public static string MaxTime_IncorrectMaxTimeRange {
             get {
                 return ResourceManager.GetString("MaxTime_IncorrectMaxTimeRange", resourceCulture);
             }
@@ -180,7 +180,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Don&apos;t leave any date fields empty!.
         /// </summary>
-        internal static string Milestone_EmptyMilestone {
+        public static string Milestone_EmptyMilestone {
             get {
                 return ResourceManager.GetString("Milestone_EmptyMilestone", resourceCulture);
             }
@@ -189,7 +189,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Length of each name fields must be between {0} and {1} characters!.
         /// </summary>
-        internal static string Milestone_IncorrectMilestoneName {
+        public static string Milestone_IncorrectMilestoneName {
             get {
                 return ResourceManager.GetString("Milestone_IncorrectMilestoneName", resourceCulture);
             }
@@ -198,7 +198,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Each milestone values must be in {0} - {1} range!.
         /// </summary>
-        internal static string Milestone_IncorrectRange {
+        public static string Milestone_IncorrectRange {
             get {
                 return ResourceManager.GetString("Milestone_IncorrectRange", resourceCulture);
             }
@@ -207,7 +207,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to MinTime field cannot be empty!.
         /// </summary>
-        internal static string MinTime_EmptyMinTime {
+        public static string MinTime_EmptyMinTime {
             get {
                 return ResourceManager.GetString("MinTime_EmptyMinTime", resourceCulture);
             }
@@ -216,7 +216,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to MinTime field has an incorrect value!.
         /// </summary>
-        internal static string MinTime_IncorrectMinTime {
+        public static string MinTime_IncorrectMinTime {
             get {
                 return ResourceManager.GetString("MinTime_IncorrectMinTime", resourceCulture);
             }
@@ -225,7 +225,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to MinTime value must be in {0} - {1} range!.
         /// </summary>
-        internal static string MinTime_IncorrectMinTimeRange {
+        public static string MinTime_IncorrectMinTimeRange {
             get {
                 return ResourceManager.GetString("MinTime_IncorrectMinTimeRange", resourceCulture);
             }
@@ -234,7 +234,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Priority field cannot be empty!.
         /// </summary>
-        internal static string Priority_EmptyPriority {
+        public static string Priority_EmptyPriority {
             get {
                 return ResourceManager.GetString("Priority_EmptyPriority", resourceCulture);
             }
@@ -243,7 +243,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Priority field has an incorrect value!.
         /// </summary>
-        internal static string Priority_IncorrectPriority {
+        public static string Priority_IncorrectPriority {
             get {
                 return ResourceManager.GetString("Priority_IncorrectPriority", resourceCulture);
             }
@@ -252,7 +252,7 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Priority value must be in {0} - {1} range!.
         /// </summary>
-        internal static string Priority_IncorrectPriorityRanged {
+        public static string Priority_IncorrectPriorityRanged {
             get {
                 return ResourceManager.GetString("Priority_IncorrectPriorityRanged", resourceCulture);
             }
