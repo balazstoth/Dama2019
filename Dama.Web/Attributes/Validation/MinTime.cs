@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Dama.Web.Attributes
 {
@@ -13,6 +14,12 @@ namespace Dama.Web.Attributes
 
         public MinTime(int minValue = 5, int maxValue = 480)
         {
+            if (minValue < 0)
+                throw new ArgumentException(nameof(minValue));
+
+            if (maxValue < 0)
+                throw new ArgumentException(nameof(maxValue));
+
             _minValue = minValue;
             _maxValue = maxValue;
         }

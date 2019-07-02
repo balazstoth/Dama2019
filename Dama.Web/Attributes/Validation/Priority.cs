@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Attribute = Dama.Organizer.Resources.Attribute;
 
 namespace Dama.Web.Attributes
@@ -15,6 +16,12 @@ namespace Dama.Web.Attributes
 
         public Priority(int minPriority, int maxPriority, bool isCategory = false)
         {
+            if (minPriority < 0)
+                throw new ArgumentException(nameof(minPriority));
+
+            if (maxPriority < 0)
+                throw new ArgumentException(nameof(maxPriority));
+
             _isCategory = isCategory;
             _minPriority = minPriority;
             _maxPriority = maxPriority;

@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using Attribute = Dama.Organizer.Resources.Attribute;
 
 namespace Dama.Web.Attributes
@@ -17,6 +19,15 @@ namespace Dama.Web.Attributes
 
         public MaxTime(string minTime, int minValue = 5, int maxValue = 480)
         {
+            if (string.IsNullOrEmpty(minTime))
+                throw new ArgumentException(nameof(minTime));
+
+            if (minValue < 0)
+                throw new ArgumentException(nameof(minValue));
+
+            if (maxValue < 0)
+                throw new ArgumentException(nameof(maxValue));
+
             _minTime = minTime;
             _minValue = minValue;
             _maxValue = maxValue;
@@ -38,7 +49,18 @@ namespace Dama.Web.Attributes
 
             if (IsMaxTimeValid())
             {
-                var property = validationContext.ObjectType.GetProperty(_minTime);
+                PropertyInfo property;
+
+                try
+                {
+                    property = validationContext.ObjectType.GetProperty(_minTime);
+                }
+                catch (Exception ex)
+                {
+                    var errorMessage = string.Format(Attribute.Attribute_NotFound, ex.Message);
+                    return new ValidationResult(errorMessage);
+                }
+
                 int minTime = (int)property.GetValue(validationContext.ObjectInstance);
 
                 if (minTime + _difference <= _maxTime)

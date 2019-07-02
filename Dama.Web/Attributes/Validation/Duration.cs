@@ -15,6 +15,12 @@ namespace Dama.Web.Attributes
 
         public Duration(int minValueInMinutes = 5, int maxValueInHours = 13)
         {
+            if (minValueInMinutes < 0)
+                throw new ArgumentException(nameof(minValueInMinutes));
+
+            if (maxValueInHours > 23)
+                throw new ArgumentException(nameof(maxValueInHours));
+
             _minValue = minValueInMinutes;
             _maxValue = maxValueInHours;
             _emptyDurationMessage = Attribute.Duration_EmptyDuration;

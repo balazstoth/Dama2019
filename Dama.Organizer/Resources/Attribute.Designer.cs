@@ -61,6 +61,15 @@ namespace Dama.Organizer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Passed attribute cannot be found: {0}.
+        /// </summary>
+        public static string Attribute_NotFound {
+            get {
+                return ResourceManager.GetString("Attribute_NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Values cannot be empty!.
         /// </summary>
         public static string Deadline_EmptyDeadline {
