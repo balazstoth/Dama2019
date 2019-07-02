@@ -41,8 +41,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\AutomaticFill.cs" />
+    <Compile Include="Models\BestResultFirst.cs" />
+    <Compile Include="Models\BestResultLast.cs" />
+    <Compile Include="Models\FinalItem.cs" />
+    <Compile Include="Models\FlexibleItem.cs" />
+    <Compile Include="Models\FreeTime.cs" />
+    <Compile Include="Models\Generate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tree.cs" />
+    <Compile Include="Models\Tree.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Dama.Data\Dama.Data.csproj">
+      <Project>{0F30BC0D-4D81-4AE3-8CA5-547EE4752C25}</Project>
+      <Name>Dama.Data</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
