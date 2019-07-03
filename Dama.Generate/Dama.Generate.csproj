@@ -41,13 +41,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\AutomaticFill.cs" />
+    <Compile Include="AutomaticFill.cs" />
     <Compile Include="Models\BestResultFirst.cs" />
     <Compile Include="Models\BestResultLast.cs" />
     <Compile Include="Models\FinalItem.cs" />
     <Compile Include="Models\FlexibleItem.cs" />
-    <Compile Include="Models\FreeTime.cs" />
-    <Compile Include="Models\Generate.cs" />
+    <Compile Include="Models\FreeSlot.cs" />
+    <Compile Include="Generate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\Tree.cs" />
   </ItemGroup>

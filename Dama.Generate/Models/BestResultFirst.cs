@@ -7,7 +7,7 @@ namespace Dama.Generate
 {
     public class BestResultFirst
     {
-        public IEnumerable<IDefinedActivity> ResultList { get; set; }
+        public List<IDefinedActivity> ResultList { get; set; }
         public TimeSpan Break { get; set; }
         public TimeSpan CoverTime
         {
@@ -20,7 +20,7 @@ namespace Dama.Generate
         public BestResultFirst(IEnumerable<IDefinedActivity> results, TimeSpan breakValue)
         {
             Break = breakValue;
-            ResultList = results;
+            ResultList = results.ToList();
         }
 
         private TimeSpan GetCoverTime()

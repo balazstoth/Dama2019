@@ -6,7 +6,7 @@ namespace Dama.Generate
 {
     public class BestResultLast
     {
-        public IEnumerable<FlexibleItem> ResultList { get; set; }
+        public List<FlexibleItem> ResultList { get; set; }
         public TimeSpan Break { get; set; }
         public TimeSpan CoverTime
         {
@@ -19,7 +19,7 @@ namespace Dama.Generate
         public BestResultLast(IEnumerable<FlexibleItem> results, TimeSpan breakValue)
         {
             Break = breakValue;
-            ResultList = results;
+            ResultList = results.ToList();
         }
 
         private TimeSpan GetCoverTime()

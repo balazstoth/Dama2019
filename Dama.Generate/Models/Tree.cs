@@ -20,12 +20,14 @@ namespace Dama.Generate
             }
         }
 
+        public int Count => GetCount(RootItem);
+
         public Tree(int priority, T value)
         {
             RootItem = new Leaf<T>(priority, value);
-        } //OK
+        } 
 
-        int GetCount(Leaf<T> item)
+        private int GetCount(Leaf<T> item)
         {
             if (item.Leaves.Count == 0)
                 return 1;
@@ -36,9 +38,9 @@ namespace Dama.Generate
                 sum += GetCount(i);
 
             return sum + 1;
-        } //OK
+        } 
 
-        void ClearStatus(Leaf<T> leaf) //OK
+        private void ClearStatus(Leaf<T> leaf) 
         {
             leaf.IsChecked = false;
 

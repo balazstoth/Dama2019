@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Dama.Generate
 {
-    public class FreeTime
+    public class FreeSlot
     {
         private bool isFirst;
 
@@ -33,7 +33,7 @@ namespace Dama.Generate
         #endregion
 
         //Constructor
-        public FreeTime(DateTime start, DateTime end, TimeSpan breakValue, bool first = true)
+        public FreeSlot(DateTime start, DateTime end, TimeSpan breakValue, bool first = true)
         {
             isFirst = first;
             Start = start;

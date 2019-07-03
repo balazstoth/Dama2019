@@ -15,7 +15,7 @@ namespace Dama.Generate
         public DateTime TimeFrameStart { get; set; }
         public DateTime TimeFrameEnd { get; set; }
         public TimeSpan Break { get; set; }
-        public List<FreeTime> FreeTimeList { get; set; } 
+        public List<FreeSlot> FreeTimeList { get; set; } 
         #endregion
 
         public AutoFill(IEnumerable<FixedActivity> fixedActivities, IEnumerable<Activity> optionalActivities, DateTime start, DateTime end, TimeSpan timeSpan)
@@ -140,15 +140,15 @@ namespace Dama.Generate
             return !(first.End < second.Start);
         }
 
-        private List<FreeTime> GetFreeTimeList()
+        private List<FreeSlot> GetFreeTimeList()
         {
             if (SortedFixedActivities == null)
-                return new List<FreeTime>();
+                return new List<FreeSlot>();
 
             if (SortedFixedActivities.Count == 0)
-                return new List<FreeTime>() { new FreeTime(TimeFrameStart, TimeFrameEnd, Break) };
+                return new List<FreeSlot>() { new FreeSlot(TimeFrameStart, TimeFrameEnd, Break) };
 
-            List<FreeTime> freeTimeList = new List<FreeTime>();
+            List<FreeSlot> freeTimeList = new List<FreeSlot>();
             DateTime currentTime;
 
             if (SortedFixedActivities.First().Start > TimeFrameStart)
@@ -159,7 +159,7 @@ namespace Dama.Generate
             foreach (FixedActivity fixedActivity in SortedFixedActivities)
             {
                 if ((fixedActivity.Start - Break) > currentTime)
-                    freeTimeList.Add(new FreeTime(currentTime, fixedActivity.Start.GetValueOrDefault() - Break, Break));
+                    freeTimeList.Add(new FreeSlot(currentTime, fixedActivity.Start.GetValueOrDefault() - Break, Break));
 
                 currentTime = fixedActivity.End + Break;
 
@@ -168,7 +168,7 @@ namespace Dama.Generate
             }
 
             if (currentTime < TimeFrameEnd)
-                freeTimeList.Add(new FreeTime(currentTime, TimeFrameEnd, Break));
+                freeTimeList.Add(new FreeSlot(currentTime, TimeFrameEnd, Break));
 
             return freeTimeList;
         } 
