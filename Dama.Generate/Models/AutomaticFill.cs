@@ -35,7 +35,7 @@ namespace Dama.Generate
             _generate = new Generate(FreeTimeList, OptionalActivities, Break);
         }
 
-        private IEnumerable<FixedActivity> SortFixedActivities(IEnumerable<FixedActivity> fixedActivities)
+        private List<FixedActivity> SortFixedActivities(IEnumerable<FixedActivity> fixedActivities)
         {
             List<FixedActivity> resultList = new List<FixedActivity>();
             fixedActivities = fixedActivities.OrderBy(x => x.Start).ToList();
@@ -61,15 +61,12 @@ namespace Dama.Generate
             return resultList;
         }
 
-        private IEnumerable<FixedActivity> MergeItems(List<FixedActivity> resultList)
+        private List<FixedActivity> MergeItems(List<FixedActivity> resultList)
         {
             List<FixedActivity> mergedList = new List<FixedActivity>();
-            FixedActivity currentActivity;
 
-            for (int i = 0; i < resultList.Count(); i++)
+            foreach (var currentActivity in resultList)
             {
-                currentActivity = resultList[i];
-
                 if (mergedList.Count == 0 || mergedList.Last().End < currentActivity.Start)
                 {
                     var latest = GetLongestIntersection(currentActivity, resultList);
@@ -100,10 +97,8 @@ namespace Dama.Generate
         {
             FixedActivity latest = null;
 
-            for (int i = 0; i < list.Count; i++)
+            foreach (var currentItem in list)
             {
-                FixedActivity currentItem = list[i];
-
                 if (currentItem != fixedActivity && Intersect(fixedActivity, currentItem))
                 {
                     if (latest == null)
@@ -145,7 +140,7 @@ namespace Dama.Generate
             return !(first.End < second.Start);
         }
 
-        private IEnumerable<FreeTime> GetFreeTimeList()
+        private List<FreeTime> GetFreeTimeList()
         {
             if (SortedFixedActivities == null)
                 return new List<FreeTime>();
