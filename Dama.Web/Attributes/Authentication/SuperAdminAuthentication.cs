@@ -14,10 +14,10 @@ namespace Dama.Web.Attributes
     public class SuperAdminAuthentication : AuthorizeAttribute
     {
         private List<string> _acceptedRoles;
-        private RedirectToAction _redirectToAction;
+        private ActionNames _redirectToAction;
         private readonly string _authenticationError;
 
-        public SuperAdminAuthentication(RedirectToAction redirectToAction = RedirectToAction.AccessDenied, params string[] roles)
+        public SuperAdminAuthentication(ActionNames redirectToAction = ActionNames.AccessDenied, params string[] roles)
         {
             _redirectToAction = redirectToAction;
             _acceptedRoles = roles.ToList();

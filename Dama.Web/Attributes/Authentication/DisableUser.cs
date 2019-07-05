@@ -1,4 +1,5 @@
-﻿using Dama.Organizer.Enums;
+﻿using Dama.Data.Models;
+using Dama.Organizer.Enums;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -9,10 +10,10 @@ namespace Dama.Web.Attributes
     public class DisableUser : AuthorizeAttribute
     {
         private User _user;
-        private RedirectToAction _redirectToResult;
+        private ActionNames _redirectToResult;
         private ControllerNames _redirectToController;
 
-        public DisableUser(RedirectToAction redirectToAction = RedirectToAction.ForceLogoffUser, ControllerNames redirectToController = ControllerNames.Account)
+        public DisableUser(ActionNames redirectToAction = ActionNames.ForceLogoffUser, ControllerNames redirectToController = ControllerNames.Account)
         {
             _redirectToResult = redirectToAction;
             _redirectToController = redirectToController;

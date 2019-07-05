@@ -97,6 +97,15 @@ namespace Dama.Organizer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please clear cache first, then try this method again!.
+        /// </summary>
+        public static string ClearCache {
+            get {
+                return ResourceManager.GetString("ClearCache", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid username or password!.
         /// </summary>
         public static string InvalidData {

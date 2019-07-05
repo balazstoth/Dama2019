@@ -1,4 +1,5 @@
-﻿using Dama.Data.Interfaces;
+﻿using Dama.Data.Enums;
+using Dama.Data.Interfaces;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace Dama.Data.Models
         [DisplayName("Registered")]
         public DateTime DateOfRegistration { get; set; }
 
-        public List<Role> RolesCollection { get; set; }
+        public List<UserRole> RolesCollection { get; set; }
 
         public bool Blocked { get; set; }
         #endregion
@@ -41,7 +42,7 @@ namespace Dama.Data.Models
         {
             DateOfRegistration = DateTime.Now;
             Blocked = false;
-            RolesCollection = new List<Role>();
+            RolesCollection = new List<UserRole>();
         }
     }
 }

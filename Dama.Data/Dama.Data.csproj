@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums\RepeatPeriod.cs" />
+    <Compile Include="Enums\UserRoles.cs" />
     <Compile Include="Extensions\ActivityExtension.cs" />
     <Compile Include="Interfaces\IDefinedActivity.cs" />
     <Compile Include="Models\Activity\Activity.cs" />

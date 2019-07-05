@@ -129,6 +129,9 @@
   <data name="CategoryNotFound" xml:space="preserve">
     <value>Category not found in database!</value>
   </data>
+  <data name="ClearCache" xml:space="preserve">
+    <value>Please clear cache first, then try this method again!</value>
+  </data>
   <data name="InvalidData" xml:space="preserve">
     <value>Invalid username or password!</value>
   </data>

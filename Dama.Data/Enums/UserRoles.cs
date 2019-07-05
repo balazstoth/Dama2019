@@ -1,4 +1,4 @@
-﻿namespace Dama.Organizer.Enums
+﻿namespace Dama.Data.Enums
 {
     public enum UserRole
     {
