@@ -144,9 +144,9 @@ namespace Dama.Organizer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Cannot execute this method!.
         /// </summary>
-        public static string RestricOwnAccount {
+        public static string RestrictAccount {
             get {
-                return ResourceManager.GetString("RestricOwnAccount", resourceCulture);
+                return ResourceManager.GetString("RestrictAccount", resourceCulture);
             }
         }
         

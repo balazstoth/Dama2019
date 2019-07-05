@@ -144,7 +144,7 @@
   <data name="LabelNotFound" xml:space="preserve">
     <value>Label not found in database!</value>
   </data>
-  <data name="RestricOwnAccount" xml:space="preserve">
+  <data name="RestrictAccount" xml:space="preserve">
     <value>Cannot execute this method!</value>
   </data>
   <data name="SuperAdminCannotBeDeleted" xml:space="preserve">

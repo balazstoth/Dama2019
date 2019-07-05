@@ -159,6 +159,8 @@
     <Compile Include="Attributes\Validation\Priority.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Exception\ChangeOwnAccountException.cs" />
+    <Compile Include="Exception\InvalidIdException.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

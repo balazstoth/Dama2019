@@ -2,6 +2,7 @@
 using Dama.Data.Models;
 using Dama.Organizer.Extensions;
 using Dama.Web.Attributes;
+using Dama.Web.Exception;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
@@ -103,31 +104,23 @@ namespace Dama.Web.Controllers
         [SuperAdminAuthentication(roles: "Admin")]
         public async Task<ActionResult> Block(string id)
         {
-            if (string.IsNullOrEmpty(id))
+            User user;
+
+            try
             {
-                TempData[_invalidIdError] = ErrorMessage.InvalidUserID;
+                user = await UserValidation(id, false);
+            }
+            catch (InvalidIdException)
+            {
+                return RedirectToAction(_redirectToListUsers);
+            }
+            catch (ChangeOwnAccountException)
+            {
                 return RedirectToAction(_redirectToListUsers);
             }
 
-            var userId = User.Identity.GetUserId();
-
-            if (id == userId || !(await IsActionEnabledAsync(id)))
-            {
-                TempData[_executeError] = ErrorMessage.RestricOwnAccount;
-                return RedirectToAction(_redirectToListUsers);
-            }
-
-            var user = await UserManager.FindByIdAsync(id);
-
-            if (user != null)
-            {
-                user.Blocked = true;
-                await UserManager.UpdateAsync(user);
-            }
-            else
-            {
-                TempData[_invalidIdError] = ErrorMessage.InvalidUserID;
-            }
+            user.Blocked = true;
+            await UserManager.UpdateAsync(user);
 
             return RedirectToAction(_redirectToListUsers);
         }
@@ -136,22 +129,23 @@ namespace Dama.Web.Controllers
         [SuperAdminAuthentication(roles: "Admin")]
         public async Task<ActionResult> Unblock(string id)
         {
-            if (string.IsNullOrEmpty(id))
+            User user;
+
+            try
             {
-                TempData[_invalidIdError] = ErrorMessage.InvalidUserID;
+                user = await UserValidation(id, false);
+            }
+            catch (InvalidIdException)
+            {
+                return RedirectToAction(_redirectToListUsers);
+            }
+            catch (ChangeOwnAccountException)
+            {
+                return RedirectToAction(_redirectToListUsers);
             }
 
-            var user = await UserManager.FindByIdAsync(id);
-
-            if (user != null)
-            {
-                user.Blocked = false;
-                await UserManager.UpdateAsync(user);
-            }
-            else
-            {
-                TempData[_invalidIdError] = ErrorMessage.InvalidUserID;
-            }
+            user.Blocked = false;
+            await UserManager.UpdateAsync(user);
 
             return RedirectToAction(_redirectToListUsers);
         }
@@ -160,30 +154,22 @@ namespace Dama.Web.Controllers
         [SuperAdminAuthentication(roles: "Admin")]
         public async Task<ActionResult> Delete(string id)
         {
-            if (string.IsNullOrEmpty(id))
+            User user;
+
+            try
             {
-                TempData[_executeError] = ErrorMessage.RestricOwnAccount;
+                user = await UserValidation(id, true);
+            }
+            catch (InvalidIdException)
+            {
+                return RedirectToAction(_redirectToListUsers);
+            }
+            catch (ChangeOwnAccountException)
+            {
                 return RedirectToAction(_redirectToListUsers);
             }
 
-            var userId = User.Identity.GetUserId();
-
-            if (id == userId || !(await IsActionEnabledAsync(id)))
-            {
-                TempData[_executeError] = ErrorMessage.RestricOwnAccount;
-                return RedirectToAction(_redirectToListUsers);
-            }
-
-            var user = await UserManager.FindByIdAsync(id);
-
-            if (user != null)
-            {
-                await UserManager.DeleteAsync(user);
-            }
-            else
-            {
-                TempData[_invalidIdError] = ErrorMessage.InvalidUserID;
-            }
+            await UserManager.DeleteAsync(user);
 
             return RedirectToAction(_redirectToListUsers);
         }
@@ -191,27 +177,22 @@ namespace Dama.Web.Controllers
         [SuperAdminAuthentication(redirectToAction: ActionNames.ListUsersAsync)]
         public async Task<ActionResult> SetAdminRight(string id)
         {
-            if (string.IsNullOrEmpty(id))
+            User user;
+
+            try
             {
-                TempData[_invalidIdError] = ErrorMessage.InvalidUserID;
+                user = await UserValidation(id, false);
+            }
+            catch (InvalidIdException)
+            {
+                return RedirectToAction(_redirectToListUsers);
+            }
+            catch (ChangeOwnAccountException)
+            {
                 return RedirectToAction(_redirectToListUsers);
             }
 
-            if (id == User.Identity.GetUserId())
-            {
-                TempData[_executeError] = ErrorMessage.RestricOwnAccount;
-            }
-           
-            var user = await UserManager.FindByIdAsync(id);
-
-            if (user != null)
-            {
-                await UserManager.AddToRoleAsync(id, UserRole.Admin.ToString());
-            }
-            else
-            {
-                TempData[_invalidIdError] = ErrorMessage.InvalidUserID;
-            }
+            await UserManager.AddToRoleAsync(id, UserRole.Admin.ToString());
 
             return RedirectToAction(_redirectToListUsers);
         }
@@ -219,27 +200,22 @@ namespace Dama.Web.Controllers
         [SuperAdminAuthentication(redirectToAction: ActionNames.ListUsersAsync)]
         public async Task<ActionResult> RevokeAdminRight(string id)
         {
-           if (string.IsNullOrEmpty(id))
+            User user;
+
+            try
             {
-                TempData[_invalidIdError] = ErrorMessage.InvalidUserID;
+                user = await UserValidation(id, false);
+            }
+            catch (InvalidIdException)
+            {
+                return RedirectToAction(_redirectToListUsers);
+            }
+            catch (ChangeOwnAccountException)
+            {
                 return RedirectToAction(_redirectToListUsers);
             }
 
-            if (id == User.Identity.GetUserId())
-            {
-                TempData[_executeError] = ErrorMessage.RestricOwnAccount;
-            }
-           
-            var user = await UserManager.FindByIdAsync(id);
-
-            if (user != null)
-            {
-                await UserManager.RemoveFromRoleAsync(id, UserRole.Admin.ToString());
-            }
-            else
-            {
-                TempData[_invalidIdError] = ErrorMessage.InvalidUserID;
-            }
+            await UserManager.RemoveFromRoleAsync(id, UserRole.Admin.ToString());
 
             return RedirectToAction(_redirectToListUsers);
         }
@@ -427,6 +403,31 @@ namespace Dama.Web.Controllers
         {
             AuthenticationManager.SignOut();
             return RedirectToAction(_defaultAction, _defaultController);
+        }
+
+        private async Task<User> UserValidation(string id, bool authorize)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                TempData[_invalidIdError] = ErrorMessage.InvalidUserID;
+                throw new InvalidIdException(nameof(id));
+            }
+
+            if (id == User.Identity.GetUserId() || (authorize && !(await IsActionEnabledAsync(id))))
+            {
+                TempData[_executeError] = ErrorMessage.RestrictAccount;
+                throw new ChangeOwnAccountException("Cannot change your own account!");
+            }
+
+            var user = await UserManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                TempData[_invalidIdError] = ErrorMessage.InvalidUserID;
+                throw new InvalidIdException(nameof(id));
+            }
+
+            return user;
         }
     }
 }
