@@ -3,6 +3,7 @@ using Dama.Data.Models;
 using Dama.Organizer.Extensions;
 using Dama.Web.Attributes;
 using Dama.Web.Exception;
+using Dama.Web.Models.ViewModels.Account;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
@@ -251,7 +252,7 @@ namespace Dama.Web.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Login(LogInViewModel model)
+        public async Task<ActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -290,7 +291,7 @@ namespace Dama.Web.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Register(RegisterViewModel model)
+        public async Task<ActionResult> Register(RegistrationViewModel model)
         {
             var redirectToAction = ActionNames.Register.ToString();
             var redirectToController = ControllerNames.Account.ToString();
