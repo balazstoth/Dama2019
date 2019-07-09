@@ -14,7 +14,7 @@ namespace Dama.Web.Models.ViewModels.Category
         private const int maxNameLength = 30;
         private const int maxDescriptionLength = 50;
 
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Required]
         [MinLength(minNameLength, ErrorMessage = "Minimum name length: {0} characters")]

@@ -7,6 +7,8 @@
         ListUsersAsync,
         Register,
         Index,
-        Manage
+        Manage,
+        ManageCategories,
+        ManageLabels
     }
 }
