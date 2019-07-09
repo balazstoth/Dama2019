@@ -1,5 +1,6 @@
 ﻿using Dama.Data.Enums;
 using Dama.Data.Models;
+using Dama.Data.Sql.Repositories;
 using Dama.Organizer.Extensions;
 using Dama.Web.Attributes;
 using Dama.Web.Exception;
@@ -7,7 +8,6 @@ using Dama.Web.Models.ViewModels.Account;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,15 +32,19 @@ namespace Dama.Web.Controllers
         private readonly string _redirectToListUsers;
         private readonly string _defaultAction;
         private readonly string _defaultController;
+        //private readonly IAuthenticationManager _authenticationManager;
+        private readonly UserSqlRepository _userSqlRepository;
 
         public UserManager<User> UserManager { get; private set; }
-        public UserStore<User> UserStore { get; private set; }
-        public IAuthenticationManager AuthenticationManager
-        {
-            get { return HttpContext.GetOwinContext().Authentication; }
-        }
 
-        public AccountController()
+        public UserStore<User> UserStore { get; private set; }
+
+        //public IAuthenticationManager AuthenticationManager
+        //{
+        //    get { return _authenticationManager; }
+        //}
+
+        public AccountController(UserSqlRepository userSqlRepository)
         {
             _defaultAction = ActionNames.Index.ToString();
             _defaultController = ControllerNames.Home.ToString();
@@ -49,9 +53,9 @@ namespace Dama.Web.Controllers
             _redirectToListUsers = ActionNames.ListUsersAsync.ToString();
             _superAdmin = "superAdmin";
 
-            Database db = new Database();
-            UserStore = new UserStore<User>(db);
-            UserManager = new UserManager<User>(UserStore);
+            _userSqlRepository = userSqlRepository;
+            //UserStore = new UserStore<User>(db);
+            //UserManager = new UserManager<User>(UserStore);
         }
 
         [DisableUser]
@@ -87,7 +91,6 @@ namespace Dama.Web.Controllers
         [AllowAnonymous]
         public ActionResult Login()
         {
-            //if(Session["UserID"] != null) --> Sessions can be used!
             if (User.Identity.IsAuthenticated)
                 return RedirectToAction("_defaultAction", "_defaultController");
 
@@ -96,9 +99,9 @@ namespace Dama.Web.Controllers
 
         private async Task SignInAsync(User user, bool remember)
         {
-            AuthenticationManager.SignOut();
+            _authenticationManager.SignOut();
             var id = await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);
-            AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = remember }, id);
+            _authenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = remember }, id);
         }
 
         [DisableUser]
@@ -356,7 +359,7 @@ namespace Dama.Web.Controllers
                         foreach (var error in result.Errors)
                             ModelState.AddModelError("", error);
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     ModelState.AddModelError("", ErrorMessage.ClearCache);
                 }
@@ -379,7 +382,7 @@ namespace Dama.Web.Controllers
                     return RedirectToAction(ActionNames.Manage.ToString(), new { Message = AccountMessage.CannotDeleteSuperAdmin.ToString() });
 
                 await UserManager.DeleteAsync(user);
-                AuthenticationManager.SignOut();
+                _authenticationManager.SignOut();
 
                 return RedirectToAction(_defaultAction, _defaultController);
             }
@@ -395,14 +398,14 @@ namespace Dama.Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
-            AuthenticationManager.SignOut();
+            _authenticationManager.SignOut();
             return RedirectToAction(_defaultAction, _defaultController);
         }
 
         //Get method for attribute
         public ActionResult ForceLogoffUser()
         {
-            AuthenticationManager.SignOut();
+            _authenticationManager.SignOut();
             return RedirectToAction(_defaultAction, _defaultController);
         }
 

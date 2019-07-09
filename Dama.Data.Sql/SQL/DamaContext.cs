@@ -1,9 +1,10 @@
 ﻿using Dama.Data.Models;
+using Microsoft.AspNet.Identity.EntityFramework;
 using System.Data.Entity;
 
 namespace Dama.Data.Sql.SQL
 {
-    class DamaContext : DbContext
+    class DamaContext : IdentityDbContext<User>
     {
         SqlConfiguration _config;
 
@@ -20,7 +21,5 @@ namespace Dama.Data.Sql.SQL
         public DbSet<Label> Labels { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Milestone> Milestones { get; set; }
-
-        //public DbSet<CalendarSystem> Calendar { get; set; }
     }
 }
