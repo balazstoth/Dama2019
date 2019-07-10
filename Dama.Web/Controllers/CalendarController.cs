@@ -26,11 +26,11 @@ namespace Dama.Web.Controllers
         private UserManager<User> _userManager;
         private List<SelectListItem> _colors;
         private readonly string[] _availableColors;
-        private readonly IRepositoryInjection _repositories;
+        private readonly IContentRepository _repositories;
 
-        public CalendarController(IRepositoryInjection repositoryInjection)
+        public CalendarController(IContentRepository contentRepository)
         {
-            _repositories = repositoryInjection;
+            _repositories = contentRepository;
             _userManager = new UserManager<User>(new UserStore<User>(new DamaContext(new SqlConfiguration())));
             _colors = new List<SelectListItem>();
             _availableColors = Enum.GetValues(typeof(Color)).Cast<string>().ToArray();

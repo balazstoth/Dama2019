@@ -65,7 +65,9 @@
     <Compile Include="Enums\UserRoles.cs" />
     <Compile Include="Extensions\ActivityExtension.cs" />
     <Compile Include="Interfaces\IDefinedActivity.cs" />
-    <Compile Include="Interfaces\IRepositoryInjection.cs" />
+    <Compile Include="Interfaces\IContentRepository.cs" />
+    <Compile Include="Interfaces\IEntity.cs" />
+    <Compile Include="Interfaces\IUserRepository.cs" />
     <Compile Include="Models\Activity\Activity.cs" />
     <Compile Include="Models\Activity\ActivityBuilder.cs" />
     <Compile Include="Models\Calendar.cs" />

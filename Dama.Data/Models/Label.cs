@@ -1,7 +1,8 @@
-﻿
+﻿using Dama.Data.Interfaces;
+
 namespace Dama.Data.Models
 {
-    public class Label
+    public class Label : IEntity
     {
         public int Id { get; set; }
         public string Name { get; set; }

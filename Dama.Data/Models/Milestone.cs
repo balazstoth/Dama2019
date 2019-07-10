@@ -3,7 +3,7 @@ using System;
 
 namespace Dama.Data.Models
 {
-    public class Milestone
+    public class Milestone : IEntity
     {
         public int Id { get; set; }
         public string Name { get; set; }

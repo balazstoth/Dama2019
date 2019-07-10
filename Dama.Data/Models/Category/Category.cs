@@ -1,8 +1,9 @@
 ﻿using Dama.Data.Enums;
+using Dama.Data.Interfaces;
 
 namespace Dama.Data.Models
 {
-    public class Category
+    public class Category : IEntity
     {
         public int Id { get; set; }
 

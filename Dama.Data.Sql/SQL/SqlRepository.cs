@@ -7,7 +7,7 @@ using Dama.Data.Interfaces;
 
 namespace Dama.Data.Sql.SQL
 {
-    public class SqlRepository<T> : IRepository<T> where T: class
+    public class SqlRepository<T> : IRepository<T> where T : class, IEntity
     {
         private readonly SqlConfiguration _config;
 
@@ -47,7 +47,7 @@ namespace Dama.Data.Sql.SQL
         {
             using (var context = new DamaContext(_config))
             {
-                T value = GetEntityById(oldValue.Id);
+                T value = GetEntityById(oldValue.Id.ToString());
                 value = newValue;
                 await context.SaveChangesAsync();
             }
@@ -69,11 +69,11 @@ namespace Dama.Data.Sql.SQL
             }
         }
 
-        public T GetEntityById(int id)
+        public T GetEntityById(string id)
         {
             using (var context = new DamaContext(_config))
             {
-                return context.Set<T>().Where(item => item.Id == id).SingleOrDefault();
+                return context.Set<T>().Where(item => item.Id == int.Parse(id)).SingleOrDefault();
             }
         }
 

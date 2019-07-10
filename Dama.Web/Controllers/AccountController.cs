@@ -34,7 +34,7 @@ namespace Dama.Web.Controllers
         private readonly string _redirectToListUsers;
         private readonly string _defaultAction;
         private readonly string _defaultController;
-        private readonly IRepositoryInjection _repositories;
+        private readonly IUserRepository _userRepository;
 
         public UserManager<User> UserManager { get; private set; }
 
@@ -45,7 +45,7 @@ namespace Dama.Web.Controllers
             get { return HttpContext.GetOwinContext().Authentication; }
         }
 
-        public AccountController(IRepositoryInjection repositories)
+        public AccountController(IUserRepository userRepository)
         {
             _defaultAction = ActionNames.Index.ToString();
             _defaultController = ControllerNames.Home.ToString();
@@ -54,7 +54,7 @@ namespace Dama.Web.Controllers
             _redirectToListUsers = ActionNames.ListUsersAsync.ToString();
             _superAdmin = "superAdmin";
 
-            _repositories = repositories;
+            _userRepository = userRepository;
             UserStore = new UserStore<User>(new DamaContext(new SqlConfiguration() {  DatabaseName = "DamaDb" }));
             UserManager = new UserManager<User>(UserStore);
         }
@@ -67,7 +67,7 @@ namespace Dama.Web.Controllers
             ViewBag.InvalidID = TempData[_invalidIdError];
             ViewBag.AccessDenied = TempData[_accessDeniedError];
 
-            IEnumerable<User> users = _repositories.UserSqlRepository.GetAllEntitites();
+            IEnumerable<User> users = _userRepository.UserSqlRepository.GetAllEntitites();
 
             foreach (var user in users)
                 user.RolesCollection = await GetUserRolesAsync(user);
@@ -223,8 +223,8 @@ namespace Dama.Web.Controllers
             User currentUser, targetUser;
             var currentUserId = User.Identity.GetUserId();
 
-            currentUser = _repositories.UserSqlRepository.FindByPredicate(u => u.Id == currentUserId).FirstOrDefault();
-            targetUser = _repositories.UserSqlRepository.FindByPredicate(u => u.Id == tartgetId).FirstOrDefault();
+            currentUser = _userRepository.UserSqlRepository.FindByPredicate(u => u.Id == currentUserId).FirstOrDefault();
+            targetUser = _userRepository.UserSqlRepository.FindByPredicate(u => u.Id == tartgetId).FirstOrDefault();
 
             if (currentUser == null || targetUser == null)
                 return false;

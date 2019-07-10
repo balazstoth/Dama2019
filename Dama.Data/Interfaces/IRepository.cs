@@ -15,7 +15,7 @@ namespace Dama.Data.Interfaces
 
         Task UpdateAsync(T oldValue, T newValue);
 
-        T GetEntityById(int id);
+        T GetEntityById(string id);
 
         Task<T> FindAsync(object value);
 

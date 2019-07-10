@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Dama.Data.Models
 {
-    public abstract class Activity : IActivity
+    public abstract class Activity : IActivity, IEntity
     {
         #region Properties
         public int Id { get; set; }

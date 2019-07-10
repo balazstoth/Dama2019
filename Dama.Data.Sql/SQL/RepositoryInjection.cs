@@ -3,10 +3,8 @@ using Dama.Data.Models;
 
 namespace Dama.Data.Sql.SQL
 {
-    public class RepositoryInjection : IRepositoryInjection
+    public class ContentRepository : IContentRepository
     {
-        public IRepository<User> UserSqlRepository { get; set; }
-
         public IRepository<FixedActivity> FixedActivitySqlRepository { get; set; }
 
         public IRepository<UnfixedActivity> UnfixedActivitySqlRepository { get; set; }

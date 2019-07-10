@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Dama.Data.Interfaces;
+using System;
 
 namespace Dama.Data.Models
 {
-    public class Calendar
+    public class Calendar : IEntity
     {
         public int Id { get; set; }
 

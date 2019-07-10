@@ -2,10 +2,8 @@
 
 namespace Dama.Data.Interfaces
 {
-    public interface IRepositoryInjection
+    public interface IContentRepository
     {
-        IRepository<User> UserSqlRepository { get; set; }
-
         IRepository<FixedActivity> FixedActivitySqlRepository { get; set; }
 
         IRepository<UnfixedActivity> UnfixedActivitySqlRepository { get; set; }

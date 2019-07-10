@@ -1,9 +1,10 @@
 ﻿using Dama.Data.Enums;
+using Dama.Data.Interfaces;
 using System;
 
 namespace Dama.Data.Models
 {
-    public class Repeat
+    public class Repeat : IEntity
     {
         public int Id { get; set; }
         public RepeatPeriod RepeatPeriod { get; set; }
