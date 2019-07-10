@@ -1,15 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace Dama.Data.Interfaces
 {
     public interface IRepository<T> where T : IEntity
     {
-        void Add(T item);
-        void Delete(T item);
-        void Update(T oldValue, T newValue);
+        Task AddAsync(T item);
+
+        Task DeleteAsync(T item);
+
+        Task UpdateAsync(T oldValue, T newValue);
+
         T GetEntityById(string id);
-        IEnumerable<T> Find(Expression<Func<T, bool>> predicate);
+
+        Task<T> FindAsync(object value);
+
+        IEnumerable<T> FindByPredicate(Expression<Func<T, bool>> predicate);
+
+        IEnumerable<T> GetAllEntitites();
     }
 }

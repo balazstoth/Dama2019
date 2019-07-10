@@ -1,6 +1,8 @@
 ﻿using Dama.Data.Enums;
+using Dama.Data.Interfaces;
 using Dama.Data.Models;
 using Dama.Data.Sql.Repositories;
+using Dama.Data.Sql.SQL;
 using Dama.Organizer.Extensions;
 using Dama.Web.Attributes;
 using Dama.Web.Exception;
@@ -32,19 +34,18 @@ namespace Dama.Web.Controllers
         private readonly string _redirectToListUsers;
         private readonly string _defaultAction;
         private readonly string _defaultController;
-        //private readonly IAuthenticationManager _authenticationManager;
-        private readonly UserSqlRepository _userSqlRepository;
+        private readonly IRepositoryInjection _repositories;
 
         public UserManager<User> UserManager { get; private set; }
 
         public UserStore<User> UserStore { get; private set; }
 
-        //public IAuthenticationManager AuthenticationManager
-        //{
-        //    get { return _authenticationManager; }
-        //}
+        public IAuthenticationManager AuthenticationManager
+        {
+            get { return HttpContext.GetOwinContext().Authentication; }
+        }
 
-        public AccountController(UserSqlRepository userSqlRepository)
+        public AccountController(IRepositoryInjection repositories)
         {
             _defaultAction = ActionNames.Index.ToString();
             _defaultController = ControllerNames.Home.ToString();
@@ -53,9 +54,9 @@ namespace Dama.Web.Controllers
             _redirectToListUsers = ActionNames.ListUsersAsync.ToString();
             _superAdmin = "superAdmin";
 
-            _userSqlRepository = userSqlRepository;
-            //UserStore = new UserStore<User>(db);
-            //UserManager = new UserManager<User>(UserStore);
+            _repositories = repositories;
+            UserStore = new UserStore<User>(new DamaContext(new SqlConfiguration() {  DatabaseName = "DamaDb" }));
+            UserManager = new UserManager<User>(UserStore);
         }
 
         [DisableUser]
@@ -66,17 +67,10 @@ namespace Dama.Web.Controllers
             ViewBag.InvalidID = TempData[_invalidIdError];
             ViewBag.AccessDenied = TempData[_accessDeniedError];
 
-            IEnumerable<User> users;
+            IEnumerable<User> users = _repositories.UserSqlRepository.GetAllEntitites();
 
-            using (Database dbc = new Database())
-            {
-                users = dbc.Users.ToList();
-
-                foreach (var user in users)
-                {
-                    user.RolesCollection = await GetUserRolesAsync(user);
-                }
-            }
+            foreach (var user in users)
+                user.RolesCollection = await GetUserRolesAsync(user);
 
             return View(users);
         }
@@ -92,16 +86,16 @@ namespace Dama.Web.Controllers
         public ActionResult Login()
         {
             if (User.Identity.IsAuthenticated)
-                return RedirectToAction("_defaultAction", "_defaultController");
+                return RedirectToAction(_defaultAction, _defaultController);
 
             return View();
         }
 
         private async Task SignInAsync(User user, bool remember)
         {
-            _authenticationManager.SignOut();
+            AuthenticationManager.SignOut();
             var id = await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);
-            _authenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = remember }, id);
+            AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = remember }, id);
         }
 
         [DisableUser]
@@ -229,21 +223,14 @@ namespace Dama.Web.Controllers
             User currentUser, targetUser;
             var currentUserId = User.Identity.GetUserId();
 
-            using (Database dbc = new Database())
-            {
-                currentUser = dbc.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
-                targetUser = dbc.Users.Where(u => u.Id == tartgetId).FirstOrDefault();
+            currentUser = _repositories.UserSqlRepository.FindByPredicate(u => u.Id == currentUserId).FirstOrDefault();
+            targetUser = _repositories.UserSqlRepository.FindByPredicate(u => u.Id == tartgetId).FirstOrDefault();
 
-                if (currentUser != null && targetUser != null)
-                {
-                    currentUser.RolesCollection = await GetUserRolesAsync(currentUser);
-                    targetUser.RolesCollection = await GetUserRolesAsync(targetUser);
-                }
-                else
-                {
-                    return false;
-                }
-            }
+            if (currentUser == null || targetUser == null)
+                return false;
+
+            currentUser.RolesCollection = await GetUserRolesAsync(currentUser);
+            targetUser.RolesCollection = await GetUserRolesAsync(targetUser);
 
             var currentUserHighestRole = currentUser.RolesCollection.Select(r => (int)r).ToList().Max();
             var tartgetUserHighestRole = targetUser.RolesCollection.Select(r => (int)r).Max();
@@ -382,7 +369,7 @@ namespace Dama.Web.Controllers
                     return RedirectToAction(ActionNames.Manage.ToString(), new { Message = AccountMessage.CannotDeleteSuperAdmin.ToString() });
 
                 await UserManager.DeleteAsync(user);
-                _authenticationManager.SignOut();
+                AuthenticationManager.SignOut();
 
                 return RedirectToAction(_defaultAction, _defaultController);
             }
@@ -398,14 +385,14 @@ namespace Dama.Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
-            _authenticationManager.SignOut();
+            AuthenticationManager.SignOut();
             return RedirectToAction(_defaultAction, _defaultController);
         }
 
         //Get method for attribute
         public ActionResult ForceLogoffUser()
         {
-            _authenticationManager.SignOut();
+            AuthenticationManager.SignOut();
             return RedirectToAction(_defaultAction, _defaultController);
         }
 

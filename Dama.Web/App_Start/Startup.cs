@@ -1,5 +1,6 @@
 ﻿using Dama.Data.Enums;
 using Dama.Data.Models;
+using Dama.Data.Sql.SQL;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin;
@@ -30,48 +31,49 @@ namespace Dama.Web.App_Start
 
         private void Initialize()
         {
-            Database db = new Database();
-
-            var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(db));
-            var userManager = new UserManager<User>(new UserStore<User>(db));
-
-            if (!roleManager.RoleExists("SuperAdmin"))
+            using (var context = new DamaContext(new SqlConfiguration()))
             {
-                var newRole = new IdentityRole();
-                newRole.Name = "SuperAdmin";
-                roleManager.Create(newRole);
-            }
+                var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
+                var userManager = new UserManager<User>(new UserStore<User>(context));
 
-            if (!roleManager.RoleExists("Admin"))
-            {
-                var newRole = new IdentityRole();
-                newRole.Name = "Admin";
-                roleManager.Create(newRole);
-            }
+                if (!roleManager.RoleExists("SuperAdmin"))
+                {
+                    var newRole = new IdentityRole();
+                    newRole.Name = "SuperAdmin";
+                    roleManager.Create(newRole);
+                }
 
-            if (!roleManager.RoleExists("SimpleUser"))
-            {
-                var newRole = new IdentityRole();
-                newRole.Name = "SimpleUser";
-                roleManager.Create(newRole);
-            }
+                if (!roleManager.RoleExists("Admin"))
+                {
+                    var newRole = new IdentityRole();
+                    newRole.Name = "Admin";
+                    roleManager.Create(newRole);
+                }
 
-            var superAdmin = new User()
-            {
-                UserName = "superAdmin",
-                Password = "superAdmin",
-                Email = "superadmin@dama.com",
-                FirstName = "Super",
-                LastName = "Admin",
-            };
+                if (!roleManager.RoleExists("SimpleUser"))
+                {
+                    var newRole = new IdentityRole();
+                    newRole.Name = "SimpleUser";
+                    roleManager.Create(newRole);
+                }
 
-            var result = userManager.Create(superAdmin, superAdmin.Password);
+                var superAdmin = new User()
+                {
+                    UserName = "superAdmin",
+                    Password = "superAdmin",
+                    Email = "superadmin@dama.com",
+                    FirstName = "Super",
+                    LastName = "Admin",
+                };
 
-            if (result.Succeeded)
-            {
-                userManager.AddToRole(superAdmin.Id, UserRole.SuperAdmin.ToString());
-                userManager.AddToRole(superAdmin.Id, UserRole.Admin.ToString());
-                userManager.AddToRole(superAdmin.Id, UserRole.SimpleUser.ToString());
+                var result = userManager.Create(superAdmin, superAdmin.Password);
+
+                if (result.Succeeded)
+                {
+                    userManager.AddToRole(superAdmin.Id, UserRole.SuperAdmin.ToString());
+                    userManager.AddToRole(superAdmin.Id, UserRole.Admin.ToString());
+                    userManager.AddToRole(superAdmin.Id, UserRole.SimpleUser.ToString());
+                }
             }
         }
     }

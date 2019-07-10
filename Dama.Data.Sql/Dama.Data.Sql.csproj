@@ -79,12 +79,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Services\UserService.cs" />
+    <Compile Include="Repositories\CategorySqlRepository.cs" />
+    <Compile Include="Repositories\DeadlineActivitySqlRepository.cs" />
+    <Compile Include="Repositories\FixedActivitySqlRepository.cs" />
+    <Compile Include="Repositories\LabelSqlRepository.cs" />
+    <Compile Include="Repositories\MilestoneSqlRepository.cs" />
+    <Compile Include="Repositories\UndefinedActivitySqlRepository.cs" />
+    <Compile Include="Repositories\UnfixedActivitySqlRepository.cs" />
     <Compile Include="SQL\DamaContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SQL\RepositoryInjection.cs" />
     <Compile Include="SQL\SqlConfiguration.cs" />
     <Compile Include="SQL\SqlRepository.cs" />
-    <Compile Include="Repositories\UserRepository.cs" />
+    <Compile Include="Repositories\UserSqlRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -4,7 +4,7 @@ using System.Data.Entity;
 
 namespace Dama.Data.Sql.SQL
 {
-    class DamaContext : IdentityDbContext<User>
+    public class DamaContext : IdentityDbContext<User>
     {
         SqlConfiguration _config;
 

@@ -1,5 +1,8 @@
 ﻿using Dama.Data.Enums;
+using Dama.Data.Interfaces;
 using Dama.Data.Models;
+using Dama.Data.Sql.Repositories;
+using Dama.Data.Sql.SQL;
 using Dama.Organizer.Enums;
 using Dama.Organizer.Resources;
 using Dama.Web.Attributes;
@@ -23,10 +26,12 @@ namespace Dama.Web.Controllers
         private UserManager<User> _userManager;
         private List<SelectListItem> _colors;
         private readonly string[] _availableColors;
+        private readonly IRepositoryInjection _repositories;
 
-        public CalendarController()
+        public CalendarController(IRepositoryInjection repositoryInjection)
         {
-            _userManager = new UserManager<User>(new UserStore<User>(new DamaDB()));
+            _repositories = repositoryInjection;
+            _userManager = new UserManager<User>(new UserStore<User>(new DamaContext(new SqlConfiguration())));
             _colors = new List<SelectListItem>();
             _availableColors = Enum.GetValues(typeof(Color)).Cast<string>().ToArray();
             _colors = _availableColors.Select(c => new SelectListItem() { Text = c.ToString() }).ToList();
@@ -41,13 +46,9 @@ namespace Dama.Web.Controllers
 
         public JsonResult GetActivities() //TODO: implement correctly
         {
-            string CurrentUserID = User.Identity.GetUserId();
-            using (DamaDB db = new DamaDB())
-            {
-                List<FixedActivity> fixedActivities = db.FixedActivities.Where(x => x.UserID == CurrentUserID).ToList();
-                JsonResult jres = new JsonResult { Data = fixedActivities, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                return jres;
-            }
+            var fixedActivities = _repositories.FixedActivitySqlRepository.FindByPredicate(x => x.UserId == UserId).ToList();
+            JsonResult jsonResult = new JsonResult { Data = fixedActivities, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            return jsonResult;
         }
 
         #region Category
@@ -57,55 +58,39 @@ namespace Dama.Web.Controllers
             return View(viewModel);
         }
 
-        public async Task<ActionResult> ManageCategories()
+        public ActionResult ManageCategories()
         {
-            List<Category> categories = new List<Category>();
-
-            using (Database db = new Database())
-            {
-                categories = await db.Categories.Where(x => x.UserID == UserId).ToListAsync();
-            }
-
+            var categories = _repositories.CategorySqlRepository.FindByPredicate(x => x.UserId == UserId);
             return View(categories);
         }
 
         public async Task<ActionResult> DeleteCategory(string categoryId)
         {
-            using (DamaDB db = new DamaDB())
+            var selectedCategory = await _repositories.CategorySqlRepository.FindAsync(categoryId);
+
+            if (selectedCategory == null)
             {
-                var selectedCategory = await db.Categories.FindAsync(int.Parse(categoryId));
-
-                if (selectedCategory == null)
-                {
-                    ViewBag.CategoryNotFoundError = Error.CategoryNotFound;
-                }
-                else
-                {
-                    RemoveCategoryFromActivities(selectedCategory.ID);
-                    db.Categories.Remove(selectedCategory);
-                    await db.SaveChangesAsync();
-
-                    ViewBag.CategoryRemovedSuccessFully = Success.CategoryRemovedSuccessfully;
-                }
+                ViewBag.CategoryNotFoundError = Error.CategoryNotFound;
+            }
+            else
+            {
+                RemoveCategoryFromDataTables(selectedCategory.Id);
+                await _repositories.CategorySqlRepository.DeleteAsync(selectedCategory);
+                ViewBag.CategoryRemovedSuccessFully = Success.CategoryRemovedSuccessfully;
             }
 
             return RedirectToAction(ActionNames.ManageCategories.ToString());
         }
 
-        private void RemoveCategoryFromDataTables(int categoryId)
+        private void RemoveCategoryFromDataTables(string categoryId)
         {
-            using (DamaDB db = new DamaDB())
-            {
-                RemoveCategoryFromTable(db.FixedActivities, categoryId);
-                RemoveCategoryFromTable(db.UnFixedActivities, categoryId);
-                RemoveCategoryFromTable(db.UndefinedActivities, categoryId);
-                RemoveCategoryFromTable(db.DeadLineActivities, categoryId);
-               
-                db.SaveChanges();
-            }
+            RemoveCategoryFromTable(_repositories.FixedActivitySqlRepository, categoryId);
+            RemoveCategoryFromTable(db.UnFixedActivities, categoryId);
+            RemoveCategoryFromTable(db.UndefinedActivities, categoryId);
+            RemoveCategoryFromTable(db.DeadLineActivities, categoryId);
         }
 
-        private void RemoveCategoryFromTable(DbSet<Activity> table, int categoryId)
+        private void RemoveCategoryFromTable(DbSet<Activity> table, string categoryId)
         {
             foreach (var record in table.Include(r => r.Category).ToList())
                 if (record.Category != null && record.Category.Id.Equals(categoryId))
@@ -127,22 +112,17 @@ namespace Dama.Web.Controllers
                     UserId = UserId
                 };
 
-                using (DamaDB db = new DamaDB())
+                var categoryAlreadyExists = _repositories.CategorySqlRepository
+                                                         .FindByPredicate(c => c.UserId == newCategory.UserId && c.Name == newCategory.Name)
+                                                         .Any();
+                if (categoryAlreadyExists)
                 {
-                    var categoryAlreadyExists = await db.Categories
-                                                        .Where(c => c.UserID == newCategory.UserId)
-                                                        .Where(c => c.Name == newCategory.Name)
-                                                        .Any();
-                    if (categoryAlreadyExists)
-                    {
-                        ViewBag.CategoryAlreadyExists = Error.CategoryAlreadyExists;
-                    }
-                    else
-                    {
-                        db.Categories.Add(newCategory);
-                        await db.SaveChangesAsync();
-                        ViewBag.CategoryCreatedSuccessFully = Success.CategoryCreatedSuccessfully;
-                    }
+                    ViewBag.CategoryAlreadyExists = Error.CategoryAlreadyExists;
+                }
+                else
+                {
+                    await _repositories.CategorySqlRepository.AddAsync(newCategory);
+                    ViewBag.CategoryCreatedSuccessFully = Success.CategoryCreatedSuccessfully;
                 }
             }
 
@@ -155,10 +135,7 @@ namespace Dama.Web.Controllers
             Category category;
             EditCategoryViewModel viewModel = null;
 
-            using (DamaDB db = new DamaDB())
-            {
-                category = await db.Categories.FindAsync(int.Parse(categoryId));
-            }
+            category = await _repositories.CategorySqlRepository.FindAsync(categoryId);
 
             if (category != null)
             {
@@ -179,37 +156,34 @@ namespace Dama.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> EditCategory(EditCategoryViewModel vm)
+        public async Task<ActionResult> EditCategory(EditCategoryViewModel viewModel)
         {
-            string userid = User.Identity.GetUserId();
-            int currentID = vm.ID;
+            var currentId = viewModel.Id;
+
             if (ModelState.IsValid)
             {
-                using (DamaDB db = new DamaDB())
-                {
-                    List<Category> allCategories = await db.Categories.Where(x => x.UserID == userid).ToListAsync();
-                    foreach (Category i in allCategories)
-                    {
-                        if (i.Name == vm.Name && i.ID != vm.ID)
-                        {
-                            ViewBag.CategoryAlreadyExists = Messages.CategoryAlreadyExists;
-                            vm.Color = _colors;
-                            return View(vm);
-                        }
-                    }
+                var categories = _repositories.CategorySqlRepository.FindByPredicate(c => c.UserId == UserId).ToList();
 
-                    Category current = await db.Categories.FindAsync(currentID);
-                    current.Name = vm.Name;
-                    current.Description = vm.Description;
-                    current.Priority = vm.Priority;
-                    current.Color = vm.SelectedColor;
-                    await db.SaveChangesAsync();
+                foreach (var category in categories)
+                {
+                    if (category.Name == viewModel.Name && category.Id != viewModel.Id)
+                    {
+                        ViewBag.CategoryAlreadyExists = Error.CategoryAlreadyExists;
+                        viewModel.Color = _colors;
+                        return View(viewModel);
+                    }
                 }
-                ViewBag.CategoryChangesSuccessfully = Messages.CategoryChangesSuccessfully;
+
+                var currentCategory = await _repositories.CategorySqlRepository.FindAsync(currentId);
+                currentCategory.Name = viewModel.Name;
+                currentCategory.Description = viewModel.Description;
+                currentCategory.Priority = viewModel.Priority;
+                currentCategory.Color = (Color)Enum.Parse(typeof(Color), viewModel.SelectedColor);
+                ViewBag.CategoryChangesSuccessfully = Success.CategoryChangesSuccessfully;
             }
 
-            vm.Color = _colors;
-            return View(vm);
+            viewModel.Color = _colors;
+            return View(viewModel);
         }
         #endregion
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Dama.Data.Interfaces;
 
 namespace Dama.Data.Sql.SQL
@@ -15,39 +16,47 @@ namespace Dama.Data.Sql.SQL
             _config = config;
         }
 
-        public void Add(T item)
+        public async Task AddAsync(T item)
         {
             using (var context = new DamaContext(_config))
             {
                 context.Set<T>().Add(item);
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
 
-        public void Delete(T item)
+        public async Task DeleteAsync(T item)
         {
             using (var context = new DamaContext(_config))
             {
                 context.Set<T>().Remove(item);
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
 
-        public void Update(T oldValue, T newValue)
+        public async Task UpdateAsync(T oldValue, T newValue)
         {
             using (var context = new DamaContext(_config))
             {
                 T value = GetEntityById(oldValue.Id);
                 value = newValue;
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
 
-        public IEnumerable<T> Find(Expression<Func<T, bool>> predicate)
+        public IEnumerable<T> FindByPredicate(Expression<Func<T, bool>> predicate)
         {
             using (var context = new DamaContext(_config))
             {
                 return context.Set<T>().Where(predicate).ToArray();
+            }
+        }
+
+        public async Task<T> FindAsync(object value)
+        {
+            using (var context = new DamaContext(_config))
+            {
+                return await context.Set<T>().FindAsync(value);
             }
         }
 
@@ -56,6 +65,14 @@ namespace Dama.Data.Sql.SQL
             using (var context = new DamaContext(_config))
             {
                 return context.Set<T>().Where(item => item.Id == id).SingleOrDefault();
+            }
+        }
+
+        public IEnumerable<T> GetAllEntitites()
+        {
+            using (var context = new DamaContext(_config))
+            {
+                return context.Set<T>().ToArray();
             }
         }
     }
