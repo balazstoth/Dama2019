@@ -73,7 +73,6 @@
     <Compile Include="Enums\Color.cs" />
     <Compile Include="Enums\ActivityType.cs" />
     <Compile Include="Interfaces\IActivity.cs" />
-    <Compile Include="Interfaces\IEntity.cs" />
     <Compile Include="Interfaces\IRepository.cs" />
     <Compile Include="Models\Category\CategoryBuilder.cs" />
     <Compile Include="Models\DeadlineActivity\DeadlineActivity.cs" />

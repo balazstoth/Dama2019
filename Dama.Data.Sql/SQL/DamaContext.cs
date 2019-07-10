@@ -15,11 +15,18 @@ namespace Dama.Data.Sql.SQL
         }
 
         public DbSet<FixedActivity> FixedActivities { get; set; }
+
         public DbSet<UnfixedActivity> UnFixedActivities { get; set; }
+
         public DbSet<DeadlineActivity> DeadLineActivities { get; set; }
+
         public DbSet<UndefinedActivity> UndefinedActivities { get; set; }
+
         public DbSet<Label> Labels { get; set; }
+
         public DbSet<Category> Categories { get; set; }
+
         public DbSet<Milestone> Milestones { get; set; }
+
     }
 }

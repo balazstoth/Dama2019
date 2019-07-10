@@ -1,5 +1,4 @@
 ﻿using Dama.Data.Enums;
-using Dama.Data.Interfaces;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
@@ -8,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Dama.Data.Models
 {
-    public class User : IdentityUser, IEntity
+    public class User : IdentityUser
     {
         #region Properties
         [DisplayName("Username")]
@@ -36,6 +35,7 @@ namespace Dama.Data.Models
         public List<UserRole> RolesCollection { get; set; }
 
         public bool Blocked { get; set; }
+
         #endregion
 
         public User()

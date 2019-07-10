@@ -7,7 +7,7 @@ using Dama.Data.Interfaces;
 
 namespace Dama.Data.Sql.SQL
 {
-    public class SqlRepository<T> : IRepository<T> where T: class, IEntity
+    public class SqlRepository<T> : IRepository<T> where T: class
     {
         private readonly SqlConfiguration _config;
 
@@ -25,11 +25,20 @@ namespace Dama.Data.Sql.SQL
             }
         }
 
-        public async Task DeleteAsync(T item)
+        public async Task RemoveAsync(T item)
         {
             using (var context = new DamaContext(_config))
             {
                 context.Set<T>().Remove(item);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task RemoveRangeAsync(IEnumerable<T> collection)
+        {
+            using (var context = new DamaContext(_config))
+            {
+                context.Set<T>().RemoveRange(collection);
                 await context.SaveChangesAsync();
             }
         }
@@ -60,7 +69,7 @@ namespace Dama.Data.Sql.SQL
             }
         }
 
-        public T GetEntityById(string id)
+        public T GetEntityById(int id)
         {
             using (var context = new DamaContext(_config))
             {

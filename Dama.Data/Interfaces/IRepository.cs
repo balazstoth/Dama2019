@@ -5,15 +5,17 @@ using System.Threading.Tasks;
 
 namespace Dama.Data.Interfaces
 {
-    public interface IRepository<T> where T : IEntity
+    public interface IRepository<T>
     {
         Task AddAsync(T item);
 
-        Task DeleteAsync(T item);
+        Task RemoveAsync(T item);
+
+        Task RemoveRangeAsync(IEnumerable<T> item);
 
         Task UpdateAsync(T oldValue, T newValue);
 
-        T GetEntityById(string id);
+        T GetEntityById(int id);
 
         Task<T> FindAsync(object value);
 

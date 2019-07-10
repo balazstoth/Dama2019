@@ -75,7 +75,7 @@ namespace Dama.Web.Controllers
             else
             {
                 RemoveCategoryFromDataTables(selectedCategory.Id);
-                await _repositories.CategorySqlRepository.DeleteAsync(selectedCategory);
+                await _repositories.CategorySqlRepository.RemoveAsync(selectedCategory);
                 ViewBag.CategoryRemovedSuccessFully = Success.CategoryRemovedSuccessfully;
             }
 
@@ -195,41 +195,32 @@ namespace Dama.Web.Controllers
 
         public ActionResult ManageLabels()
         {
-            IEnumerable<Label> labels;
-
-            using (DamaDB db = new DamaDB())
-            {
-                labels = db.Labels
-                           .Where(l => l.UserID == UserId)
-                           .GroupBy(l => l.Name)
-                           .Select(l => l.First());
-            }
+            var labels = _repositories.LabelSqlRepository
+                        .FindByPredicate(l => l.UserId == UserId)
+                        .GroupBy(l => l.Name)
+                        .Select(l => l.First());
 
             return View(labels);
         }
 
         public async Task<ActionResult> DeleteLabel(string labelId)
         {
-            using (DamaDB db = new DamaDB())
+            var selectedLabel = await _repositories.LabelSqlRepository.FindAsync(labelId);
+
+            if (selectedLabel == null)
             {
-                var selectedLabel = await db.Labels.FindAsync(int.Parse(labelId));
-
-                if (selectedLabel == null)
-                {
-                    ViewBag.LabelNotFoundError = Error.LabelNotFound;
-                }
-                else
-                {
-                    var removableItems = await db.Labels
-                                                 .Where(x => x.Name == selectedLabel.Name)
-                                                 .ToListAsync();
-
-                    db.Labels.RemoveRange(removableItems);
-                    await db.SaveChangesAsync();
-                }
-
-                ViewBag.LabelRemovedSuccessFully = Success.LabelRemovedSuccessfully;
+                ViewBag.LabelNotFoundError = Error.LabelNotFound;
             }
+            else
+            {
+                var itemsToRemove = _repositories.LabelSqlRepository
+                                                  .FindByPredicate(l => l.Name == selectedLabel.Name)
+                                                  .ToList();
+
+                await _repositories.LabelSqlRepository.RemoveRangeAsync(itemsToRemove);
+            }
+
+            ViewBag.LabelRemovedSuccessFully = Success.LabelRemovedSuccessfully;
             return RedirectToAction(ActionNames.ManageLabels.ToString());
         }
 
@@ -240,23 +231,18 @@ namespace Dama.Web.Controllers
             if (ModelState.IsValid)
             {
                 var newLabel = new Label(viewModel.Name, UserId);
+               
+                var labelAlreadyExists = _repositories.LabelSqlRepository
+                                                    .FindByPredicate(l => l.UserId == newLabel.UserId && l.Name == newLabel.Name)
+                                                    .Any();
 
-                using (DamaDB db = new DamaDB())
+                if(labelAlreadyExists)
                 {
-                    var labelAlreadyExists = await db.Labels
-                                                     .Where(l => l.UserId == newLabel.UserId)
-                                                     .Where(l => l.Name == newLabel.Name)
-                                                     .Any();
-
-                    if(labelAlreadyExists)
-                    {
-                        ViewBag.LabelAlreadyExists = Error.LabelAlreadyExists;
-                        return View();
-                    }
-
-                    db.Labels.Add(newLabel);
-                    await db.SaveChangesAsync();
+                    ViewBag.LabelAlreadyExists = Error.LabelAlreadyExists;
+                    return View();
                 }
+
+                await _repositories.LabelSqlRepository.AddAsync(newLabel);
 
                 ViewBag.LabelCreatedSuccessFully = Success.LabelCreatedSuccessfully;
             }

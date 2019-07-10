@@ -3,9 +3,9 @@ using System;
 
 namespace Dama.Data.Models
 {
-    public class Milestone : IEntity
+    public class Milestone
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
         public DateTime Time { get; set; }
 

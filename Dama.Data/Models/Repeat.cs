@@ -1,12 +1,11 @@
 ﻿using Dama.Data.Enums;
-using Dama.Data.Interfaces;
 using System;
 
 namespace Dama.Data.Models
 {
-    public class Repeat : IEntity
+    public class Repeat
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public RepeatPeriod RepeatPeriod { get; set; }
         public DateTime EndDate { get; set; }
         public DateTime StartDay { get; set; }
