@@ -82,7 +82,7 @@ namespace Dama.Web.Controllers
             return RedirectToAction(ActionNames.ManageCategories.ToString());
         }
 
-        private void RemoveCategoryFromDataTables(string categoryId)
+        private void RemoveCategoryFromDataTables(int categoryId)
         {
             RemoveCategoryFromTable(_repositories.FixedActivitySqlRepository, categoryId);
             RemoveCategoryFromTable(db.UnFixedActivities, categoryId);
@@ -92,6 +92,13 @@ namespace Dama.Web.Controllers
 
         private void RemoveCategoryFromTable(DbSet<Activity> table, string categoryId)
         {
+            /*This foreach might be replaced with an Expression
+            var result = table.Include(r => r.Category)
+                .Where(r => r.Category != null && r.Category.Id.Equals(categoryId))
+                .All(x => { x.Category = null; });
+            */
+
+
             foreach (var record in table.Include(r => r.Category).ToList())
                 if (record.Category != null && record.Category.Id.Equals(categoryId))
                     record.Category = null;
