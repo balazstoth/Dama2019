@@ -47,6 +47,7 @@
     <Compile Include="Comparers\NameComparer.cs" />
     <Compile Include="Enums\ControllerNames.cs" />
     <Compile Include="Enums\ActionNames.cs" />
+    <Compile Include="Enums\ViewNames.cs" />
     <Compile Include="Extensions\UserRoleConverter.cs" />
     <Compile Include="Others\OrderedLinkedList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

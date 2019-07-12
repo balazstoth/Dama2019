@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace Dama.Data.Interfaces
 {
-    public interface IRepository<T>
+    public interface IRepository<T> where T : class
     {
         Task AddAsync(T item);
 
@@ -19,7 +20,7 @@ namespace Dama.Data.Interfaces
 
         Task<T> FindAsync(object value);
 
-        IEnumerable<T> FindByPredicate(Expression<Func<T, bool>> predicate);
+        Task<List<T>> FindByExpressionAsync(Expression<Func<DbSet<T>, Task<List<T>>>> expression);
 
         IEnumerable<T> GetAllEntitites();
     }

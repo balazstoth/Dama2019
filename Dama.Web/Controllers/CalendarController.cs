@@ -1,11 +1,15 @@
 ﻿using Dama.Data.Enums;
 using Dama.Data.Interfaces;
 using Dama.Data.Models;
+using Dama.Data.Sql.Models;
 using Dama.Data.Sql.Repositories;
 using Dama.Data.Sql.SQL;
 using Dama.Organizer.Enums;
 using Dama.Organizer.Resources;
 using Dama.Web.Attributes;
+using Dama.Web.Models.ViewModels;
+using Dama.Web.Models.ViewModels.Activity.Display;
+using Dama.Web.Models.ViewModels.Activity.Manage;
 using Dama.Web.Models.ViewModels.Category;
 using Dama.Web.Models.ViewModels.Label;
 using Microsoft.AspNet.Identity;
@@ -14,8 +18,12 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using ActionNames = Dama.Organizer.Enums.ActionNames;
+using ControllerNames = Dama.Organizer.Enums.ControllerNames;
+using ViewNames = Dama.Organizer.Enums.ViewNames;
 
 namespace Dama.Web.Controllers
 {
@@ -27,10 +35,12 @@ namespace Dama.Web.Controllers
         private List<SelectListItem> _colors;
         private readonly string[] _availableColors;
         private readonly IContentRepository _repositories;
+        private readonly RepositoryManager _repositoryManager;
 
-        public CalendarController(IContentRepository contentRepository)
+        public CalendarController(IContentRepository contentRepository, RepositoryManager repositoryManager)
         {
             _repositories = contentRepository;
+            _repositoryManager = repositoryManager;
             _userManager = new UserManager<User>(new UserStore<User>(new DamaContext(new SqlConfiguration())));
             _colors = new List<SelectListItem>();
             _availableColors = Enum.GetValues(typeof(Color)).Cast<string>().ToArray();
@@ -74,7 +84,7 @@ namespace Dama.Web.Controllers
             }
             else
             {
-                RemoveCategoryFromDataTables(selectedCategory.Id);
+                RemoveCategoryFromTables(selectedCategory.Id.ToString());
                 await _repositories.CategorySqlRepository.RemoveAsync(selectedCategory);
                 ViewBag.CategoryRemovedSuccessFully = Success.CategoryRemovedSuccessfully;
             }
@@ -82,26 +92,45 @@ namespace Dama.Web.Controllers
             return RedirectToAction(ActionNames.ManageCategories.ToString());
         }
 
-        private void RemoveCategoryFromDataTables(int categoryId)
+        private void RemoveCategoryFromTables(string categoryId)
         {
-            RemoveCategoryFromTable(_repositories.FixedActivitySqlRepository, categoryId);
-            RemoveCategoryFromTable(db.UnFixedActivities, categoryId);
-            RemoveCategoryFromTable(db.UndefinedActivities, categoryId);
-            RemoveCategoryFromTable(db.DeadLineActivities, categoryId);
-        }
+            Action<DbSet<FixedActivity>> fixedActivityAction = (activity) =>
+            {
+                foreach (var record in activity.Include(r => r.Category))
+                    if (record.Category != null && record.Category.Id.Equals(categoryId))
+                        record.Category = null;
+            };
+            Action<DbSet<UnfixedActivity>> unfixedActivityAction = (activity) =>
+            {
+                foreach (var record in activity.Include(r => r.Category))
+                    if (record.Category != null && record.Category.Id.Equals(categoryId))
+                        record.Category = null;
+            };
+            Action<DbSet<UndefinedActivity>> undefinedActivityAction = (activity) =>
+            {
+                foreach (var record in activity.Include(r => r.Category))
+                    if (record.Category != null && record.Category.Id.Equals(categoryId))
+                        record.Category = null;
+            };
+            Action<DbSet<DeadlineActivity>> deadlineActivityAction = (activity) =>
+            {
+                foreach (var record in activity.Include(r => r.Category))
+                    if (record.Category != null && record.Category.Id.Equals(categoryId))
+                        record.Category = null;
+            };
 
-        private void RemoveCategoryFromTable(DbSet<Activity> table, string categoryId)
-        {
-            /*This foreach might be replaced with an Expression
-            var result = table.Include(r => r.Category)
-                .Where(r => r.Category != null && r.Category.Id.Equals(categoryId))
-                .All(x => { x.Category = null; });
-            */
+            var dbSetActions = new DbSetAction()
+            {
+                FixedActivityAction = fixedActivityAction,
+                UnfixedActivityAction = unfixedActivityAction,
+                UndefinedActivityAction = undefinedActivityAction,
+                DeadlineActivityAction = deadlineActivityAction
+            };
 
-
-            foreach (var record in table.Include(r => r.Category).ToList())
-                if (record.Category != null && record.Category.Id.Equals(categoryId))
-                    record.Category = null;
+            _repositoryManager.RemoveCategoryFromDataTables(dbSetActions, ActivityType.FixedActivity);
+            _repositoryManager.RemoveCategoryFromDataTables(dbSetActions, ActivityType.UnfixedActivity);
+            _repositoryManager.RemoveCategoryFromDataTables(dbSetActions, ActivityType.UndefinedActivity);
+            _repositoryManager.RemoveCategoryFromDataTables(dbSetActions, ActivityType.DeadlineActivity);
         }
 
         [HttpPost]
@@ -148,7 +177,7 @@ namespace Dama.Web.Controllers
             {
                 viewModel = new EditCategoryViewModel()
                 {
-                    Id = category.Id,
+                    Id = category.Id.ToString(),
                     Color = _colors,
                     Description = category.Description,
                     Name = category.Name,
@@ -258,157 +287,246 @@ namespace Dama.Web.Controllers
         }
         #endregion
 
-        //==================================================================================================
-        
         #region Activity
-        public async Task<ActionResult> ManageActivities(bool sortedByCategory = false, string categoryID = "")
+        /// <param name="categoryId"> If the Id is not 0, it is managed as sorted by category</param>
+        public async Task<ActionResult> ManageActivities(int categoryId = -1)
         {
-            string CurrentUserID = User.Identity.GetUserId();
-            List<FixedActivity> fixedActivities = new List<FixedActivity>();
-            List<UnfixedActivity> unfixedActivities = new List<UnfixedActivity>();
-            List<UndefinedActivity> undefinedActivities = new List<UndefinedActivity>();
-            List<DeadlineActivity> deadlineActivities = new List<DeadlineActivity>();
-
-            using (DamaDB db = new DamaDB())
-            {
-                if (sortedByCategory)
-                {
-                    int category = int.Parse(categoryID);
-                    fixedActivities = await db.FixedActivities.Where(x => x.UserID == CurrentUserID && x.Base == true && x.Category.ID == category).Include(act => act.Labels).Include(act => act.Category).OrderBy(x => x.Name).ToListAsync();
-                    unfixedActivities = await db.UnFixedActivities.Where(x => x.UserID == CurrentUserID && x.Base == true && x.Category.ID == category).Include(act => act.Labels).Include(act => act.Category).OrderBy(x => x.Name).ToListAsync();
-                    undefinedActivities = await db.UndefinedActivities.Where(x => x.UserID == CurrentUserID && x.Base == true && x.Category.ID == category).Include(act => act.Labels).Include(act => act.Category).OrderBy(x => x.Name).ToListAsync();
-                    deadlineActivities = await db.DeadLineActivities.Where(x => x.UserID == CurrentUserID && x.Base == true && x.Category.ID == category).Include(act => act.Labels).Include(act => act.Category).Include(act => act.MileStones).OrderBy(x => x.Name).ToListAsync();
-                }
-                else
-                {
-                    fixedActivities = await db.FixedActivities.Where(x => x.UserID == CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).OrderBy(x => x.Name).ToListAsync();
-                    unfixedActivities = await db.UnFixedActivities.Where(x => x.UserID == CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).OrderBy(x => x.Name).ToListAsync();
-                    undefinedActivities = await db.UndefinedActivities.Where(x => x.UserID == CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).OrderBy(x => x.Name).ToListAsync();
-                    deadlineActivities = await db.DeadLineActivities.Where(x => x.UserID == CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).OrderBy(x => x.Name).Include(act => act.MileStones).ToListAsync();
-                }
-            }
-
-            var tuple = new Tuple<FixedActivityViewModel, UnFixedActivityViewModel, UndefinedActivityViewModel, DeadlineActivityViewModel>(
-                new FixedActivityViewModel() { fixedActivities = fixedActivities },
-                new UnFixedActivityViewModel() { unfixedActivities = unfixedActivities },
-                new UndefinedActivityViewModel() { undefinedActivity = undefinedActivities },
-                new DeadlineActivityViewModel() { deadlineActivities = deadlineActivities });
+            Predicate<Activity> predicate;
+            var sortedByCategory = categoryId != -1;
 
             if (sortedByCategory)
-                return View("ListSortedByCategoryActivities", tuple);
+            {
+                predicate = a => a.UserId == UserId &&
+                                 a.CreationType == CreationType.ManuallyCreated &&
+                                 a.Category.Id == categoryId;
+            }
             else
-                return View("ManageActivities", tuple);
-        }
-        public async Task<ActionResult> ActivityDetails(string id, ActivityType type)
-        {
-            int paramID = int.Parse(id);
-            using (DamaDB db = new DamaDB())
             {
-                switch (type)
-                {
-                    case ActivityType.Fixed:
-                        List<FixedActivity> a = await db.FixedActivities.Where(x => x.ID == paramID).Include(x => x.Labels).Include(act => act.Category).ToListAsync();
-                        FixedActivityViewModel avm = new FixedActivityViewModel() { fixedActivities = a };
-                        return View("FixedActivityDetails", avm);
+                predicate = a => a.UserId == UserId &&
+                                 a.CreationType == CreationType.ManuallyCreated;
+            }
 
-                    case ActivityType.Undefined:
-                        List<UndefinedActivity> b = await db.UndefinedActivities.Where(x => x.ID == paramID).Include(x => x.Labels).Include(act => act.Category).ToListAsync();
-                        UndefinedActivityViewModel bvm = new UndefinedActivityViewModel() { undefinedActivity = b };
-                        return View("UndefinedActivityDetails", bvm);
+            var fixedActivities = await _repositories.FixedActivitySqlRepository
+                                                        .FindByExpressionAsync(t => t
+                                                            .Where(a => predicate(a))
+                                                            .Include(a => a.LabelCollection)
+                                                            .Include(a => a.Category)
+                                                            .OrderBy(a => a.Name).ToListAsync());
 
-                    case ActivityType.Unfixed:
-                        List<UnfixedActivity> c = await db.UnFixedActivities.Where(x => x.ID == paramID).Include(x => x.Labels).Include(act => act.Category).ToListAsync();
-                        UnFixedActivityViewModel cvm = new UnFixedActivityViewModel() { unfixedActivities = c };
-                        return View("UnfixedActivityDetails", cvm);
+            var unfixedActivities = await _repositories.UnfixedActivitySqlRepository
+                                                        .FindByExpressionAsync(t => t
+                                                            .Where(a => predicate(a))
+                                                            .Include(a => a.LabelCollection)
+                                                            .Include(a => a.Category)
+                                                            .OrderBy(a => a.Name).ToListAsync());
 
-                    case ActivityType.Deadline:
-                        List<DeadlineActivity> d = await db.DeadLineActivities.Where(x => x.ID == paramID).Include(x => x.Labels).Include(act => act.Category).Include(act => act.MileStones).ToListAsync();
-                        DeadlineActivityViewModel dvm = new DeadlineActivityViewModel() { deadlineActivities = d };
-                        return View("DeadlineActivityDetails", dvm);
+            var undefinedActivities = await _repositories.UndefinedActivitySqlRepository
+                                                        .FindByExpressionAsync(t => t
+                                                            .Where(a => predicate(a))
+                                                            .Include(a => a.LabelCollection)
+                                                            .Include(a => a.Category)
+                                                            .OrderBy(a => a.Name).ToListAsync());
 
-                    default:
-                        return RedirectToAction("ManageActivities");
-                }
+            var deadlineActivities = await _repositories.DeadlineActivitySqlRepository
+                                                        .FindByExpressionAsync(t => t
+                                                            .Where(a => predicate(a))
+                                                            .Include(a => a.LabelCollection)
+                                                            .Include(a => a.Category)
+                                                            .Include(a => a.Milestones)
+                                                            .OrderBy(a => a.Name).ToListAsync());
+
+            var container = new ViewModelContainer()
+            {
+                FixedActivityViewModel = new FixedActivityViewModel() { FixedActivityCollection = fixedActivities },
+                UnfixedActivityViewModel = new UnfixedActivityViewModel() { UnfixedActivityCollection = unfixedActivities },
+                UndefinedActivityViewModel = new UndefinedActivityViewModel() { UndefinedActivityCollection = undefinedActivities },
+                DeadlineActivityViewModel = new DeadlineActivityViewModel() { DeadlineActivityCollection = deadlineActivities }
+            };
+            
+            if (sortedByCategory)
+                return View(ViewNames.ListSortedByCategoryActivities.ToString(), container);
+            else
+                return View(ViewNames.ManageActivities.ToString(), container);
+        }
+        public async Task<ActionResult> ActivityDetails(string activityId, ActivityType activityType)
+        {
+            var id = int.Parse(activityId);
+            
+            switch (activityType)
+            {
+                case ActivityType.FixedActivity:
+                    var fixedActivities = await _repositories.FixedActivitySqlRepository.FindByExpressionAsync(
+                                            t => t
+                                                .Where(a => a.Id == id)
+                                                .Include(a => a.LabelCollection)
+                                                .Include(a => a.Category)
+                                                .ToListAsync());
+
+                    var fixedActivityModel = new FixedActivityViewModel() { FixedActivityCollection = fixedActivities };
+                    return View(ViewNames.FixedActivityDetails.ToString(), fixedActivityModel);
+
+                case ActivityType.UnfixedActivity:
+                    var unfixedActivities = await _repositories.UnfixedActivitySqlRepository.FindByExpressionAsync(
+                                              t => t
+                                                .Where(a => a.Id == id)
+                                                .Include(a => a.LabelCollection)
+                                                .Include(a => a.Category)
+                                                .ToListAsync());
+
+                    var unfixedActivityModel = new UnfixedActivityViewModel() { UnfixedActivityCollection = unfixedActivities };
+                    return View(ViewNames.UnfixedActivityDetails.ToString(), unfixedActivityModel);
+
+                case ActivityType.UndefinedActivity:
+                    var undefinedActivities = await _repositories.UndefinedActivitySqlRepository.FindByExpressionAsync(
+                                               t => t
+                                                .Where(a => a.Id == id)
+                                                .Include(a => a.LabelCollection)
+                                                .Include(a => a.Category)
+                                                .ToListAsync());
+
+                    var undefinedActivityModel = new UndefinedActivityViewModel() { UndefinedActivityCollection = undefinedActivities };
+                    return View(ViewNames.UndefinedActivityDetails.ToString(), undefinedActivityModel);
+
+                case ActivityType.DeadlineActivity:
+                    var deadlineActivities = await _repositories.DeadlineActivitySqlRepository.FindByExpressionAsync(
+                                               t => t
+                                                .Where(a => a.Id == id)
+                                                .Include(a => a.LabelCollection)
+                                                .Include(a => a.Category)
+                                                .Include(a => a.Milestones)
+                                                .ToListAsync());
+
+                    var deadlineActivityModel = new DeadlineActivityViewModel() { DeadlineActivityCollection = deadlineActivities };
+                    return View(ViewNames.DeadlineActivityDetails.ToString(), deadlineActivityModel);
+
+                default:
+                    return RedirectToAction(ActionNames.ManageActivities.ToString());
             }
         }
-        public async Task<ActionResult> DeleteActivity(string id, ActivityType type)
+        public async Task<ActionResult> DeleteActivity(string activityId, ActivityType activityType)
         {
-            int paramID = int.Parse(id);
-            using (DamaDB db = new DamaDB())
+            int id = int.Parse(activityId);
+            switch (activityType)
             {
-                switch (type)
-                {
-                    case ActivityType.Fixed:
-                        FixedActivity a = await db.FixedActivities.Where(x => x.ID == paramID).Include(x => x.Labels).Include(act => act.Category).FirstOrDefaultAsync();
-                        if (a != null)
-                        {
-                            if (a.Labels != null)
-                                db.Labels.RemoveRange(a.Labels);
-                            //if (a.Category != null)
-                            //    db.Categories.Remove(a.Category);
-                            a.Category = null;
-                            db.FixedActivities.Remove(a);
-                            db.SaveChanges();
-                        }
-                        break;
+                case ActivityType.FixedActivity:
+                    var fixedActivity = (await _repositories.FixedActivitySqlRepository.FindByExpressionAsync(
+                                                    t => t
+                                                        .Where(a => a.Id == id)
+                                                        .Include(a => a.LabelCollection)
+                                                        .Include(a => a.Category)
+                                                        .ToListAsync())).FirstOrDefault();
 
-                    case ActivityType.Undefined:
-                        UndefinedActivity b = await db.UndefinedActivities.Where(x => x.ID == paramID).Include(x => x.Labels).Include(act => act.Category).FirstOrDefaultAsync();
-                        if (b != null)
-                        {
-                            if (b.Labels != null)
-                                db.Labels.RemoveRange(b.Labels);
-                            b.Category = null;
-                            db.UndefinedActivities.Remove(b);
-                            db.SaveChanges();
-                            ViewBag.ActivityRemovedSuccessFully = Messages.ActivityRemovedSuccessFully;
-                        }
-                        break;
+                    if (fixedActivity != null)
+                    {
+                        if (fixedActivity.LabelCollection != null)
+                            await _repositories.LabelSqlRepository.RemoveRangeAsync(fixedActivity.LabelCollection);
 
-                    case ActivityType.Unfixed:
-                        UnfixedActivity c = await db.UnFixedActivities.Where(x => x.ID == paramID).Include(x => x.Labels).Include(act => act.Category).FirstOrDefaultAsync();
-                        if (c != null)
-                        {
-                            if (c.Labels != null)
-                                db.Labels.RemoveRange(c.Labels);
-                            c.Category = null;
-                            db.UnFixedActivities.Remove(c);
-                            db.SaveChanges();
-                            ViewBag.ActivityRemovedSuccessFully = Messages.ActivityRemovedSuccessFully;
-                        }
-                        break;
+                        //if (a.Category != null)
+                        //    db.Categories.Remove(a.Category);
 
-                    case ActivityType.Deadline:
-                        DeadlineActivity d = await db.DeadLineActivities.Where(x => x.ID == paramID).Include(x => x.Labels).Include(act => act.Category).Include(act => act.MileStones).FirstOrDefaultAsync();
-                        if (d != null)
-                        {
-                            if (d.Labels != null)
-                                db.Labels.RemoveRange(d.Labels);
-                            d.Category = null;
-                            if (d.MileStones != null)
-                                db.Milestones.RemoveRange(d.MileStones);
-                            db.DeadLineActivities.Remove(d);
-                            db.SaveChanges();
-                            ViewBag.ActivityRemovedSuccessFully = Messages.ActivityRemovedSuccessFully;
-                        }
-                        break;
-                }
-                return RedirectToAction("ManageActivities");
+                        fixedActivity.Category = null;
+                        await _repositories.FixedActivitySqlRepository.RemoveAsync(fixedActivity);
+                    }
+                    break;
+
+                case ActivityType.UnfixedActivity:
+                    var unfixedActivity = (await _repositories.UnfixedActivitySqlRepository.FindByExpressionAsync(
+                                                    t => t
+                                                        .Where(a => a.Id == id)
+                                                        .Include(a => a.LabelCollection)
+                                                        .Include(a => a.Category)
+                                                        .ToListAsync())).FirstOrDefault();
+                    if (unfixedActivity != null)
+                    {
+                        if (unfixedActivity.LabelCollection != null)
+                           await  _repositories.LabelSqlRepository.RemoveRangeAsync(unfixedActivity.LabelCollection);
+
+                        unfixedActivity.Category = null;
+                        await _repositories.UnfixedActivitySqlRepository.RemoveAsync(unfixedActivity);
+                        ViewBag.ActivityRemovedSuccessfully = Success.ActivityRemovedSuccessfully;
+                    }
+                    break;
+
+                case ActivityType.UndefinedActivity:
+                    var undefinedActivity = (await _repositories.UndefinedActivitySqlRepository.FindByExpressionAsync(
+                                                    t => t
+                                                        .Where(a => a.Id == id)
+                                                        .Include(a => a.LabelCollection)
+                                                        .Include(a => a.Category)
+                                                        .ToListAsync())).FirstOrDefault();
+                    if (undefinedActivity != null)
+                    {
+                        if (undefinedActivity.LabelCollection != null)
+                            await _repositories.LabelSqlRepository.RemoveRangeAsync(undefinedActivity.LabelCollection);
+
+                        undefinedActivity.Category = null;
+                        await _repositories.UndefinedActivitySqlRepository.RemoveAsync(undefinedActivity);
+                        ViewBag.ActivityRemovedSuccessfully = Success.ActivityRemovedSuccessfully;
+                    }
+                    break;
+
+                case ActivityType.DeadlineActivity:
+                    var deadlineActivity = (await _repositories.DeadlineActivitySqlRepository.FindByExpressionAsync(
+                                                    t => t
+                                                        .Where(a => a.Id == id)
+                                                        .Include(a => a.LabelCollection)
+                                                        .Include(a => a.Category)
+                                                        .Include(a => a.Milestones)
+                                                        .ToListAsync())).FirstOrDefault();
+                    if (deadlineActivity != null)
+                    {
+                        if (deadlineActivity.LabelCollection != null)
+                            await _repositories.LabelSqlRepository.RemoveRangeAsync(deadlineActivity.LabelCollection);
+
+                        deadlineActivity.Category = null;
+
+                        if (deadlineActivity.Milestones != null)
+                            await _repositories.MilestoneSqlRepository.RemoveRangeAsync(deadlineActivity.Milestones);
+
+                        await _repositories.DeadlineActivitySqlRepository.RemoveAsync(deadlineActivity);
+                        ViewBag.ActivityRemovedSuccessFully = Success.ActivityRemovedSuccessfully;
+                    }
+                    break;
             }
+
+            return RedirectToAction(ActionNames.ManageActivities.ToString());
         }
         public async Task<ActionResult> AddNewActivity()
         {
-            string currentUserID = User.Identity.GetUserId();
-            List<SelectListItem> ColorList = new List<SelectListItem>(this._colors);
-            List<SelectListItem> CategoryList = await GetAllCategoriesToAddProcessAsyc(currentUserID);
-            List<SelectListItem> LabelList = GetAllLabelsToAddProcess(currentUserID);
-            List<SelectListItem> RepeatTypeList = GetRepeatTypeToAddProcess();
-            FixedActivityAddOrEditViewModel fixedActivityViewModel = new FixedActivityAddOrEditViewModel() { LabelList = LabelList, CategoryList = CategoryList, ColorList = ColorList, RepeatTypeList = RepeatTypeList };
-            UnfixedActivityAddOrEditViewModel unFixedActivityViewModel = new UnfixedActivityAddOrEditViewModel() { LabelList = LabelList, CategoryList = CategoryList, ColorList = ColorList, RepeatTypeList = RepeatTypeList };
-            UndefinedActivityAddOrEditViewModel undefinedActivityViewModel = new UndefinedActivityAddOrEditViewModel() { LabelList = LabelList, CategoryList = CategoryList, ColorList = ColorList };
-            DeadlineActivityAddOrEditViewModel deadlineActivityViewModel = new DeadlineActivityAddOrEditViewModel() { ColorList = ColorList };
+            var colors = new List<SelectListItem>(_colors);
+            var categories = await GetAllCategoriesToAddProcessAsyc(UserId);
+            var labels = GetAllLabelsToAddProcess(UserId);
+            var repeatTypeList = GetRepeatTypeToAddProcess();
 
-            return View(GetActivityTupleObject(true, fixedActivityViewModel, unFixedActivityViewModel, undefinedActivityViewModel, deadlineActivityViewModel));
+            var fixedActivityViewModel = new FixedActivityManageViewModel()
+            {
+                LabelSourceCollection = labels,
+                CategorySourceCollection = categories,
+                ColorSourceCollection = colors,
+                RepeatTypeSourceCollection = repeatTypeList
+            };
+
+            var unfixedActivityViewModel = new UnfixedActivityManageViewModel()
+            {
+                LabelSourceCollection = labels,
+                CategorySourceCollection = categories,
+                ColorSourceCollection = colors,
+                RepeatTypeSourceCollection = repeatTypeList
+            };
+
+            var undefinedActivityViewModel = new UndefinedActivityManageViewModel()
+            {
+                LabelSourceCollection = labels,
+                CategorySourceCollection = categories,
+                ColorSourceCollection = colors,
+            };
+
+            var deadlineActivityViewModel = new DeadlineActivityManageViewModel()
+            {
+                ColorSourceCollection = colors
+            };
+
+            return View(GetActivityTupleObject(true, fixedActivityViewModel, unfixedActivityViewModel, undefinedActivityViewModel, deadlineActivityViewModel));
         }
         public List<SelectListItem> GetRepeatTypeToAddProcess()
         {

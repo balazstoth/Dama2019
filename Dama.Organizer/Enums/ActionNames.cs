@@ -9,6 +9,7 @@
         Index,
         Manage,
         ManageCategories,
-        ManageLabels
+        ManageLabels,
+        ManageActivities,
     }
 }

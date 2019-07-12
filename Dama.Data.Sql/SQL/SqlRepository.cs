@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -53,11 +54,23 @@ namespace Dama.Data.Sql.SQL
             }
         }
 
-        public IEnumerable<T> FindByPredicate(Expression<Func<T, bool>> predicate)
+        //public IEnumerable<T> FindByPredicate(Predicate<T> predicate, Expression<Func<IQueryable<T>, IEnumerable<T>>> expression)
+        //{
+        //    using (var context = new DamaContext(_config))
+        //    {
+        //        Expression<Func<T, bool>> ex = a => predicate(a);
+        //        var filteredResult = context.Set<T>().Where(ex);
+        //        var func = expression.Compile();
+        //        return func(filteredResult);
+        //    }
+        //}
+
+        public Task<List<T>> FindByExpressionAsync(Expression<Func<DbSet<T>, Task<List<T>>>> expression)
         {
             using (var context = new DamaContext(_config))
             {
-                return context.Set<T>().Where(predicate).ToArray();
+                var func = expression.Compile();
+                return func(context.Set<T>());
             }
         }
 
