@@ -65,6 +65,15 @@ namespace Dama.Data.Sql.SQL
         //    }
         //}
 
+        public IEnumerable<T> FindByPredicate(Predicate<T> predicate)
+        {
+            using (var context = new DamaContext(_config))
+            {
+                Expression<Func<T, bool>> expression = a => predicate(a);
+                return context.Set<T>().Where(expression).ToList();
+            }
+        }
+
         public Task<List<T>> FindByExpressionAsync(Expression<Func<DbSet<T>, Task<List<T>>>> expression)
         {
             using (var context = new DamaContext(_config))

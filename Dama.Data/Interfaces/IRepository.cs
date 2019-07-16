@@ -22,6 +22,8 @@ namespace Dama.Data.Interfaces
 
         Task<List<T>> FindByExpressionAsync(Expression<Func<DbSet<T>, Task<List<T>>>> expression);
 
+        IEnumerable<T> FindByPredicate(Predicate<T> predicate)
+
         IEnumerable<T> GetAllEntitites();
     }
 }
