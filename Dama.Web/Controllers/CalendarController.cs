@@ -202,7 +202,7 @@ namespace Dama.Web.Controllers
 
                 foreach (var category in categories)
                 {
-                    if (category.Name == viewModel.Name && category.Id != viewModel.Id)
+                    if (category.Name == viewModel.Name && category.Id.ToString() != viewModel.Id)
                     {
                         ViewBag.CategoryAlreadyExists = Error.CategoryAlreadyExists;
                         viewModel.Color = _colors;
@@ -290,6 +290,7 @@ namespace Dama.Web.Controllers
         #region Activity
         /// <param name="categoryId"> If the Id is not 0, it is managed as sorted by category</param>
         public async Task<ActionResult> ManageActivities(int categoryId = -1)
+
         {
             Predicate<Activity> predicate;
             var sortedByCategory = categoryId != -1;
@@ -348,6 +349,7 @@ namespace Dama.Web.Controllers
             else
                 return View(ViewNames.ManageActivities.ToString(), container);
         }
+
         public async Task<ActionResult> ActivityDetails(string activityId, ActivityType activityType)
         {
             var id = int.Parse(activityId);
@@ -403,6 +405,7 @@ namespace Dama.Web.Controllers
                     return RedirectToAction(ActionNames.ManageActivities.ToString());
             }
         }
+
         public async Task<ActionResult> DeleteActivity(string activityId, ActivityType activityType)
         {
             int id = int.Parse(activityId);
@@ -491,12 +494,13 @@ namespace Dama.Web.Controllers
 
             return RedirectToAction(ActionNames.ManageActivities.ToString());
         }
+
         public async Task<ActionResult> AddNewActivity()
         {
             var colors = new List<SelectListItem>(_colors);
-            var categories = await GetAllCategoriesToAddProcessAsyc(UserId);
-            var labels = GetAllLabelsToAddProcess(UserId);
-            var repeatTypeList = GetRepeatTypeToAddProcess();
+            var categories = await AddCategoriesToProcessAsyc(UserId);
+            var labels = await AddLabelsToProcessAsync(UserId);
+            var repeatTypeList = AddRepeatTypeToProcess();
 
             var fixedActivityViewModel = new FixedActivityManageViewModel()
             {
@@ -536,18 +540,21 @@ namespace Dama.Web.Controllers
 
             return View(container);
         }
+
         public List<SelectListItem> AddRepeatTypeToProcess()
         {
             var enums = Enum.GetValues(typeof(RepeatPeriod)).Cast<RepeatPeriod>();
+
             return enums
-                        .Select(e => 
-                            new SelectListItem()
-                            {
-                                Text = e.ToString(),
-                                Value = e.ToString()
-                            })
-                        .ToList();
+                    .Select(e => 
+                        new SelectListItem()
+                        {
+                            Text = e.ToString(),
+                            Value = e.ToString()
+                        })
+                    .ToList();
         }
+
         public async Task<List<SelectListItem>> AddCategoriesToProcessAsyc(string userId)
         {
             var categorySelectItemList = new List<SelectListItem>()
@@ -568,6 +575,7 @@ namespace Dama.Web.Controllers
 
             return categorySelectItemList;
         }
+
         public async Task<List<SelectListItem>> AddLabelsToProcessAsync(string userId)
         {
             List<SelectListItem> LabelList = new List<SelectListItem>();
@@ -576,7 +584,7 @@ namespace Dama.Web.Controllers
                                 .LabelSqlRepository
                                 .FindByExpressionAsync(
                                     t => t
-                                          .Where(l => l.UserId == UserId)
+                                          .Where(l => l.UserId == userId)
                                           .Distinct()
                                           .ToListAsync());
 
@@ -593,6 +601,11 @@ namespace Dama.Web.Controllers
 
         public async Task<ActionResult> EditActivity(string id, ActivityType? type, bool calledFromEditor = false, bool optional = false)
         {
+          //public static T GetSession<T>(string key) => HttpContext.Current?.Session?[key] != null ? (T)HttpContext.Current.Session[key] : default(T);
+          //https://stackoverflow.com/questions/5644304/storing-custom-objects-in-sessions
+
+
+
             int IDParam = int.Parse(id);
             string currentUserID = User.Identity.GetUserId();
             List<SelectListItem> ColorList = new List<SelectListItem>(this._colors);
