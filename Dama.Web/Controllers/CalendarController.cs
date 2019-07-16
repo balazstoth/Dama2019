@@ -526,83 +526,69 @@ namespace Dama.Web.Controllers
                 ColorSourceCollection = colors
             };
 
-            return View(GetActivityTupleObject(true, fixedActivityViewModel, unfixedActivityViewModel, undefinedActivityViewModel, deadlineActivityViewModel));
+            var container = new ViewModelManagerContainer()
+            {
+                FixedActivityManageViewModel = fixedActivityViewModel,
+                UnfixedActivityManageViewModel = unfixedActivityViewModel,
+                UndefinedActivityManageViewModel = undefinedActivityViewModel,
+                DeadlineActivityManageViewModel = deadlineActivityViewModel
+            };
+
+            return View(container);
         }
-        public List<SelectListItem> GetRepeatTypeToAddProcess()
+        public List<SelectListItem> AddRepeatTypeToProcess()
         {
             var enums = Enum.GetValues(typeof(RepeatPeriod)).Cast<RepeatPeriod>();
-            return enums.Select(x => new SelectListItem() { Text = x.ToString(), Value = x.ToString() }).ToList();
+            return enums
+                        .Select(e => 
+                            new SelectListItem()
+                            {
+                                Text = e.ToString(),
+                                Value = e.ToString()
+                            })
+                        .ToList();
         }
-        public async Task<List<SelectListItem>> GetAllCategoriesToAddProcessAsyc(string userID)
+        public async Task<List<SelectListItem>> AddCategoriesToProcessAsyc(string userId)
         {
-            List<Category> AllCategories;
-            List<SelectListItem> CategoryList = new List<SelectListItem>();
-
-            using (DamaDB db = new DamaDB())
+            var categorySelectItemList = new List<SelectListItem>()
             {
-                AllCategories = await db.Categories.Where(x => x.UserID == userID).ToListAsync();
-            }
-
-            CategoryList.Add(new SelectListItem() { Text = "Uncategorized", Value = null });
-            foreach (Category i in AllCategories)
-            {
-                SelectListItem sli = new SelectListItem() { Text = i.Name };
-                CategoryList.Add(sli);
-            }
-            return CategoryList;
-        }
-        public List<SelectListItem> GetAllLabelsToAddProcess(string userID)
-        {
-            List<string> AllLabels = new List<string>();
-            List<SelectListItem> LabelList = new List<SelectListItem>();
-            using (DamaDB db = new DamaDB())
-            {
-                var tmp = (db.Labels.Where(x => x.UserID == userID).Select(x => x.Name)).Distinct();
-                foreach (string i in tmp)
+                new SelectListItem()
                 {
-                    SelectListItem sli = new SelectListItem() { Text = i };
-                    LabelList.Add(sli);
+                    Text = "Uncategorized",
+                    Value = null
                 }
-            }
+            };
+            var categories = await _repositories
+                                        .CategorySqlRepository
+                                        .FindByExpressionAsync(
+                                            t => t.Where(c => c.UserId == userId)
+                                                  .ToListAsync());
 
-            return LabelList;
+            categorySelectItemList.AddRange(categories.Select(c => new SelectListItem() { Text = c.Name }));
+
+            return categorySelectItemList;
         }
-        public MyTuple<FixedActivityAddOrEditViewModel, UnfixedActivityAddOrEditViewModel, UndefinedActivityAddOrEditViewModel, DeadlineActivityAddOrEditViewModel> GetActivityTupleObject(
-            bool getMethod,
-            FixedActivityAddOrEditViewModel fixedActivityAddOrEditViewModel,
-            UnfixedActivityAddOrEditViewModel unfixedActivityAddOrEditViewModel,
-            UndefinedActivityAddOrEditViewModel undefinedActivityAddOrEditViewModel,
-            DeadlineActivityAddOrEditViewModel deadlineActivityAddOrEditViewModel)
+        public async Task<List<SelectListItem>> AddLabelsToProcessAsync(string userId)
         {
-            if (getMethod)
-            {
-                return new MyTuple<FixedActivityAddOrEditViewModel, UnfixedActivityAddOrEditViewModel, UndefinedActivityAddOrEditViewModel, DeadlineActivityAddOrEditViewModel>(fixedActivityAddOrEditViewModel, unfixedActivityAddOrEditViewModel, undefinedActivityAddOrEditViewModel, deadlineActivityAddOrEditViewModel);
-            }
+            List<SelectListItem> LabelList = new List<SelectListItem>();
 
-            if (fixedActivityAddOrEditViewModel != null)
-            {
-                return new MyTuple<FixedActivityAddOrEditViewModel, UnfixedActivityAddOrEditViewModel, UndefinedActivityAddOrEditViewModel, DeadlineActivityAddOrEditViewModel>(fixedActivityAddOrEditViewModel, null, null, null);
-            }
-            if (unfixedActivityAddOrEditViewModel != null)
-            {
-                return new MyTuple<FixedActivityAddOrEditViewModel, UnfixedActivityAddOrEditViewModel, UndefinedActivityAddOrEditViewModel, DeadlineActivityAddOrEditViewModel>(null, unfixedActivityAddOrEditViewModel, null, null);
-            }
-            if (undefinedActivityAddOrEditViewModel != null)
-            {
-                return new MyTuple<FixedActivityAddOrEditViewModel, UnfixedActivityAddOrEditViewModel, UndefinedActivityAddOrEditViewModel, DeadlineActivityAddOrEditViewModel>(null, null, undefinedActivityAddOrEditViewModel, null);
-            }
-            if (deadlineActivityAddOrEditViewModel != null)
-            {
-                return new MyTuple<FixedActivityAddOrEditViewModel, UnfixedActivityAddOrEditViewModel, UndefinedActivityAddOrEditViewModel, DeadlineActivityAddOrEditViewModel>(null, null, null, deadlineActivityAddOrEditViewModel);
-            }
-            return null;
+            var labels = await _repositories
+                                .LabelSqlRepository
+                                .FindByExpressionAsync(
+                                    t => t
+                                          .Where(l => l.UserId == UserId)
+                                          .Distinct()
+                                          .ToListAsync());
+
+            var labelSelectItems = labels.Select(l => new SelectListItem() { Text = l.Name }).ToList();
+            return labelSelectItems;
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> AddNewActivity(MyTuple<FixedActivityAddOrEditViewModel, UnfixedActivityAddOrEditViewModel, UndefinedActivityAddOrEditViewModel, DeadlineActivityAddOrEditViewModel> tupleObject)
+        public async Task<ActionResult> AddNewActivity(ViewModelManagerContainer container)
         {
-            return await CreateNewActivityFromTuple(tupleObject);
+            return await CreateNewActivityFromTuple(container);
         }
 
         public async Task<ActionResult> EditActivity(string id, ActivityType? type, bool calledFromEditor = false, bool optional = false)
