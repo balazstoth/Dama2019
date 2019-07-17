@@ -1,6 +1,8 @@
-﻿namespace Dama.Web.Exception
+﻿using System;
+
+namespace Dama.Web.Exceptions
 {
-    public class ChangeOwnAccountException : System.Exception
+    public class ChangeOwnAccountException : Exception
     {
         public ChangeOwnAccountException(string message)
             : base(message)

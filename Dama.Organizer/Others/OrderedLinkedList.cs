@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Dama.Organizer.Others
 {
-    class OrderedLinkedList<T> : LinkedList<T> where T : Activity
+    public class OrderedLinkedList<T> : LinkedList<T> where T : Activity
     {
         private ComparableProperties _comparableProperties;
         private ComparableSequence _comparableSequence;

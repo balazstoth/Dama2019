@@ -5,6 +5,7 @@ using Dama.Data.Sql.Models;
 using Dama.Data.Sql.Repositories;
 using Dama.Data.Sql.SQL;
 using Dama.Organizer.Enums;
+using Dama.Organizer.Models;
 using Dama.Organizer.Resources;
 using Dama.Web.Attributes;
 using Dama.Web.Models.ViewModels;
@@ -599,61 +600,62 @@ namespace Dama.Web.Controllers
             return await CreateNewActivityFromTuple(container);
         }
 
-        public async Task<ActionResult> EditActivity(string id, ActivityType? type, bool calledFromEditor = false, bool optional = false)
+        public async Task<ActionResult> EditActivity(string id, ActivityType? activityType, bool calledFromEditor = false, bool optional = false)
         {
-          //public static T GetSession<T>(string key) => HttpContext.Current?.Session?[key] != null ? (T)HttpContext.Current.Session[key] : default(T);
-          //https://stackoverflow.com/questions/5644304/storing-custom-objects-in-sessions
+            //Session: https://stackoverflow.com/questions/5644304/storing-custom-objects-in-sessions
 
-
-
-            int IDParam = int.Parse(id);
-            string currentUserID = User.Identity.GetUserId();
-            List<SelectListItem> ColorList = new List<SelectListItem>(this._colors);
-            List<SelectListItem> CategoryList = new List<SelectListItem>();
-            //CategoryList.Add(new SelectListItem() { Text = "No category", Value = null });
-            CategoryList.AddRange(await GetAllCategoriesToAddProcessAsyc(currentUserID));
-            List<SelectListItem> RepeatTypeList = GetRepeatTypeToAddProcess();
+            var activityId = int.Parse(id);
+            var colorList = new List<SelectListItem>(_colors);
+            var labelList = await AddLabelsToProcessAsync(UserId);
+            var categoryList =await AddCategoriesToProcessAsyc(UserId);
+            var repeatTypeList = AddRepeatTypeToProcess();
             bool? isOptional = null;
-            List<SelectListItem> LabelList = GetAllLabelsToAddProcess(currentUserID);
 
-            using (DamaDB db = new DamaDB())
+            using (var container = new ActivityContainer())
             {
-                switch (type)
+                switch (activityType)
                 {
-                    case ActivityType.Fixed:
+                    case ActivityType.FixedActivity:
+
                         FixedActivity fixedActivity;
+                        isOptional = optional;
+
                         if (calledFromEditor)
                         {
                             if (optional)
-                            {
-                                isOptional = true;
-                                fixedActivity = Cont.ActivitySelectedByUserForOptional.FirstOrDefault(x => x.ID == IDParam && x.OwnType == ActivityType.Fixed) as FixedActivity;
-                            }
+                                fixedActivity = container.ActivitySelectedByUserForOptional
+                                                                    .FirstOrDefault(a => a.Id == activityId && 
+                                                                                    a.ActivityType== ActivityType.FixedActivity) as FixedActivity;
                             else
-                            {
-                                isOptional = false;
-                                fixedActivity = Cont.ActivitySelectedByUserForSure.FirstOrDefault(x => x.ID == IDParam && x.OwnType == ActivityType.Fixed) as FixedActivity;
-                            }
+                                fixedActivity = container.ActivitySelectedByUserForSure
+                                                                    .FirstOrDefault(a => a.Id == activityId && 
+                                                                                    a.ActivityType == ActivityType.FixedActivity) as FixedActivity;
                         }
                         else
                         {
-                            fixedActivity = await db.FixedActivities.Include(i => i.Category).Include(i => i.Labels).FirstOrDefaultAsync(i => i.ID == IDParam && i.Base == true);
+                            fixedActivity = (await _repositories.FixedActivitySqlRepository.FindByExpressionAsync(t => t
+                                                                          .Include(a => a.Category)
+                                                                          .Include(a => a.LabelCollection)
+                                                                          .ToListAsync()))
+                                                                                .FirstOrDefault(a =>
+                                                                                        a.Id == activityId && a.CreationType == CreationType.ManuallyCreated);
                         }
-                        FixedActivityAddOrEditViewModel vmFixed = new FixedActivityAddOrEditViewModel()
+
+                        var fixedActivityViewModel = new FixedActivityManageViewModel()
                         {
                             Id = id,
                             Category = fixedActivity.Category != null ? fixedActivity.Category.ToString() : null,
-                            CategoryList = CategoryList,
+                            CategorySourceCollection = categoryList,
                             Color = fixedActivity.Color,
-                            ColorList = ColorList,
+                            ColorList = colorList,
                             Description = fixedActivity.Description,
                             EndTime = fixedActivity.End,
-                            LabelList = LabelList,
+                            LabelList = labelList,
                             Labels = fixedActivity.Labels.Select(x => x.Name).ToList(),
                             Name = fixedActivity.Name,
                             Priority = fixedActivity.Priority,
                             StartTime = fixedActivity.Start,
-                            RepeatTypeList = RepeatTypeList,
+                            RepeatTypeList = repeatTypeList,
                             enableRepeatChange = calledFromEditor,
                             RepeatType = fixedActivity.Repeat == null ? null : fixedActivity.Repeat.RepeatPeriod.ToString(),
                             RepeatEndDate = fixedActivity.Repeat == null ? DateTime.Today.AddDays(7) : fixedActivity.Repeat.EndDate,
@@ -661,8 +663,8 @@ namespace Dama.Web.Controllers
                         };
 
                         if (calledFromEditor)
-                            return PartialView("../Calendar/EditFixedActivity", vmFixed);
-                        return View("EditFixedActivity", vmFixed);
+                            return PartialView("../Calendar/EditFixedActivity", fixedActivityViewModel);
+                        return View("EditFixedActivity", fixedActivityViewModel);
 
 
                     case ActivityType.Undefined:
@@ -679,11 +681,11 @@ namespace Dama.Web.Controllers
                         {
                             Id = id,
                             Category = undefinedActivity.Category != null ? undefinedActivity.Category.ToString() : null,
-                            CategoryList = CategoryList,
+                            CategoryList = categoryList,
                             Color = undefinedActivity.Color,
-                            ColorList = ColorList,
+                            ColorList = colorList,
                             Description = undefinedActivity.Description,
-                            LabelList = LabelList,
+                            LabelList = labelList,
                             Labels = undefinedActivity.Labels.Select(x => x.Name).ToList(),
                             Name = undefinedActivity.Name,
                             CalledFromEditor = calledFromEditor,
@@ -717,16 +719,16 @@ namespace Dama.Web.Controllers
                         {
                             Id = id,
                             Category = unfixedActivity.Category != null ? unfixedActivity.Category.ToString() : null,
-                            CategoryList = CategoryList,
+                            CategoryList = categoryList,
                             Color = unfixedActivity.Color,
-                            ColorList = ColorList,
+                            ColorList = colorList,
                             Description = unfixedActivity.Description,
-                            LabelList = LabelList,
+                            LabelList = labelList,
                             Labels = unfixedActivity.Labels.Select(x => x.Name).ToList(),
                             Name = unfixedActivity.Name,
                             Priority = unfixedActivity.Priority,
                             Timespan = unfixedActivity.TimeSpan,
-                            RepeatTypeList = RepeatTypeList,
+                            RepeatTypeList = repeatTypeList,
                             enableRepeatChange = calledFromEditor,
                             RepeatType = unfixedActivity.Repeat == null ? null : unfixedActivity.Repeat.RepeatPeriod.ToString(),
                             RepeatEndDate = unfixedActivity.Repeat == null ? DateTime.Today.AddDays(7) : unfixedActivity.Repeat.EndDate,
@@ -771,8 +773,9 @@ namespace Dama.Web.Controllers
 
                         return View("EditDeadlineActivity", vmDeadline);
                 }
-                return null;
             }
+            
+            return null;
         }
 
         [HttpPost]

@@ -8,6 +8,7 @@ namespace Dama.Web.Models.ViewModels.Editor
 {
     public class CalendarEditorViewModel
     {
+        #region Properties
         [Required]
         [Display(Name = "Select day")]
         public DateTime SelectedDate { get; set; }
@@ -67,6 +68,8 @@ namespace Dama.Web.Models.ViewModels.Editor
 
         [Display(Name = "Optional activities:")]
         public List<SelectListItem> OptionalActivitiesSelectedByUser { get; set; }
+
+        #endregion
 
         public CalendarEditorViewModel()
         {
