@@ -67,6 +67,7 @@
     <Compile Include="Interfaces\IDefinedActivity.cs" />
     <Compile Include="Interfaces\IContentRepository.cs" />
     <Compile Include="Interfaces\IEntity.cs" />
+    <Compile Include="Interfaces\IRepositorySettings.cs" />
     <Compile Include="Interfaces\IUserRepository.cs" />
     <Compile Include="Models\Activity\Activity.cs" />
     <Compile Include="Models\Activity\ActivityBuilder.cs" />

@@ -28,6 +28,7 @@ using Dama.Web.Manager;
 using ActionNames = Dama.Organizer.Enums.ActionNames;
 using ControllerNames = Dama.Organizer.Enums.ControllerNames;
 using ViewNames = Dama.Organizer.Enums.ViewNames;
+using Repeat = Dama.Data.Models.Repeat;
 
 namespace Dama.Web.Controllers
 {
@@ -50,7 +51,7 @@ namespace Dama.Web.Controllers
             _colors = new List<SelectListItem>();
             _availableColors = Enum.GetValues(typeof(Color)).Cast<string>().ToArray();
             _colors = _availableColors.Select(c => new SelectListItem() { Text = c.ToString() }).ToList();
-            _calendarControllerManager = new CalendarControllerManager();
+            _calendarControllerManager = new CalendarControllerManager(_repositories);
         }
 
         public string UserId => User.Identity.GetUserId();
@@ -598,13 +599,6 @@ namespace Dama.Web.Controllers
             return labelSelectItems;
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> AddNewActivity(ViewModelManagerContainer container)
-        {
-            return await CreateNewActivityFromTuple(container);
-        }
-
         public async Task<ActionResult> EditActivity(string id, ActivityType? activityType, bool calledFromEditor = false, bool optional = false)
         {
             var details = new EditDetails()
@@ -623,44 +617,44 @@ namespace Dama.Web.Controllers
             switch (activityType)
             {
                 case ActivityType.FixedActivity:
-                {
-                    var fixedActivityViewModel = await _calendarControllerManager.AssembleFixedActivityManageViewModelAsync(details);
+                    {
+                        var fixedActivityViewModel = await _calendarControllerManager.AssembleFixedActivityManageViewModelAsync(details);
 
-                    if (calledFromEditor)
-                        return PartialView(Path.Combine(path, ViewNames.EditFixedActivity.ToString()), fixedActivityViewModel);
+                        if (calledFromEditor)
+                            return PartialView(Path.Combine(path, ViewNames.EditFixedActivity.ToString()), fixedActivityViewModel);
 
-                    return View(ViewNames.EditFixedActivity.ToString(), fixedActivityViewModel);
-                }
+                        return View(ViewNames.EditFixedActivity.ToString(), fixedActivityViewModel);
+                    }
 
                 case ActivityType.UnfixedActivity:
-                {
-                    var unfixedActivityViewModel = await _calendarControllerManager.AssembleUnfixedActivityViewModelAsync(details);
+                    {
+                        var unfixedActivityViewModel = await _calendarControllerManager.AssembleUnfixedActivityViewModelAsync(details);
 
-                    if (calledFromEditor)
-                        return PartialView(Path.Combine(path, ViewNames.EditUnfixedActivity.ToString()), unfixedActivityViewModel);
+                        if (calledFromEditor)
+                            return PartialView(Path.Combine(path, ViewNames.EditUnfixedActivity.ToString()), unfixedActivityViewModel);
 
-                    return View(ViewNames.EditUnfixedActivity.ToString(), unfixedActivityViewModel);
-                }
+                        return View(ViewNames.EditUnfixedActivity.ToString(), unfixedActivityViewModel);
+                    }
 
                 case ActivityType.UndefinedActivity:
-                { 
-                    var undefinedActivityViewModel = await _calendarControllerManager.AssembleUndefinedActivityViewModelAsync(details);
+                    {
+                        var undefinedActivityViewModel = await _calendarControllerManager.AssembleUndefinedActivityViewModelAsync(details);
 
-                    if (calledFromEditor)
-                        return PartialView(Path.Combine(path, ViewNames.EditUndefinedActivity.ToString()), undefinedActivityViewModel);
+                        if (calledFromEditor)
+                            return PartialView(Path.Combine(path, ViewNames.EditUndefinedActivity.ToString()), undefinedActivityViewModel);
 
-                    return View(ViewNames.EditUndefinedActivity.ToString(), undefinedActivityViewModel);
-                }
+                        return View(ViewNames.EditUndefinedActivity.ToString(), undefinedActivityViewModel);
+                    }
 
                 case ActivityType.DeadlineActivity:
-                {
-                    var deadlineActivityViewModel = await _calendarControllerManager.AssembleDeadlineActivityViewModelAsync(details);
+                    {
+                        var deadlineActivityViewModel = await _calendarControllerManager.AssembleDeadlineActivityViewModelAsync(details);
 
-                    if (calledFromEditor)
-                        return PartialView(Path.Combine(path, ViewNames.EditDeadlineActivity.ToString()), deadlineActivityViewModel);
+                        if (calledFromEditor)
+                            return PartialView(Path.Combine(path, ViewNames.EditDeadlineActivity.ToString()), deadlineActivityViewModel);
 
-                    return View(ViewNames.EditDeadlineActivity.ToString(), deadlineActivityViewModel);
-                }
+                        return View(ViewNames.EditDeadlineActivity.ToString(), deadlineActivityViewModel);
+                    }
 
                 default:
                     return null;
@@ -669,397 +663,424 @@ namespace Dama.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> EditFixedActivity(FixedActivityAddOrEditViewModel vm)
+        public async Task<ActionResult> AddNewActivity(ViewModelManagerContainer container)
         {
-            bool changedFromEditor = vm.enableRepeatChange;
-            string userid = User.Identity.GetUserId();
-            int activityID = int.Parse(Request.Form["id"]); //Get the ID from "view"
+            return await CreateNewActivityFromTuple(container);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> EditFixedActivity(FixedActivityManageViewModel viewModel)
+        {
+            var changedFromEditor = viewModel.EnableRepeatChange;
+            int activityId = int.Parse(Request.Form["id"]); //Get the Id from view
+
             if (ModelState.IsValid)
             {
-                using (DamaDB db = new DamaDB())
+                if (changedFromEditor) //No need to change the database
                 {
-                    if (changedFromEditor) //If it's true, no need to change the database
+                    using (var container = new ActivityContainer())
                     {
-                        Cont.Reset = false;
-                        if (vm.IsOptional == true)
+                        container.Reset = false;
+
+                        if (viewModel.IsOptional == true)
                         {
-                            FixedActivity edited = Cont.ActivitySelectedByUserForOptional.FirstOrDefault(x => x.ID == activityID && x.OwnType == ActivityType.Fixed) as FixedActivity;
-                            edited = edited + CreateNewFixedActivityMethod(vm, userid, false);
+                            var editedActivity = container.ActivitySelectedByUserForOptional
+                                                                .FirstOrDefault(a => a.Id == activityId &&
+                                                                                     a.ActivityType == ActivityType.FixedActivity) as FixedActivity;
+                            editedActivity = editedActivity + CreateNewFixedActivityMethod(viewModel, false);
                         }
                         else
                         {
-                            FixedActivity edited = Cont.ActivitySelectedByUserForSure.FirstOrDefault(x => x.ID == activityID && x.OwnType == ActivityType.Fixed) as FixedActivity;
-                            edited = edited + CreateNewFixedActivityMethod(vm, userid, false);
+                            var editedActivity = container.ActivitySelectedByUserForSure
+                                                                .FirstOrDefault(a => a.Id == activityId &&
+                                                                                     a.ActivityType == ActivityType.FixedActivity) as FixedActivity;
+                            editedActivity = editedActivity + CreateNewFixedActivityMethod(viewModel, false);
                         }
-                        return RedirectToAction("Editor", "CalendarEditor");
                     }
-                    else
+
+                    return RedirectToAction(ActionNames.Editor.ToString(), ControllerNames.CalendarEditor.ToString());
+                }
+                else
+                {
+                    var activity = (await _repositories.FixedActivitySqlRepository
+                                                            .FindByExpressionAsync(t => t
+                                                                .Where(a => a.Id == activityId)
+                                                                .Include(a => a.LabelCollection)
+                                                                .Include(a => a.Category).ToListAsync()))
+                                                                    .FirstOrDefault();
+                    if (activity != null)
                     {
-                        FixedActivity cActivity = await db.FixedActivities.Where(x => x.ID == activityID).Include(x => x.Labels).Include(act => act.Category).FirstOrDefaultAsync();
-                        if (cActivity != null)
-                        {
-                            if (cActivity.Labels != null)
-                                db.Labels.RemoveRange(cActivity.Labels);
-                            //if (a.Category != null)
-                            //db.Categories.Remove(a.Category);
-                            cActivity.Category = null;
-                            db.FixedActivities.Remove(cActivity);
-                            db.SaveChanges();
-                        }
+                        if (activity.LabelCollection != null)
+                            await _repositories.LabelSqlRepository.RemoveRangeAsync(activity.LabelCollection);
+
+                        //if (a.Category != null)
+                        //db.Categories.Remove(a.Category);
+
+                        activity.Category = null;
+                        await _repositories.FixedActivitySqlRepository.RemoveAsync(activity);
                     }
                 }
-                await CreateNewActivityFromTuple(new MyTuple<FixedActivityAddOrEditViewModel, UnfixedActivityAddOrEditViewModel, UndefinedActivityAddOrEditViewModel, DeadlineActivityAddOrEditViewModel>() { Item1 = vm });
+
+                var viewModelContainer = new ViewModelManagerContainer() { FixedActivityManageViewModel = viewModel };
+                await CreateNewActivityFromTuple(viewModelContainer);
             }
             else
             {
-                vm.LabelList = GetAllLabelsToAddProcess(userid);
-                vm.ColorList = _colors;
-                vm.CategoryList = await GetAllCategoriesToAddProcessAsyc(userid);
-                vm.RepeatTypeList = GetRepeatTypeToAddProcess();
-                return View(vm);
+                viewModel.LabelSourceCollection = await AddLabelsToProcessAsync(UserId);
+                viewModel.CategorySourceCollection = await AddCategoriesToProcessAsyc(UserId);
+                viewModel.RepeatTypeSourceCollection = AddRepeatTypeToProcess();
+                viewModel.ColorSourceCollection = _colors;
+
+                return View(viewModel);
             }
 
-            return RedirectToAction("ManageActivities");
+            return RedirectToAction(ActionNames.ManageActivities.ToString());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> EditUnfixedActivity(UnfixedActivityAddOrEditViewModel vm)
+        public async Task<ActionResult> EditUnfixedActivity(UnfixedActivityManageViewModel viewModel)
         {
-            bool changedFromEditor = vm.enableRepeatChange;
-            string userid = User.Identity.GetUserId();
-            int activityID = int.Parse(Request.Form["id"]); //Get the ID from "view"
+            var changedFromEditor = viewModel.EnableRepeatChange;
+            var activityId = int.Parse(Request.Form["id"]);
+
             if (ModelState.IsValid)
             {
-                using (DamaDB db = new DamaDB())
+                if (changedFromEditor)
                 {
-                    if (changedFromEditor) //If it's true, no need to change the database
+                    using (var container = new ActivityContainer())
                     {
-                        Cont.Reset = false;
-                        if (vm.IsOptional == true)
+                        container.Reset = false;
+
+                        if (viewModel.IsOptional == true)
                         {
-                            UnfixedActivity edited = Cont.ActivitySelectedByUserForOptional.FirstOrDefault(x => x.ID == activityID && x.OwnType == ActivityType.Unfixed) as UnfixedActivity;
-                            edited = edited + CreateNewUnfixedActivityMethod(vm, userid, false);
+                            var editedActivity = container.ActivitySelectedByUserForOptional
+                                                                .FirstOrDefault(a => a.Id == activityId &&
+                                                                                        a.ActivityType == ActivityType.UnfixedActivity) as UnfixedActivity;
+                            editedActivity = editedActivity + CreateNewUnfixedActivityMethod(viewModel, false);
                         }
                         else
                         {
-                            UnfixedActivity edited = Cont.ActivitySelectedByUserForSure.FirstOrDefault(x => x.ID == activityID && x.OwnType == ActivityType.Unfixed) as UnfixedActivity;
-                            edited = edited + CreateNewUnfixedActivityMethod(vm, userid, false);
+                            var editedActivity = container.ActivitySelectedByUserForSure
+                                                                .FirstOrDefault(a => a.Id == activityId &&
+                                                                                        a.ActivityType == ActivityType.UnfixedActivity) as UnfixedActivity;
+                            editedActivity = editedActivity + CreateNewUnfixedActivityMethod(viewModel, false);
                         }
-                        return RedirectToAction("Editor", "CalendarEditor");
                     }
-                    else
+
+                    return RedirectToAction(ActionNames.Editor.ToString(), ControllerNames.CalendarEditor.ToString());
+                }
+                else
+                {
+                    var activity = (await _repositories.UnfixedActivitySqlRepository
+                                                           .FindByExpressionAsync(t => t
+                                                               .Where(a => a.Id == activityId)
+                                                               .Include(a => a.LabelCollection)
+                                                               .Include(a => a.Category).ToListAsync()))
+                                                                   .FirstOrDefault();
+                    if (activity != null)
                     {
-                        UnfixedActivity cActivity = await db.UnFixedActivities.Where(x => x.ID == activityID).Include(x => x.Labels).Include(act => act.Category).FirstOrDefaultAsync();
-                        if (cActivity != null)
-                        {
-                            if (cActivity.Labels != null)
-                                db.Labels.RemoveRange(cActivity.Labels);
-                            cActivity.Category = null;
-                            db.UnFixedActivities.Remove(cActivity);
-                            db.SaveChanges();
-                        }
+                        if (activity.LabelCollection != null)
+                            await _repositories.LabelSqlRepository.RemoveRangeAsync(activity.LabelCollection);
+
+                        activity.Category = null;
+                        await _repositories.UnfixedActivitySqlRepository.RemoveAsync(activity);
                     }
                 }
-                await CreateNewActivityFromTuple(new MyTuple<FixedActivityAddOrEditViewModel, UnfixedActivityAddOrEditViewModel, UndefinedActivityAddOrEditViewModel, DeadlineActivityAddOrEditViewModel>() { Item2 = vm });
+
+                var viewModelContainer = new ViewModelManagerContainer() { UnfixedActivityManageViewModel = viewModel };
+                await CreateNewActivityFromTuple(viewModelContainer);
             }
             else
             {
-                vm.LabelList = GetAllLabelsToAddProcess(userid);
-                vm.ColorList = _colors;
-                vm.CategoryList = await GetAllCategoriesToAddProcessAsyc(userid);
-                vm.RepeatTypeList = GetRepeatTypeToAddProcess();
-                return View(vm);
+                viewModel.LabelSourceCollection = await AddLabelsToProcessAsync(UserId);
+                viewModel.CategorySourceCollection = await AddCategoriesToProcessAsyc(UserId);
+                viewModel.RepeatTypeSourceCollection = AddRepeatTypeToProcess();
+                viewModel.ColorSourceCollection = _colors;
+
+                return View(viewModel);
             }
 
-            return RedirectToAction("ManageActivities");
+            return RedirectToAction(ActionNames.ManageActivities.ToString());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> EditUndefinedActivity(UndefinedActivityAddOrEditViewModel vm)
+        public async Task<ActionResult> EditUndefinedActivity(UndefinedActivityManageViewModel viewModel)
         {
-            string userid = User.Identity.GetUserId();
-            int activityID = int.Parse(Request.Form["id"]); //Get the ID from "view"
+            int activityId = int.Parse(Request.Form["id"]);
+
             if (ModelState.IsValid)
             {
-                using (DamaDB db = new DamaDB())
+                if (viewModel.CalledFromEditor)
                 {
+                    using (var container = new ActivityContainer())
+                    {
+                        container.Reset = false;
+                        var editedActivity = container.ActivitySelectedByUserForOptional
+                                                        .FirstOrDefault(a => a.Id == activityId &&
+                                                                             a.ActivityType == ActivityType.UndefinedActivity) as UndefinedActivity;
 
-                    if (vm.CalledFromEditor)
-                    {
-                        Cont.Reset = false;
-                        UndefinedActivity edited = Cont.ActivitySelectedByUserForOptional.FirstOrDefault(x => x.ID == activityID && x.OwnType == ActivityType.Undefined) as UndefinedActivity;
-                        edited = edited + CreateNewUndefinedActivityMethod(vm, userid, false);
-                        return RedirectToAction("Editor", "CalendarEditor");
+                        editedActivity = editedActivity + CreateNewUndefinedActivityMethod(viewModel, false);
                     }
-                    else
+
+                    return RedirectToAction(ActionNames.Editor.ToString(), ControllerNames.CalendarEditor.ToString());
+                }
+                else
+                {
+                    //var activity = await db.UndefinedActivities.Where(x => x.ID == activityId).Include(x => x.Labels).Include(act => act.Category).FirstOrDefaultAsync();
+
+                    var activity = (await _repositories.UndefinedActivitySqlRepository
+                                                           .FindByExpressionAsync(t => t
+                                                                .Where(a => a.Id == activityId)
+                                                                .Include(a => a.LabelCollection)
+                                                                .Include(a => a.Category).ToListAsync()))
+                                                                    .FirstOrDefault();
+                    if (activity != null)
                     {
-                        UndefinedActivity cActivity = await db.UndefinedActivities.Where(x => x.ID == activityID).Include(x => x.Labels).Include(act => act.Category).FirstOrDefaultAsync();
-                        if (cActivity != null)
-                        {
-                            if (cActivity.Labels != null)
-                                db.Labels.RemoveRange(cActivity.Labels);
-                            cActivity.Category = null;
-                            db.UndefinedActivities.Remove(cActivity);
-                            db.SaveChanges();
-                        }
+                        if (activity.LabelCollection != null)
+                            await _repositories.LabelSqlRepository.RemoveRangeAsync(activity.LabelCollection);
+
+                        activity.Category = null;
+                        await _repositories.UndefinedActivitySqlRepository.RemoveAsync(activity);
                     }
                 }
-                await CreateNewActivityFromTuple(new MyTuple<FixedActivityAddOrEditViewModel, UnfixedActivityAddOrEditViewModel, UndefinedActivityAddOrEditViewModel, DeadlineActivityAddOrEditViewModel>() { Item3 = vm });
+
+                var viewModelContainer = new ViewModelManagerContainer() { UndefinedActivityManageViewModel = viewModel };
+
+                await CreateNewActivityFromTuple(viewModelContainer);
             }
             else
             {
-                vm.LabelList = GetAllLabelsToAddProcess(userid);
-                vm.ColorList = _colors;
-                vm.CategoryList = await GetAllCategoriesToAddProcessAsyc(userid);
-                return View(vm);
+                viewModel.LabelSourceCollection = await AddLabelsToProcessAsync(UserId);
+                viewModel.CategorySourceCollection = await AddCategoriesToProcessAsyc(UserId);
+                viewModel.ColorSourceCollection = _colors;
+
+                return View(viewModel);
             }
 
-            return RedirectToAction("ManageActivities");
+            return RedirectToAction(ActionNames.ManageActivities.ToString());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> EditDeadlineActivity(DeadlineActivityAddOrEditViewModel vm)
+        public async Task<ActionResult> EditDeadlineActivity(DeadlineActivityManageViewModel viewModel)
         {
-            string userid = User.Identity.GetUserId();
-            int activityID = int.Parse(Request.Form["id"]); //Get the ID from "view"
+            int activityId = int.Parse(Request.Form["id"]);
+
             if (ModelState.IsValid)
             {
-                using (DamaDB db = new DamaDB())
+                if (viewModel.CalledFromEditor)
                 {
-                    if (vm.CalledFromEditor)
+                    using (var container = new ActivityContainer())
                     {
-                        Cont.Reset = false;
-                        DeadlineActivity edited = Cont.ActivitySelectedByUserForSure.FirstOrDefault(x => x.ID == activityID && x.OwnType == ActivityType.Deadline) as DeadlineActivity;
-                        edited = edited + CreateNewDeadlineActivityMethod(vm, userid, false);
-                        return RedirectToAction("Editor", "CalendarEditor");
+                        container.Reset = false;
+                        var editedActivity = container.ActivitySelectedByUserForSure
+                                                          .FirstOrDefault(a => a.Id == activityId &&
+                                                                               a.ActivityType == ActivityType.DeadlineActivity) as DeadlineActivity;
+
+                        editedActivity = editedActivity + CreateNewDeadlineActivityMethod(viewModel, false);
                     }
-                    else
+
+                    return RedirectToAction(ActionNames.Editor.ToString(), ControllerNames.CalendarEditor.ToString());
+                }
+                else
+                {
+                    var activity = (await _repositories.DeadlineActivitySqlRepository
+                                                            .FindByExpressionAsync(t => t
+                                                                .Where(a => a.Id == activityId)
+                                                                .Include(a => a.LabelCollection)
+                                                                .Include(a => a.Category)
+                                                                .Include(a => a.Milestones).ToListAsync()))
+                                                                    .FirstOrDefault();
+                    if (activity != null)
                     {
-                        DeadlineActivity cActivity = await db.DeadLineActivities.Where(x => x.ID == activityID).Include(x => x.Labels).Include(act => act.Category).Include(act => act.MileStones).FirstOrDefaultAsync();
-                        if (cActivity != null)
-                        {
-                            if (cActivity.Labels != null)
-                                db.Labels.RemoveRange(cActivity.Labels);
-                            cActivity.Category = null;
-                            if (cActivity.MileStones != null)
-                                db.Milestones.RemoveRange(cActivity.MileStones);
-                            db.DeadLineActivities.Remove(cActivity);
-                            db.SaveChanges();
-                            ViewBag.ActivityRemovedSuccessFully = Messages.ActivityRemovedSuccessFully;
-                        }
+                        if (activity.LabelCollection != null)
+                            await _repositories.LabelSqlRepository.RemoveRangeAsync(activity.LabelCollection);
+
+                        activity.Category = null;
+
+                        if (activity.Milestones != null)
+                            await _repositories.MilestoneSqlRepository.RemoveRangeAsync(activity.Milestones);
+
+                        await _repositories.DeadlineActivitySqlRepository.RemoveAsync(activity);
+                        ViewBag.ActivityRemovedSuccessFully = Success.ActivityRemovedSuccessfully;
                     }
                 }
-                await CreateNewActivityFromTuple(new MyTuple<FixedActivityAddOrEditViewModel, UnfixedActivityAddOrEditViewModel, UndefinedActivityAddOrEditViewModel, DeadlineActivityAddOrEditViewModel>() { Item4 = vm });
+
+                var viewModelContainer = new ViewModelManagerContainer() { DeadlineActivityManageViewModel = viewModel };
+                await CreateNewActivityFromTuple(viewModelContainer);
             }
             else
             {
-                vm.ColorList = _colors;
-                return View(vm);
+                viewModel.ColorSourceCollection = _colors;
+                return View(viewModel);
             }
 
-            return RedirectToAction("ManageActivities");
+            return RedirectToAction(ActionNames.ManageActivities.ToString());
+        } 
+
+        private async Task<ActionResult> CreateNewActivityFromTuple(ViewModelManagerContainer modelManagerContainer)
+        {
+            if (modelManagerContainer.FixedActivityManageViewModel != null)
+            {
+                var fixedActivityViewModel = modelManagerContainer.FixedActivityManageViewModel;
+
+                if (ModelState.IsValid)
+                {
+                    var fixedActivity = CreateNewFixedActivityMethod(fixedActivityViewModel, CreationType.ManuallyCreated);
+
+                    if (fixedActivity.Category != null)
+                        _repositories.RepositorySettings.ChangeCategoryEntryState(fixedActivity.Category, EntityState.Unchanged);
+
+                    await _repositories.FixedActivitySqlRepository.AddAsync(fixedActivity);
+
+                    return RedirectToAction(ActionNames.ManageActivities.ToString());
+                }
+                else
+                {
+                    fixedActivityViewModel.LabelSourceCollection = await AddLabelsToProcessAsync(UserId);
+                    fixedActivityViewModel.CategorySourceCollection = await AddCategoriesToProcessAsyc(UserId);
+                    fixedActivityViewModel.ColorSourceCollection = _colors;
+                    var viewModelContainer = new ViewModelManagerContainer() { FixedActivityManageViewModel = fixedActivityViewModel };
+
+                    return View(viewModelContainer);
+                }
+            }
+
+            if (modelManagerContainer.UnfixedActivityManageViewModel != null)
+            {
+                var unfixedActivityViewModel = modelManagerContainer.UnfixedActivityManageViewModel;
+
+                if (ModelState.IsValid)
+                {
+                    var unfixedActivity = CreateNewUnfixedActivityMethod(unfixedActivityViewModel, CreationType.ManuallyCreated);
+
+                    if (unfixedActivity.Category != null)
+                        _repositories.RepositorySettings.ChangeCategoryEntryState(unfixedActivity.Category, EntityState.Unchanged);
+
+                    await _repositories.UnfixedActivitySqlRepository.AddAsync(unfixedActivity);
+
+                    return RedirectToAction(ActionNames.ManageActivities.ToString());
+                }
+                else
+                {
+                    unfixedActivityViewModel.LabelSourceCollection = await AddLabelsToProcessAsync(UserId);
+                    unfixedActivityViewModel.CategorySourceCollection = await AddCategoriesToProcessAsyc(UserId);
+                    unfixedActivityViewModel.ColorSourceCollection = _colors;
+                    var viewModelContainer = new ViewModelManagerContainer() { UnfixedActivityManageViewModel = unfixedActivityViewModel };
+
+                    return View(viewModelContainer);
+                }
+            }
+
+            if (modelManagerContainer.UndefinedActivityManageViewModel != null)
+            {
+                var undefinedActivityViewModel = modelManagerContainer.UndefinedActivityManageViewModel;
+
+                if (ModelState.IsValid)
+                {
+                    var undefinedActivity = CreateNewUndefinedActivityMethod(undefinedActivityViewModel, CreationType.ManuallyCreated);
+
+                    if (undefinedActivity.Category != null)
+                        _repositories.RepositorySettings.ChangeCategoryEntryState(undefinedActivity.Category, EntityState.Unchanged);
+
+                    await _repositories.UndefinedActivitySqlRepository.AddAsync(undefinedActivity);
+                    return RedirectToAction(ActionNames.ManageActivities.ToString());
+                }
+                else
+                {
+                    undefinedActivityViewModel.LabelSourceCollection = await AddLabelsToProcessAsync(UserId);
+                    undefinedActivityViewModel.CategorySourceCollection = await AddCategoriesToProcessAsyc(UserId);
+                    undefinedActivityViewModel.ColorSourceCollection = _colors;
+                    var viewModelContainer = new ViewModelManagerContainer() { UndefinedActivityManageViewModel = undefinedActivityViewModel };
+
+                    return View(viewModelContainer);
+                }
+            }
+
+            if (modelManagerContainer.DeadlineActivityManageViewModel != null)
+            {
+                var deadlineActivityViewModel = modelManagerContainer.DeadlineActivityManageViewModel;
+
+                if (ModelState.IsValid)
+                {
+                    var deadlineActivity = CreateNewDeadlineActivityMethod(deadlineActivityViewModel, CreationType.ManuallyCreated);
+                    await _repositories.DeadlineActivitySqlRepository.AddAsync(deadlineActivity);
+                    return RedirectToAction(ActionNames.ManageActivities.ToString());
+                }
+                else
+                {
+                    deadlineActivityViewModel.ColorSourceCollection = _colors;
+                    var viewModelContainer = new ViewModelManagerContainer() { DeadlineActivityManageViewModel = deadlineActivityViewModel };
+
+                    return View(viewModelContainer);
+                }
+            }
+
+            return RedirectToAction(ActionNames.ManageActivities.ToString());
         }
 
-        private async Task<ActionResult> CreateNewActivityFromTuple(MyTuple<FixedActivityAddOrEditViewModel, UnfixedActivityAddOrEditViewModel, UndefinedActivityAddOrEditViewModel, DeadlineActivityAddOrEditViewModel> tupleObject)
+        private FixedActivity CreateNewFixedActivityMethod(FixedActivityManageViewModel viewModel, CreationType creationType)
         {
-            bool Base = true;
-            string userid = User.Identity.GetUserId();
-
-            //Fixed
-            if (tupleObject.Item1 != null)
-            {
-                FixedActivityAddOrEditViewModel fixedActivityAddOrEditViewModel = tupleObject.Item1;
-                if (ModelState.IsValid)
-                {
-                    using (DamaDB db = new DamaDB())
-                    {
-                        FixedActivity fa = CreateNewFixedActivityMethod(fixedActivityAddOrEditViewModel, userid, Base);
-                        if (fa.Category != null)
-                            db.Entry(fa.Category).State = EntityState.Unchanged;
-                        db.FixedActivities.Add(fa);
-                        db.SaveChanges();
-                    }
-                    return RedirectToAction("ManageActivities");
-                }
-                else
-                {
-                    fixedActivityAddOrEditViewModel.LabelList = GetAllLabelsToAddProcess(userid);
-                    fixedActivityAddOrEditViewModel.ColorList = _colors;
-                    fixedActivityAddOrEditViewModel.CategoryList = await GetAllCategoriesToAddProcessAsyc(userid);
-                    return View(GetActivityTupleObject(false, fixedActivityAddOrEditViewModel, null, null, null));
-                }
-            }
-            //Unfixed
-            if (tupleObject.Item2 != null)
-            {
-                UnfixedActivityAddOrEditViewModel unfixedActivityAddOrEditViewModel = tupleObject.Item2;
-                if (ModelState.IsValid)
-                {
-                    using (DamaDB db = new DamaDB())
-                    {
-                        UnfixedActivity ufa = CreateNewUnfixedActivityMethod(unfixedActivityAddOrEditViewModel, userid, Base);
-                        if (ufa.Category != null)
-                            db.Entry(ufa.Category).State = EntityState.Unchanged;
-                        db.UnFixedActivities.Add(ufa);
-                        db.SaveChanges();
-                    }
-                    return RedirectToAction("ManageActivities");
-                }
-                else
-                {
-                    unfixedActivityAddOrEditViewModel.LabelList = GetAllLabelsToAddProcess(userid);
-                    unfixedActivityAddOrEditViewModel.ColorList = _colors;
-                    unfixedActivityAddOrEditViewModel.CategoryList = await GetAllCategoriesToAddProcessAsyc(userid);
-                    return View(GetActivityTupleObject(false, null, unfixedActivityAddOrEditViewModel, null, null));
-                }
-            }
-            //Undefined
-            if (tupleObject.Item3 != null)
-            {
-                UndefinedActivityAddOrEditViewModel undefinedActivityAddOrEditViewModel = tupleObject.Item3;
-                if (ModelState.IsValid)
-                {
-                    using (DamaDB db = new DamaDB())
-                    {
-                        UndefinedActivity uda = CreateNewUndefinedActivityMethod(undefinedActivityAddOrEditViewModel, userid, Base);
-                        if (uda.Category != null)
-                            db.Entry(uda.Category).State = EntityState.Unchanged;
-                        db.UndefinedActivities.Add(uda);
-                        db.SaveChanges();
-                    }
-                    return RedirectToAction("ManageActivities");
-                }
-                else
-                {
-                    undefinedActivityAddOrEditViewModel.LabelList = GetAllLabelsToAddProcess(userid);
-                    undefinedActivityAddOrEditViewModel.ColorList = _colors;
-                    undefinedActivityAddOrEditViewModel.CategoryList = await GetAllCategoriesToAddProcessAsyc(userid);
-                    return View(GetActivityTupleObject(false, null, null, undefinedActivityAddOrEditViewModel, null));
-                }
-            }
-            //Deadline
-            if (tupleObject.Item4 != null)
-            {
-                DeadlineActivityAddOrEditViewModel deadlineActivityAddOrEditViewModel = tupleObject.Item4;
-                if (ModelState.IsValid)
-                {
-                    using (DamaDB db = new DamaDB())
-                    {
-                        db.DeadLineActivities.Add(CreateNewDeadlineActivityMethod(deadlineActivityAddOrEditViewModel, userid, Base));
-                        db.SaveChanges();
-                    }
-                    return RedirectToAction("ManageActivities");
-                }
-                else
-                {
-                    deadlineActivityAddOrEditViewModel.ColorList = _colors;
-                    return View(GetActivityTupleObject(false, null, null, null, deadlineActivityAddOrEditViewModel));
-                }
-            }
-            return RedirectToAction("ManageActivities");
-        }
-
-        private FixedActivity CreateNewFixedActivityMethod(FixedActivityAddOrEditViewModel vm, string userid, bool Base)
-        {
-            Category category;
-            List<Label> labels = new List<Label>();
-            DateTime start = DateTime.Today + vm.StartTime.TimeOfDay;
-            DateTime end = DateTime.Today + vm.EndTime.TimeOfDay;
-            int finalPriority;
-
-            using (DamaDB db = new DamaDB())
-            {
-                category = db.Categories.Where(x => x.Name == vm.Category).FirstOrDefault();
-                if (vm.Labels != null)
-                {
-                    foreach (string i in vm.Labels)
-                    {
-                        labels.Add(new Label(i, userid));
-                    }
-                }
-
-                if (vm.Priority == 0)
-                {
-                    if (category == null)
-                        finalPriority = 1;
-                    else
-                        finalPriority = category.Priority;
-                }
-                else
-                    finalPriority = vm.Priority;
-            }
-
             Repeat repeat = null;
-            if (vm.RepeatType != null && vm.RepeatEndDate != null)
-            {
-                repeat = new Repeat(vm.StartTime, (RepeatPeriod)Enum.Parse(typeof(RepeatPeriod), vm.RepeatType), vm.RepeatEndDate);
-            }
-
-            return new FixedActivity(vm.Name,
-                                    vm.Description,
-                                    vm.Color,
-                                    false,
-                                    Base,
-                                    labels,
-                                    category,
-                                    userid,
-                                    finalPriority,
-                                    start,
-                                    end,
-                                    repeat);
-        }
-
-        private UnfixedActivity CreateNewUnfixedActivityMethod(UnfixedActivityAddOrEditViewModel vm, string userid, bool Base)
-        {
-            Category category;
-            List<Label> labels = new List<Label>();
-            TimeSpan time = vm.Timespan;
             int finalPriority;
+            var start = DateTime.Today + viewModel.StartTime.TimeOfDay;
+            var end = DateTime.Today + viewModel.EndTime.TimeOfDay;
+            var category = _repositories.CategorySqlRepository.FindByPredicate(c => c.Name == viewModel.Category).FirstOrDefault();
+            var labels = viewModel.Labels?.Select(l => new Label(l, UserId)).ToList();
 
-            using (DamaDB db = new DamaDB())
-            {
-                category = db.Categories.Where(x => x.Name == vm.Category).FirstOrDefault();
-                if (vm.Labels != null)
-                {
-                    foreach (string i in vm.Labels)
-                    {
-                        labels.Add(new Label(i, userid));
-                    }
-                }
-            }
-
-            if (vm.Priority == 0)
-            {
-                if (category == null)
-                    finalPriority = 1;
-                else
-                    finalPriority = category.Priority;
-            }
+            if (viewModel.Priority == 0)
+                finalPriority = category == null ? 1 : category.Priority;
             else
-                finalPriority = vm.Priority;
+                finalPriority = viewModel.Priority;
 
+            if (viewModel.RepeatType != null && viewModel.RepeatEndDate != null)
+                repeat = new Repeat(viewModel.StartTime, viewModel.RepeatEndDate, (RepeatPeriod)Enum.Parse(typeof(RepeatPeriod), viewModel.RepeatType));
+
+            var builder = new FixedActivityBuilder();
+
+            FixedActivity result = builder.CreateActivity(viewModel.Name)
+                                            .WithDescription(viewModel.Description)
+                                            .WithColor((Color)Enum.Parse(typeof(Color), viewModel.Color))
+                                            .WithCreationType(CreationType.ManuallyCreated)
+                                            .WithLabels(labels)
+                                            .WithCategory(category)
+                                            .WithUserId(UserId)
+                                            .WithPriority(finalPriority)
+                                            .WithStart(start)
+                                            .WithEnd(end);
+            return result;
+        }
+
+        private UnfixedActivity CreateNewUnfixedActivityMethod(UnfixedActivityManageViewModel viewModel, CreationType creationType)
+        {
+            int finalPriority;
             Repeat repeat = null;
-            if (vm.RepeatType != null && vm.RepeatEndDate != null)
-            {
-                repeat = new Repeat((RepeatPeriod)Enum.Parse(typeof(RepeatPeriod), vm.RepeatType), vm.RepeatEndDate);
-            }
 
-            return new UnfixedActivity(
-                                        vm.Name,
-                                        vm.Description,
-                                        vm.Color,
-                                        false,
-                                        Base,
-                                        labels,
-                                        category,
-                                        userid,
-                                        finalPriority,
-                                        time,
-                                        repeat);
+            var category = _repositories.CategorySqlRepository.FindByPredicate(c => c.Name == viewModel.Category).FirstOrDefault();
+            var labels = viewModel.Labels?.Select(l => new Label(l, UserId));
 
+            if (viewModel.Priority == 0)
+                finalPriority = category == null ? 1 : category.Priority;
+            else
+                finalPriority = viewModel.Priority;
+
+            if (viewModel.RepeatType != null && viewModel.RepeatEndDate != null)
+                repeat = new Repeat((RepeatPeriod)Enum.Parse(typeof(RepeatPeriod), viewModel.RepeatType), viewModel.RepeatEndDate);
+
+            var builder = new UnfixedActivityBuilder();
+            var result = builder.CreateActivity(viewModel.Name)
+                                 .WithDescription(viewModel.Description)
+                                 .WithColor((Color)Enum.Parse(typeof(Color), viewModel.Color))
+                                 .WithCreationType(CreationType.ManuallyCreated)
+                                 .WithCategory(category)
+                                 .WithUserId(UserId)
+                                 .WithPriority(finalPriority)
+                                 .WithTimeSpan(viewModel.Timespan);
+
+            return result;
         }
 
         private UndefinedActivity CreateNewUndefinedActivityMethod(UndefinedActivityAddOrEditViewModel vm, string userid, bool Base)

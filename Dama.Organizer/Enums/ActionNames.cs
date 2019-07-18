@@ -11,5 +11,6 @@
         ManageCategories,
         ManageLabels,
         ManageActivities,
+        Editor
     }
 }

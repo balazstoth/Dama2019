@@ -86,6 +86,7 @@
     <Compile Include="Repositories\FixedActivitySqlRepository.cs" />
     <Compile Include="Repositories\LabelSqlRepository.cs" />
     <Compile Include="Repositories\MilestoneSqlRepository.cs" />
+    <Compile Include="Repositories\RepositorySettings.cs" />
     <Compile Include="Repositories\UndefinedActivitySqlRepository.cs" />
     <Compile Include="Repositories\UnfixedActivitySqlRepository.cs" />
     <Compile Include="SQL\DamaContext.cs" />

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Dama.Data.Models
 {
-    class DeadlineActivityBuilder : ActivityBuilder
+    public class DeadlineActivityBuilder : ActivityBuilder<DeadlineActivityBuilder>
     {
         private DateTime start;
         private DateTime end;

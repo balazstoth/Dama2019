@@ -1,6 +1,6 @@
 ﻿namespace Dama.Data.Models
 {
-    class UndefinedActivityBuilder : ActivityBuilder
+    class UndefinedActivityBuilder : ActivityBuilder<UndefinedActivityBuilder>
     {
         private int minimumTime;
         private int maximumTime;

@@ -2,7 +2,7 @@
 
 namespace Dama.Data.Models
 {
-    class FixedActivityBuilder : ActivityBuilder
+    public class FixedActivityBuilder : ActivityBuilder<FixedActivityBuilder>
     {
         private int priority;
         private DateTime start;

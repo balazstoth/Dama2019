@@ -17,5 +17,7 @@ namespace Dama.Data.Interfaces
         IRepository<Category> CategorySqlRepository { get; set; }
 
         IRepository<Milestone> MilestoneSqlRepository { get; set; }
+
+        IRepositorySettings RepositorySettings { get; set; }
     }
 }

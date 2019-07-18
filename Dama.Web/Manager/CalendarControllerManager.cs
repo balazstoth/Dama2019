@@ -55,23 +55,23 @@ namespace Dama.Web.Manager
 
             var fixedActivityViewModel = new FixedActivityManageViewModel()
             {
-                    Id = details.ActivityId.ToString(),
-                    Category = fixedActivity.Category?.ToString(),
-                    CategorySourceCollection = details.Categories,
-                    Color = fixedActivity.Color.ToString(),
-                    ColorSourceCollection = details.Colors,
-                    Description = fixedActivity.Description,
-                    EndTime = fixedActivity.End,
-                    LabelSourceCollection = details.Labels,
-                    Labels = fixedActivity.LabelCollection.Select(l => l.Name),
-                    Name = fixedActivity.Name,
-                    Priority = fixedActivity.Priority,
-                    StartTime = fixedActivity.Start.GetValueOrDefault(),
-                    RepeatTypeSourceCollection = details.RepeatTypes,
-                    EnableRepeatChange = details.CalledFromEditor,
-                    RepeatType = fixedActivity.Repeat?.RepeatPeriod.ToString(),
-                    RepeatEndDate = fixedActivity.Repeat?.EndDate ?? DateTime.Today.AddDays(7),
-                    IsOptional = optional
+                Id = details.ActivityId.ToString(),
+                Category = fixedActivity.Category?.ToString(),
+                CategorySourceCollection = details.Categories,
+                Color = fixedActivity.Color.ToString(),
+                ColorSourceCollection = details.Colors,
+                Description = fixedActivity.Description,
+                EndTime = fixedActivity.End,
+                LabelSourceCollection = details.Labels,
+                Labels = fixedActivity.LabelCollection.Select(l => l.Name),
+                Name = fixedActivity.Name,
+                Priority = fixedActivity.Priority,
+                StartTime = fixedActivity.Start.GetValueOrDefault(),
+                RepeatTypeSourceCollection = details.RepeatTypes,
+                EnableRepeatChange = details.CalledFromEditor,
+                RepeatType = fixedActivity.Repeat?.RepeatPeriod.ToString(),
+                RepeatEndDate = fixedActivity.Repeat?.EndDate ?? DateTime.Today.AddDays(7),
+                IsOptional = optional
             };
 
             return fixedActivityViewModel;

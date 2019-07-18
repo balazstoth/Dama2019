@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Dama.Data.Models
 {
-    abstract class ActivityBuilder
+    public abstract class ActivityBuilder<T> where T : class
     {
         protected string name;
         protected string description;
@@ -14,45 +14,45 @@ namespace Dama.Data.Models
         protected string userId;
         protected ActivityType activityType;
 
-        public ActivityBuilder CreateActivity(string name)
+        public T CreateActivity(string name)
         {
             this.name = name;
-            return this;
+            return this as T;
         }
-        public ActivityBuilder WithDescription(string description)
+        public T WithDescription(string description)
         {
             this.description = description;
-            return this;
+            return this as T;
         }
-        public ActivityBuilder WithColor(Color color)
+        public T WithColor(Color color)
         {
             this.color = color;
-            return this;
+            return this as T;
         }
-        public ActivityBuilder WithCreationType(CreationType creationType)
+        public T WithCreationType(CreationType creationType)
         {
             this.creationType = creationType;
-            return this;
+            return this as T;
         }
-        public ActivityBuilder WithLabels(IEnumerable<Label> labels)
+        public T WithLabels(IEnumerable<Label> labels)
         {
             this.labels = labels;
-            return this;
+            return this as T;
         }
-        public ActivityBuilder WithCategory(Category category)
+        public T WithCategory(Category category)
         {
             this.category = category;
-            return this;
+            return this as T;
         }
-        public ActivityBuilder WithUserId(string userId)
+        public T WithUserId(string userId)
         {
             this.userId = userId;
-            return this;
+            return this as T;
         }
-        public ActivityBuilder WithActivityType(ActivityType activityType)
+        public T WithActivityType(ActivityType activityType)
         {
             this.activityType = activityType;
-            return this;
+            return this as T;
         }
     }
 }

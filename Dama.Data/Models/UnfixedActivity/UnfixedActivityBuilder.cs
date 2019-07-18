@@ -2,7 +2,7 @@
 
 namespace Dama.Data.Models
 {
-    class UnfixedActivityBuilder : ActivityBuilder
+    public class UnfixedActivityBuilder : ActivityBuilder<UnfixedActivityBuilder>
     {
         private int priority;
         private TimeSpan timeSpan;
