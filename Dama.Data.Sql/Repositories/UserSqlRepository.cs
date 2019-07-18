@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -85,6 +86,16 @@ namespace Dama.Data.Sql.Repositories
             {
                 return context.Set<User>().ToArray();
             }
+        }
+
+        public Task<List<User>> FindByExpressionAsync(Expression<Func<DbSet<User>, Task<List<User>>>> expression)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<User> FindByPredicate(Predicate<User> predicate)
+        {
+            throw new NotImplementedException();
         }
     }
 }

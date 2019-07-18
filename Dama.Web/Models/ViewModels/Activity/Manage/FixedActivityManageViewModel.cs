@@ -44,8 +44,11 @@ namespace Dama.Web.Models.ViewModels.Activity.Manage
         public DateTime RepeatEndDate { get; set; }
 
         public IEnumerable<SelectListItem> ColorSourceCollection { get; set; }
+
         public IEnumerable<SelectListItem> LabelSourceCollection { get; set; }
+
         public IEnumerable<SelectListItem> CategorySourceCollection { get; set; }
+
         public IEnumerable<SelectListItem> RepeatTypeSourceCollection { get; set; }
     }
 }

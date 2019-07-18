@@ -7,6 +7,10 @@
         FixedActivityDetails,
         UndefinedActivityDetails,
         UnfixedActivityDetails,
-        DeadlineActivityDetails
+        DeadlineActivityDetails,
+        EditFixedActivity,
+        EditUnfixedActivity,
+        EditUndefinedActivity,
+        EditDeadlineActivity,
     }
 }

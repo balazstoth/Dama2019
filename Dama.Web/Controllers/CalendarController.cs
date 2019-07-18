@@ -8,6 +8,7 @@ using Dama.Organizer.Enums;
 using Dama.Organizer.Models;
 using Dama.Organizer.Resources;
 using Dama.Web.Attributes;
+using Dama.Web.Models;
 using Dama.Web.Models.ViewModels;
 using Dama.Web.Models.ViewModels.Activity.Display;
 using Dama.Web.Models.ViewModels.Activity.Manage;
@@ -18,10 +19,12 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using Dama.Web.Manager;
 using ActionNames = Dama.Organizer.Enums.ActionNames;
 using ControllerNames = Dama.Organizer.Enums.ControllerNames;
 using ViewNames = Dama.Organizer.Enums.ViewNames;
@@ -37,6 +40,7 @@ namespace Dama.Web.Controllers
         private readonly string[] _availableColors;
         private readonly IContentRepository _repositories;
         private readonly RepositoryManager _repositoryManager;
+        private readonly CalendarControllerManager _calendarControllerManager;
 
         public CalendarController(IContentRepository contentRepository, RepositoryManager repositoryManager)
         {
@@ -46,6 +50,7 @@ namespace Dama.Web.Controllers
             _colors = new List<SelectListItem>();
             _availableColors = Enum.GetValues(typeof(Color)).Cast<string>().ToArray();
             _colors = _availableColors.Select(c => new SelectListItem() { Text = c.ToString() }).ToList();
+            _calendarControllerManager = new CalendarControllerManager();
         }
 
         public string UserId => User.Identity.GetUserId();
@@ -602,180 +607,64 @@ namespace Dama.Web.Controllers
 
         public async Task<ActionResult> EditActivity(string id, ActivityType? activityType, bool calledFromEditor = false, bool optional = false)
         {
-            //Session: https://stackoverflow.com/questions/5644304/storing-custom-objects-in-sessions
-
-            var activityId = int.Parse(id);
-            var colorList = new List<SelectListItem>(_colors);
-            var labelList = await AddLabelsToProcessAsync(UserId);
-            var categoryList =await AddCategoriesToProcessAsyc(UserId);
-            var repeatTypeList = AddRepeatTypeToProcess();
-            bool? isOptional = null;
-
-            using (var container = new ActivityContainer())
+            var details = new EditDetails()
             {
-                switch (activityType)
+                ActivityId = int.Parse(id),
+                ActivityType = activityType,
+                CalledFromEditor = calledFromEditor,
+                IsOptional = optional,
+                Categories = new List<SelectListItem>(_colors),
+                Colors = new List<SelectListItem>(_colors),
+                Labels = await AddLabelsToProcessAsync(UserId),
+                RepeatTypes = AddRepeatTypeToProcess(),
+            };
+            var path = "../Calendar";
+
+            switch (activityType)
+            {
+                case ActivityType.FixedActivity:
                 {
-                    case ActivityType.FixedActivity:
+                    var fixedActivityViewModel = await _calendarControllerManager.AssembleFixedActivityManageViewModelAsync(details);
 
-                        FixedActivity fixedActivity;
-                        isOptional = optional;
+                    if (calledFromEditor)
+                        return PartialView(Path.Combine(path, ViewNames.EditFixedActivity.ToString()), fixedActivityViewModel);
 
-                        if (calledFromEditor)
-                        {
-                            if (optional)
-                                fixedActivity = container.ActivitySelectedByUserForOptional
-                                                                    .FirstOrDefault(a => a.Id == activityId && 
-                                                                                    a.ActivityType== ActivityType.FixedActivity) as FixedActivity;
-                            else
-                                fixedActivity = container.ActivitySelectedByUserForSure
-                                                                    .FirstOrDefault(a => a.Id == activityId && 
-                                                                                    a.ActivityType == ActivityType.FixedActivity) as FixedActivity;
-                        }
-                        else
-                        {
-                            fixedActivity = (await _repositories.FixedActivitySqlRepository.FindByExpressionAsync(t => t
-                                                                          .Include(a => a.Category)
-                                                                          .Include(a => a.LabelCollection)
-                                                                          .ToListAsync()))
-                                                                                .FirstOrDefault(a =>
-                                                                                        a.Id == activityId && a.CreationType == CreationType.ManuallyCreated);
-                        }
-
-                        var fixedActivityViewModel = new FixedActivityManageViewModel()
-                        {
-                            Id = id,
-                            Category = fixedActivity.Category != null ? fixedActivity.Category.ToString() : null,
-                            CategorySourceCollection = categoryList,
-                            Color = fixedActivity.Color,
-                            ColorList = colorList,
-                            Description = fixedActivity.Description,
-                            EndTime = fixedActivity.End,
-                            LabelList = labelList,
-                            Labels = fixedActivity.Labels.Select(x => x.Name).ToList(),
-                            Name = fixedActivity.Name,
-                            Priority = fixedActivity.Priority,
-                            StartTime = fixedActivity.Start,
-                            RepeatTypeList = repeatTypeList,
-                            enableRepeatChange = calledFromEditor,
-                            RepeatType = fixedActivity.Repeat == null ? null : fixedActivity.Repeat.RepeatPeriod.ToString(),
-                            RepeatEndDate = fixedActivity.Repeat == null ? DateTime.Today.AddDays(7) : fixedActivity.Repeat.EndDate,
-                            IsOptional = isOptional
-                        };
-
-                        if (calledFromEditor)
-                            return PartialView("../Calendar/EditFixedActivity", fixedActivityViewModel);
-                        return View("EditFixedActivity", fixedActivityViewModel);
-
-
-                    case ActivityType.Undefined:
-                        UndefinedActivity undefinedActivity;
-                        if (calledFromEditor)
-                        {
-                            undefinedActivity = Cont.ActivitySelectedByUserForOptional.FirstOrDefault(x => x.ID == IDParam && x.OwnType == ActivityType.Undefined) as UndefinedActivity;
-                        }
-                        else
-                        {
-                            undefinedActivity = await db.UndefinedActivities.Include(i => i.Category).Include(i => i.Labels).FirstOrDefaultAsync(i => i.ID == IDParam && i.Base == true);
-                        }
-                        UndefinedActivityAddOrEditViewModel vm = new UndefinedActivityAddOrEditViewModel()
-                        {
-                            Id = id,
-                            Category = undefinedActivity.Category != null ? undefinedActivity.Category.ToString() : null,
-                            CategoryList = categoryList,
-                            Color = undefinedActivity.Color,
-                            ColorList = colorList,
-                            Description = undefinedActivity.Description,
-                            LabelList = labelList,
-                            Labels = undefinedActivity.Labels.Select(x => x.Name).ToList(),
-                            Name = undefinedActivity.Name,
-                            CalledFromEditor = calledFromEditor,
-                            MaximumTime = undefinedActivity.MaximumTime,
-                            MinimumTime = undefinedActivity.MinimumTime
-                        };
-                        if (calledFromEditor)
-                            return PartialView("../Calendar/EditUndefinedActivity", vm);
-                        return View("EditUndefinedActivity", vm);
-
-                    case ActivityType.Unfixed:
-                        UnfixedActivity unfixedActivity;
-                        if (calledFromEditor)
-                        {
-                            if (optional)
-                            {
-                                isOptional = true;
-                                unfixedActivity = Cont.ActivitySelectedByUserForOptional.FirstOrDefault(x => x.ID == IDParam && x.OwnType == ActivityType.Unfixed) as UnfixedActivity;
-                            }
-                            else
-                            {
-                                isOptional = false;
-                                unfixedActivity = Cont.ActivitySelectedByUserForSure.FirstOrDefault(x => x.ID == IDParam && x.OwnType == ActivityType.Unfixed) as UnfixedActivity;
-                            }
-                        }
-                        else
-                        {
-                            unfixedActivity = await db.UnFixedActivities.Include(i => i.Category).Include(i => i.Labels).FirstOrDefaultAsync(i => i.ID == IDParam && i.Base == true);
-                        }
-                        UnfixedActivityAddOrEditViewModel vmUnfixed = new UnfixedActivityAddOrEditViewModel()
-                        {
-                            Id = id,
-                            Category = unfixedActivity.Category != null ? unfixedActivity.Category.ToString() : null,
-                            CategoryList = categoryList,
-                            Color = unfixedActivity.Color,
-                            ColorList = colorList,
-                            Description = unfixedActivity.Description,
-                            LabelList = labelList,
-                            Labels = unfixedActivity.Labels.Select(x => x.Name).ToList(),
-                            Name = unfixedActivity.Name,
-                            Priority = unfixedActivity.Priority,
-                            Timespan = unfixedActivity.TimeSpan,
-                            RepeatTypeList = repeatTypeList,
-                            enableRepeatChange = calledFromEditor,
-                            RepeatType = unfixedActivity.Repeat == null ? null : unfixedActivity.Repeat.RepeatPeriod.ToString(),
-                            RepeatEndDate = unfixedActivity.Repeat == null ? DateTime.Today.AddDays(7) : unfixedActivity.Repeat.EndDate,
-                            IsOptional = isOptional
-                        };
-
-                        if (calledFromEditor)
-                            return PartialView("../Calendar/EditUnfixedActivity", vmUnfixed);
-                        return View("EditUnfixedActivity", vmUnfixed);
-
-
-                    case ActivityType.Deadline:
-                        DeadlineActivity deadlineActivity;
-                        if (calledFromEditor)
-                        {
-                            deadlineActivity = Cont.ActivitySelectedByUserForSure.FirstOrDefault(x => x.ID == IDParam && x.OwnType == ActivityType.Deadline) as DeadlineActivity;
-                        }
-                        else
-                        {
-                            deadlineActivity = await db.DeadLineActivities.Include(i => i.MileStones).FirstOrDefaultAsync(i => i.ID == IDParam && i.Base == true);
-                        }
-
-                        string ms = "";
-                        foreach (MileStone i in deadlineActivity.MileStones)
-                            ms += i.Name + ";" + i.Time + "|";
-
-                        DeadlineActivityAddOrEditViewModel vmDeadline = new DeadlineActivityAddOrEditViewModel()
-                        {
-                            Id = id,
-                            Description = deadlineActivity.Description,
-                            Name = deadlineActivity.Name,
-                            EndDate = deadlineActivity.End.Date,
-                            StartDate = deadlineActivity.Start.Date,
-                            EndTime = deadlineActivity.End,
-                            StartTime = deadlineActivity.Start,
-                            Milestones = ms,
-                            CalledFromEditor = calledFromEditor
-                        };
-
-                        if (calledFromEditor)
-                            return View("../Calendar/EditDeadlineActivity", vmDeadline);
-
-                        return View("EditDeadlineActivity", vmDeadline);
+                    return View(ViewNames.EditFixedActivity.ToString(), fixedActivityViewModel);
                 }
+
+                case ActivityType.UnfixedActivity:
+                {
+                    var unfixedActivityViewModel = await _calendarControllerManager.AssembleUnfixedActivityViewModelAsync(details);
+
+                    if (calledFromEditor)
+                        return PartialView(Path.Combine(path, ViewNames.EditUnfixedActivity.ToString()), unfixedActivityViewModel);
+
+                    return View(ViewNames.EditUnfixedActivity.ToString(), unfixedActivityViewModel);
+                }
+
+                case ActivityType.UndefinedActivity:
+                { 
+                    var undefinedActivityViewModel = await _calendarControllerManager.AssembleUndefinedActivityViewModelAsync(details);
+
+                    if (calledFromEditor)
+                        return PartialView(Path.Combine(path, ViewNames.EditUndefinedActivity.ToString()), undefinedActivityViewModel);
+
+                    return View(ViewNames.EditUndefinedActivity.ToString(), undefinedActivityViewModel);
+                }
+
+                case ActivityType.DeadlineActivity:
+                {
+                    var deadlineActivityViewModel = await _calendarControllerManager.AssembleDeadlineActivityViewModelAsync(details);
+
+                    if (calledFromEditor)
+                        return PartialView(Path.Combine(path, ViewNames.EditDeadlineActivity.ToString()), deadlineActivityViewModel);
+
+                    return View(ViewNames.EditDeadlineActivity.ToString(), deadlineActivityViewModel);
+                }
+
+                default:
+                    return null;
             }
-            
-            return null;
         }
 
         [HttpPost]
