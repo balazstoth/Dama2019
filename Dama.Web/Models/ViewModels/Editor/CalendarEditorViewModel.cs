@@ -14,7 +14,7 @@ namespace Dama.Web.Models.ViewModels.Editor
         public DateTime SelectedDate { get; set; }
 
         //Contains the selected items (by user)
-        public IEnumerable<string> SelectedActivityCollection { get; set; }
+        public List<string> SelectedActivityCollection { get; set; }
 
         //For dropdownlist
         [Display(Name = "Activity type")]

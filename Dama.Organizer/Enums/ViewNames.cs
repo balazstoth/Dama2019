@@ -12,5 +12,6 @@
         EditUnfixedActivity,
         EditUndefinedActivity,
         EditDeadlineActivity,
+        GetActivityData,
     }
 }

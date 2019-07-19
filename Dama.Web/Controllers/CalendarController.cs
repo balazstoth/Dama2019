@@ -15,14 +15,12 @@ using Dama.Web.Models.ViewModels.Activity.Manage;
 using Dama.Web.Models.ViewModels.Category;
 using Dama.Web.Models.ViewModels.Label;
 using Microsoft.AspNet.Identity;
-
 using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Dama.Web.Manager;
