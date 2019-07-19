@@ -36,7 +36,8 @@ namespace Dama.Data.Models
                                      db.userId,
                                      db.start,
                                      db.end,
-                                     db.milestones);
+                                     db.milestones,
+                                     db.baseActivity);
         }
     }
 }

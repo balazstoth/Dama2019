@@ -15,6 +15,7 @@ using Dama.Web.Models.ViewModels.Activity.Manage;
 using Dama.Web.Models.ViewModels.Category;
 using Dama.Web.Models.ViewModels.Label;
 using Microsoft.AspNet.Identity;
+
 using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,7 @@ using ActionNames = Dama.Organizer.Enums.ActionNames;
 using ControllerNames = Dama.Organizer.Enums.ControllerNames;
 using ViewNames = Dama.Organizer.Enums.ViewNames;
 using Repeat = Dama.Data.Models.Repeat;
+using Milestone = Dama.Data.Models.Milestone;
 
 namespace Dama.Web.Controllers
 {
@@ -688,14 +690,14 @@ namespace Dama.Web.Controllers
                             var editedActivity = container.ActivitySelectedByUserForOptional
                                                                 .FirstOrDefault(a => a.Id == activityId &&
                                                                                      a.ActivityType == ActivityType.FixedActivity) as FixedActivity;
-                            editedActivity = editedActivity + CreateNewFixedActivityMethod(viewModel, false);
+                            editedActivity += CreateNewFixedActivityMethod(viewModel, false);
                         }
                         else
                         {
                             var editedActivity = container.ActivitySelectedByUserForSure
                                                                 .FirstOrDefault(a => a.Id == activityId &&
                                                                                      a.ActivityType == ActivityType.FixedActivity) as FixedActivity;
-                            editedActivity = editedActivity + CreateNewFixedActivityMethod(viewModel, false);
+                            editedActivity += CreateNewFixedActivityMethod(viewModel, false);
                         }
                     }
 
@@ -758,14 +760,14 @@ namespace Dama.Web.Controllers
                             var editedActivity = container.ActivitySelectedByUserForOptional
                                                                 .FirstOrDefault(a => a.Id == activityId &&
                                                                                         a.ActivityType == ActivityType.UnfixedActivity) as UnfixedActivity;
-                            editedActivity = editedActivity + CreateNewUnfixedActivityMethod(viewModel, false);
+                            editedActivity += CreateNewUnfixedActivityMethod(viewModel, false);
                         }
                         else
                         {
                             var editedActivity = container.ActivitySelectedByUserForSure
                                                                 .FirstOrDefault(a => a.Id == activityId &&
                                                                                         a.ActivityType == ActivityType.UnfixedActivity) as UnfixedActivity;
-                            editedActivity = editedActivity + CreateNewUnfixedActivityMethod(viewModel, false);
+                            editedActivity += CreateNewUnfixedActivityMethod(viewModel, false);
                         }
                     }
 
@@ -929,7 +931,7 @@ namespace Dama.Web.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    var fixedActivity = CreateNewFixedActivityMethod(fixedActivityViewModel, CreationType.ManuallyCreated);
+                    var fixedActivity = CreateNewFixedActivityMethod(fixedActivityViewModel, true);
 
                     if (fixedActivity.Category != null)
                         _repositories.RepositorySettings.ChangeCategoryEntryState(fixedActivity.Category, EntityState.Unchanged);
@@ -955,7 +957,7 @@ namespace Dama.Web.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    var unfixedActivity = CreateNewUnfixedActivityMethod(unfixedActivityViewModel, CreationType.ManuallyCreated);
+                    var unfixedActivity = CreateNewUnfixedActivityMethod(unfixedActivityViewModel, true);
 
                     if (unfixedActivity.Category != null)
                         _repositories.RepositorySettings.ChangeCategoryEntryState(unfixedActivity.Category, EntityState.Unchanged);
@@ -981,7 +983,7 @@ namespace Dama.Web.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    var undefinedActivity = CreateNewUndefinedActivityMethod(undefinedActivityViewModel, CreationType.ManuallyCreated);
+                    var undefinedActivity = CreateNewUndefinedActivityMethod(undefinedActivityViewModel, true);
 
                     if (undefinedActivity.Category != null)
                         _repositories.RepositorySettings.ChangeCategoryEntryState(undefinedActivity.Category, EntityState.Unchanged);
@@ -1006,7 +1008,7 @@ namespace Dama.Web.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    var deadlineActivity = CreateNewDeadlineActivityMethod(deadlineActivityViewModel, CreationType.ManuallyCreated);
+                    var deadlineActivity = CreateNewDeadlineActivityMethod(deadlineActivityViewModel, true);
                     await _repositories.DeadlineActivitySqlRepository.AddAsync(deadlineActivity);
                     return RedirectToAction(ActionNames.ManageActivities.ToString());
                 }
@@ -1022,7 +1024,7 @@ namespace Dama.Web.Controllers
             return RedirectToAction(ActionNames.ManageActivities.ToString());
         }
 
-        private FixedActivity CreateNewFixedActivityMethod(FixedActivityManageViewModel viewModel, CreationType creationType)
+        private FixedActivity CreateNewFixedActivityMethod(FixedActivityManageViewModel viewModel, bool isBaseActivity)
         {
             Repeat repeat = null;
             int finalPriority;
@@ -1050,11 +1052,12 @@ namespace Dama.Web.Controllers
                                             .WithUserId(UserId)
                                             .WithPriority(finalPriority)
                                             .WithStart(start)
-                                            .WithEnd(end);
+                                            .WithEnd(end)
+                                            .IsBaseActivity(isBaseActivity);
             return result;
         }
 
-        private UnfixedActivity CreateNewUnfixedActivityMethod(UnfixedActivityManageViewModel viewModel, CreationType creationType)
+        private UnfixedActivity CreateNewUnfixedActivityMethod(UnfixedActivityManageViewModel viewModel, bool isBaseActivity)
         {
             int finalPriority;
             Repeat repeat = null;
@@ -1078,64 +1081,55 @@ namespace Dama.Web.Controllers
                                  .WithCategory(category)
                                  .WithUserId(UserId)
                                  .WithPriority(finalPriority)
-                                 .WithTimeSpan(viewModel.Timespan);
+                                 .WithTimeSpan(viewModel.Timespan)
+                                 .IsBaseActivity(isBaseActivity);
 
             return result;
         }
 
-        private UndefinedActivity CreateNewUndefinedActivityMethod(UndefinedActivityAddOrEditViewModel vm, string userid, bool Base)
+        private UndefinedActivity CreateNewUndefinedActivityMethod(UndefinedActivityManageViewModel viewModel, bool isBaseActivity)
         {
-            Category category;
-            List<Label> labels = new List<Label>();
-            using (DamaDB db = new DamaDB())
-            {
-                category = db.Categories.Where(x => x.Name == vm.Category).FirstOrDefault();
-                if (vm.Labels != null)
-                {
-                    foreach (string i in vm.Labels)
-                    {
-                        labels.Add(new Label(i, userid));
-                    }
-                }
+            var category = _repositories.CategorySqlRepository.FindByPredicate(c => c.Name == viewModel.Category).FirstOrDefault();
+            var labels = viewModel.Labels?.Select(l => new Label(l, UserId));
 
-                return new UndefinedActivity(
-                                            vm.Name,
-                                            vm.Description,
-                                            vm.Color,
-                                            false,
-                                            Base,
-                                            labels,
-                                            category,
-                                            userid,
-                                            vm.MinimumTime,
-                                            vm.MaximumTime);
-            }
+            var builder = new UndefinedActivityBuilder();
+            var result = builder.CreateActivity(viewModel.Name)
+                                         .WithDescription(viewModel.Description)
+                                         .WithColor((Color)Enum.Parse(typeof(Color), viewModel.Color))
+                                         .WithCreationType(CreationType.ManuallyCreated)
+                                         .WithCategory(category)
+                                         .WithUserId(UserId)
+                                         .WithMinTime(viewModel.MinimumTime)
+                                         .WithMaxTime(viewModel.MaximumTime)
+                                         .IsBaseActivity(isBaseActivity);
+            return result;
         }
 
-        private DeadlineActivity CreateNewDeadlineActivityMethod(DeadlineActivityAddOrEditViewModel vm, string userid, bool Base)
+        private DeadlineActivity CreateNewDeadlineActivityMethod(DeadlineActivityManageViewModel viewModel, bool isBaseActivity)
         {
-            List<MileStone> mileStoneList = new List<MileStone>();
+            var milestones = new List<Milestone>();
 
-            if (vm.Milestones != null)
+            if (viewModel.Milestones != null)
             {
-                List<string> mileStoneStringList = vm.Milestones.Split('|').ToList();
-                foreach (string i in mileStoneStringList)
-                {
-                    if (i != "")
-                        mileStoneList.Add(new MileStone(i.Substring(0, i.IndexOf(';')), DateTime.Parse(i.Substring(i.IndexOf(';') + 1))));
-                }
+                var stringCollection = viewModel.Milestones.Split('|').ToList();
+                milestones = stringCollection
+                                .Where(m => m != "")
+                                .Select(m => new Milestone(
+                                                    m.Substring(0, m.IndexOf(';')), 
+                                                    DateTime.Parse(m.Substring(m.IndexOf(';') + 1)))).ToList();
             }
 
-            return new DeadlineActivity(
-                                        vm.Name,
-                                        vm.Description,
-                                        vm.Color,
-                                        false,
-                                        Base,
-                                        userid,
-                                        vm.StartDate + vm.StartTime.TimeOfDay,
-                                        vm.EndDate + vm.EndTime.TimeOfDay,
-                                        mileStoneList);
+            var builder = new DeadlineActivityBuilder();
+            var result = builder.CreateActivity(viewModel.Name)
+                                         .WithDescription(viewModel.Description)
+                                         .WithColor((Color)Enum.Parse(typeof(Color), viewModel.Color))
+                                         .WithCreationType(CreationType.ManuallyCreated)
+                                         .WithUserId(UserId)
+                                         .WithStart(viewModel.StartDate + viewModel.StartTime.TimeOfDay)
+                                         .WithEnd(viewModel.EndDate + viewModel.EndTime.TimeOfDay)
+                                         .WithMilestones(milestones)
+                                         .IsBaseActivity(isBaseActivity);
+            return result;
         }
         #endregion
     }

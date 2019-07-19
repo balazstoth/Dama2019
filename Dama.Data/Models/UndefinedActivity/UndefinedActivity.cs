@@ -21,7 +21,8 @@ namespace Dama.Data.Models
                              Category category,
                              string userId,
                              int minTime,
-                             int maxTime)
+                             int maxTime,
+                             bool baseActivity)
                                            : base(name,
                                                   description,
                                                   color,
@@ -29,7 +30,8 @@ namespace Dama.Data.Models
                                                   labels,
                                                   category,
                                                   userId,
-                                                  ActivityType.UndefinedActivity)
+                                                  ActivityType.UndefinedActivity,
+                                                  baseActivity)
         {
             this.MinimumTime = minTime;
             this.MaximumTime = maxTime;

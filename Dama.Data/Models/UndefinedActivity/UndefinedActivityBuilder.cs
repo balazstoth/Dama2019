@@ -1,6 +1,6 @@
 ﻿namespace Dama.Data.Models
 {
-    class UndefinedActivityBuilder : ActivityBuilder<UndefinedActivityBuilder>
+    public class UndefinedActivityBuilder : ActivityBuilder<UndefinedActivityBuilder>
     {
         private int minimumTime;
         private int maximumTime;
@@ -27,7 +27,8 @@
                                      ufb.category,
                                      ufb.userId,
                                      ufb.minimumTime,
-                                     ufb.maximumTime);
+                                     ufb.maximumTime,
+                                     ufb.baseActivity);
         }
     }
 }

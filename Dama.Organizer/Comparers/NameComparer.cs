@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Dama.Organizer.Others
 {
-    class NameComparer<T> : IComparer<T> where T : Activity
+    public class NameComparer<T> : IComparer<T> where T : Activity
     {
         public ComparableProperties ComparableProperties { get; set; }
         public ComparableSequence ComparableSequence { get; set; }

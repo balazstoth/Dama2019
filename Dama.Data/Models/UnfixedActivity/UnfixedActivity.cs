@@ -26,14 +26,16 @@ namespace Dama.Data.Models
             Category category, 
             string userId, 
             int priority, 
-            TimeSpan timeSpan) : base(name, 
+            TimeSpan timeSpan,
+            bool baseActivity) : base(name, 
                                       description, 
                                       color, 
                                       creationType, 
                                       labels, 
                                       category, 
                                       userId, 
-                                      ActivityType.UnfixedActivity)
+                                      ActivityType.UnfixedActivity,
+                                      baseActivity)
         {
             Priority = priority;
             TimeSpan = timeSpan;

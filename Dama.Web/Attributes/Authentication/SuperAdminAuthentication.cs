@@ -1,4 +1,5 @@
-﻿using Dama.Organizer.Enums;
+﻿using Dama.Data.Enums;
+using Dama.Organizer.Enums;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;

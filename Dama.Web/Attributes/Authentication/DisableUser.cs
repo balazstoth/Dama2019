@@ -1,4 +1,5 @@
 ﻿using Dama.Data.Models;
+using Dama.Data.Sql.SQL;
 using Dama.Organizer.Enums;
 using System.Linq;
 using System.Web;
@@ -27,11 +28,11 @@ namespace Dama.Web.Attributes
 
             var userName = HttpContext.Current.User.Identity.Name;
             
-            using (Database db = new Database())
+            using (var context = new DamaContext(new SqlConfiguration() { DatabaseName = "DamaDb" }))
             {
-                _user = db.Users
-                          .Where(u => u.UserName == userName)
-                          .FirstOrDefault();
+                _user = context.Users
+                               .Where(u => u.UserName == userName)
+                               .FirstOrDefault();
             }
 
             if (_user == null || _user.Blocked)

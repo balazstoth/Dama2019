@@ -13,6 +13,7 @@ namespace Dama.Data.Models
         protected Category category;
         protected string userId;
         protected ActivityType activityType;
+        protected bool baseActivity;
 
         public T CreateActivity(string name)
         {
@@ -52,6 +53,11 @@ namespace Dama.Data.Models
         public T WithActivityType(ActivityType activityType)
         {
             this.activityType = activityType;
+            return this as T;
+        }
+        public T IsBaseActivity(bool baseActivity)
+        {
+            this.baseActivity = baseActivity;
             return this as T;
         }
     }

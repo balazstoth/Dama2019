@@ -90,12 +90,20 @@ namespace Dama.Data.Sql.Repositories
 
         public Task<List<User>> FindByExpressionAsync(Expression<Func<DbSet<User>, Task<List<User>>>> expression)
         {
-            throw new NotImplementedException();
+            using (var context = new DamaContext(_config))
+            {
+                var func = expression.Compile();
+                return func(context.Set<User>());
+            }
         }
 
         public IEnumerable<User> FindByPredicate(Predicate<User> predicate)
         {
-            throw new NotImplementedException();
+            using (var context = new DamaContext(_config))
+            {
+                Expression<Func<User, bool>> expression = a => predicate(a);
+                return context.Set<User>().Where(expression).ToList();
+            }
         }
     }
 }

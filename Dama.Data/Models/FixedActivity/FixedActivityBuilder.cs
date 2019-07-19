@@ -35,7 +35,8 @@ namespace Dama.Data.Models
                                      fb.userId,
                                      fb.priority,
                                      fb.start,
-                                     fb.end);
+                                     fb.end,
+                                     fb.baseActivity);
         }
     }
 }

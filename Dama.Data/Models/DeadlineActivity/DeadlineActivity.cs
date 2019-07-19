@@ -19,7 +19,8 @@ namespace Dama.Data.Models
                                  string userId,
                                  DateTime start,
                                  DateTime end,
-                                 List<Milestone> milestones)
+                                 List<Milestone> milestones,
+                                 bool baseActivity)
                                            : base(name,
                                                   description,
                                                   color,
@@ -27,7 +28,8 @@ namespace Dama.Data.Models
                                                   labels,
                                                   category,
                                                   userId,
-                                                  ActivityType.DeadlineActivity)
+                                                  ActivityType.DeadlineActivity,
+                                                  baseActivity)
         {
             this.Start = start;
             this.End = end;

@@ -23,11 +23,13 @@ namespace Dama.Data.Models
 
         public string UserId { get; set; }
 
+        public bool BaseActivity { get; set; }
+
         public ActivityType ActivityType { get; set; }
         #endregion
 
         #region Constructors
-        public Activity(string name, string description, Color color, CreationType creationType, IEnumerable<Label> labels, Category category, string userId, ActivityType activityType)
+        public Activity(string name, string description, Color color, CreationType creationType, IEnumerable<Label> labels, Category category, string userId, ActivityType activityType, bool baseActivity)
         {
             Name = name;
             Description = description;
@@ -37,6 +39,7 @@ namespace Dama.Data.Models
             Category = category;
             UserId = userId;
             ActivityType = activityType;
+            BaseActivity = baseActivity;
         }
 
         public Activity()

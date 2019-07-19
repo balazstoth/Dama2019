@@ -30,14 +30,16 @@ namespace Dama.Data.Models
                              string userId,
                              int priority,
                              DateTime start,
-                             DateTime end) : base(name,
+                             DateTime end,
+                             bool baseActivity) : base(name,
                                                   description,
                                                   color,
                                                   creationType,
                                                   labels,
                                                   category,
                                                   userId,
-                                                  ActivityType.FixedActivity)
+                                                  ActivityType.FixedActivity,
+                                                  baseActivity)
         {
             Start = start;
             End = end;

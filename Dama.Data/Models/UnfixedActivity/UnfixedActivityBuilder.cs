@@ -28,7 +28,8 @@ namespace Dama.Data.Models
                                      ufb.category,
                                      ufb.userId,
                                      ufb.priority,
-                                     ufb.timeSpan);
+                                     ufb.timeSpan,
+                                     ufb.baseActivity);
         }
     }
 }

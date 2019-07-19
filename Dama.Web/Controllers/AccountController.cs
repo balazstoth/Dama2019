@@ -1,11 +1,10 @@
 ﻿using Dama.Data.Enums;
 using Dama.Data.Interfaces;
 using Dama.Data.Models;
-using Dama.Data.Sql.Repositories;
 using Dama.Data.Sql.SQL;
 using Dama.Organizer.Extensions;
 using Dama.Web.Attributes;
-using Dama.Web.Exception;
+using Dama.Web.Exceptions;
 using Dama.Web.Models.ViewModels.Account;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -49,6 +48,7 @@ namespace Dama.Web.Controllers
         {
             _defaultAction = ActionNames.Index.ToString();
             _defaultController = ControllerNames.Home.ToString();
+            _accessDeniedError = AccountMessage.AccessDenied.ToString();
             _executeError = AccountMessage.ExecuteError.ToString();
             _invalidIdError = AccountMessage.InvalidId.ToString();
             _redirectToListUsers = ActionNames.ListUsersAsync.ToString();
