@@ -1,0 +1,29 @@
+﻿@model Dama.Web.Models.ViewModels.Label.AddNewLabelViewModel
+@{
+    ViewBag.Title = "Add new label";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
+<p class="text-success">@ViewBag.LabelCreatedSuccessFully</p>
+<p class="text-warning">@ViewBag.LabelAlreadyExists</p>
+
+@using (Html.BeginForm("AddNewLabel", "Calendar", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    <hr />
+    @Html.ValidationSummary()
+    <div class="form-group">
+        @Html.LabelFor(m => m.Name, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextAreaFor(m => m.Name, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" class="btn btn-default" value="Create" />
+        </div>
+    </div>
+
+    @Html.ActionLink("Back", "ManageLabels");
+}

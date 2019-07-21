@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Dama.Data.Models.Label>
+
+@{
+    ViewBag.Title = "Manage Labels";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<p class="text-success">@ViewBag.LabelRemovedSuccessFully</p>
+<p class="text-danger">@ViewBag.LabelNotFoundError</p>
+
+<p>
+    @Html.ActionLink("Create new label", "AddNewLabel")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.ActionLink("Delete", "DeleteLabel", new { id = item.Id })
+            </td>
+        </tr>
+    }
+</table>
+
+@Html.ActionLink("Back", "Index")

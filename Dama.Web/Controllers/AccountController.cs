@@ -64,7 +64,7 @@ namespace Dama.Web.Controllers
         public async Task<ActionResult> ListUsersAsync()
         {
             ViewBag.ExecuteError = TempData[_executeError];
-            ViewBag.InvalidID = TempData[_invalidIdError];
+            ViewBag.InvalidId = TempData[_invalidIdError];
             ViewBag.AccessDenied = TempData[_accessDeniedError];
 
             IEnumerable<User> users = _userRepository.UserSqlRepository.GetAllEntitites();

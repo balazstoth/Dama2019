@@ -1,0 +1,71 @@
+﻿@using Dama.Data.Enums
+@model Dama.Web.Models.ViewModels.Activity.Display.UndefinedActivityViewModel
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4 style="color:orangered"><b>@ViewBag.Title</b></h4>
+<table class="table" style="table-layout:fixed">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Color)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Labels)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Category)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.MinimumTime)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.MaximumTime)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.UndefinedActivityCollection)
+    {
+        string categoryString = item.Category == null ? string.Empty : item.Category.ToString();
+        string appendedLabels = string.Join(" | ", item.LabelCollection);
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Color)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => appendedLabels)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => categoryString)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MinimumTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MaximumTime)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "EditActivity", new { id = item.Id, type = ActivityType.UndefinedActivity }) |
+                @Html.ActionLink("Delete", "DeleteActivity", new { id = item.Id, type = ActivityType.UndefinedActivity })
+            </td>
+        </tr>
+    }
+</table>
+
+@Html.ActionLink("Manage activities", "ManageActivities") |
+@Html.ActionLink("Manage categories", "ManageCategories")

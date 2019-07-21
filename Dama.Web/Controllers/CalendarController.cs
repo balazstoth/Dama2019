@@ -222,7 +222,7 @@ namespace Dama.Web.Controllers
                 currentCategory.Description = viewModel.Description;
                 currentCategory.Priority = viewModel.Priority;
                 currentCategory.Color = (Color)Enum.Parse(typeof(Color), viewModel.SelectedColor);
-                ViewBag.CategoryChangesSuccessfully = Success.CategoryChangesSuccessfully;
+                ViewBag.CategoryChangedSuccessfully = Success.CategoryChangesSuccessfully;
             }
 
             viewModel.Color = _colors;

@@ -1,0 +1,178 @@
+﻿@using Dama.Data.Enums
+@model Dama.Web.Models.ViewModels.ViewModelContainer
+
+@{
+    ViewBag.Title = "Sorted activities";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 style="color:red"><b>@ViewBag.Title</b></h2>
+
+<h4 style="color:orangered"><b>Fixed Activities</b></h4>
+<table class="table" style="table-layout:fixed">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.FixedActivityViewModel.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FixedActivityViewModel.Description)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FixedActivityViewModel.Labels)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FixedActivityViewModel.Category)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.FixedActivityViewModel.FixedActivityCollection)
+    {
+        string appendedLabels = string.Join(" | ", item.LabelCollection);
+        string categoryString = item.Category == null ? String.Empty : item.Category.ToString();
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => appendedLabels)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => categoryString)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "EditActivity", new { id = item.Id, type = ActivityType.FixedActivity }) |
+                @Html.ActionLink("Details", "ActivityDetails", new { id = item.Id, type = ActivityType.FixedActivity }) |
+                @Html.ActionLink("Delete", "DeleteActivity", new { id = item.Id, type = ActivityType.FixedActivity })
+            </td>
+        </tr>
+    }
+</table>
+<br>
+<br>
+<h4 style="color:orangered"><b>Unfixed Activities</b></h4>
+<table class="table" style="table-layout:fixed">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.UnfixedActivityViewModel.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UnfixedActivityViewModel.Description)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UnfixedActivityViewModel.Labels)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UnfixedActivityViewModel.Category)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.UnfixedActivityViewModel.UnfixedActivityCollection)
+    {
+        string appendedLabels = string.Join(" | ", item.LabelCollection);
+        string categoryString = item.Category == null ? String.Empty : item.Category.ToString();
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => appendedLabels)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => categoryString)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "EditActivity", new { id = item.Id, type = ActivityType.UnfixedActivity }) |
+                @Html.ActionLink("Details", "ActivityDetails", new { id = item.Id, type = ActivityType.UnfixedActivity }) |
+                @Html.ActionLink("Delete", "DeleteActivity", new { id = item.Id, type = ActivityType.UnfixedActivity })
+            </td>
+        </tr>
+    }
+</table>
+<br>
+<br>
+<h4 style="color:orangered"><b>Undefined Activities</b></h4>
+<table class="table" style="table-layout:fixed">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.UndefinedActivityViewModel.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UndefinedActivityViewModel.Description)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UndefinedActivityViewModel.Labels)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UndefinedActivityViewModel.Category)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.UndefinedActivityViewModel.UndefinedActivityCollection)
+    {
+        string categoryString = item.Category == null ? String.Empty : item.Category.ToString();
+        string appendedLabels = string.Join(" | ", item.LabelCollection);
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => appendedLabels)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => categoryString)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "EditActivity", new { id = item.Id, type = ActivityType.UndefinedActivity })|
+                @Html.ActionLink("Details", "ActivityDetails", new { id = item.Id, type = ActivityType.UndefinedActivity }) |
+                @Html.ActionLink("Delete", "DeleteActivity", new { id = item.Id, type = ActivityType.UndefinedActivity })
+            </td>
+        </tr>
+    }
+</table>
+<br>
+<br>
+<h4 style="color:orangered"><b>Deadline Activities</b></h4>
+<table class="table" style="table-layout:fixed">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.DeadlineActivityViewModel.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.DeadlineActivityViewModel.Description)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.DeadlineActivityViewModel.DeadlineActivityCollection)
+    {
+        string categoryString = item.Category == null ? String.Empty : item.Category.ToString();
+        string appendedLabels = string.Join(" | ", item.LabelCollection);
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "EditActivity", new { id = item.Id, type = ActivityType.DeadlineActivity }) |
+                @Html.ActionLink("Details", "ActivityDetails", new { id = item.Id, type = ActivityType.DeadlineActivity }) |
+                @Html.ActionLink("Delete", "DeleteActivity", new { id = item.Id, type = ActivityType.DeadlineActivity })
+            </td>
+        </tr>
+    }
+</table>
+<br>
+@Html.ActionLink("Back", "ManageCategories")

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿@*<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -38,4 +38,82 @@
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
 </body>
-</html>
+</html>*@
+
+    <html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>OE NIK DAMA</title>
+        <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
+        <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <script src="~/Scripts/modernizr-2.6.2.js"></script>
+        <style>
+                .customBG {
+                    background-color: lightgrey;
+                }
+
+                .navbar {
+                    background-color: #111;
+                }
+                /*.navbar-brand:visited {
+                color: goldenrod
+            }*/
+                .sidenav {
+                    height: 100%;
+                    width: 160px;
+                    position: fixed;
+                    z-index: 1;
+                    top: 30px;
+                    left: 0;
+                    background-color: #111;
+                    overflow-x: hidden;
+                    padding-top: 20px;
+                }
+
+                    .sidenav a {
+                        padding: 6px 8px 6px 20px;
+                        text-decoration: none;
+                        font-size: 20px;
+                        color: #818181;
+                        display: block;
+                    }
+
+                        .sidenav a:hover {
+                            color: #f1f1f1;
+                        }
+        </style>
+    </head>
+    <body class="customBG">
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    @Html.ActionLink("Main Site", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                    @Html.ActionLink("List users", "ListUsersAsync", "Account", new { area = "" }, new { @class = "navbar-brand" })
+                </div>
+
+                <div class="sidenav">
+                    @Html.ActionLink("About", "About", "Home");
+                    @Html.ActionLink("Calendar", "Index", "Calendar");
+                </div>
+
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav"></ul>
+                    @Html.Partial("_LoginPartial")
+                </div>
+            </div>
+        </div>
+
+        <div class="container body-content">
+            @RenderBody()
+            <hr />
+            <footer>
+                <p>&copy; @DateTime.Now.Year - Created by Balazs Toth</p>
+            </footer>
+        </div>
+
+        <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+        <script src="~/Scripts/bootstrap.min.js"></script>
+        @RenderSection("Scripts", false)
+    </body>
+    </html>

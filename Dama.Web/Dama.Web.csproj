@@ -283,11 +283,33 @@
     <Content Include="Scripts\popper.js.map" />
     <Content Include="Scripts\popper-utils.min.js.map" />
     <Content Include="Scripts\popper-utils.js.map" />
+    <Content Include="Views\Shared\_LoginPartial.cshtml" />
+    <Content Include="Views\Account\AccessDenied.cshtml" />
+    <Content Include="Views\Account\ListUsersAsync.cshtml" />
+    <Content Include="Views\Account\Login.cshtml" />
+    <Content Include="Views\Account\Manage.cshtml" />
+    <Content Include="Views\Account\Register.cshtml" />
+    <Content Include="Views\Calendar\AddNewActivity.cshtml" />
+    <Content Include="Views\Calendar\AddNewCategory.cshtml" />
+    <Content Include="Views\Calendar\AddNewLabel.cshtml" />
+    <Content Include="Views\Calendar\DeadlineActivityDetails.cshtml" />
+    <Content Include="Views\Calendar\EditCategory.cshtml" />
+    <Content Include="Views\Calendar\EditDeadlineActivity.cshtml" />
+    <Content Include="Views\Calendar\EditFixedActivity.cshtml" />
+    <Content Include="Views\Calendar\EditUndefinedActivity.cshtml" />
+    <Content Include="Views\Calendar\EditUnfixedActivity.cshtml" />
+    <Content Include="Views\Calendar\FixedActivityDetails.cshtml" />
+    <Content Include="Views\Calendar\Index.cshtml" />
+    <Content Include="Views\Calendar\ListSortedByCategoryActivities.cshtml" />
+    <Content Include="Views\Calendar\ManageActivities.cshtml" />
+    <Content Include="Views\Calendar\ManageCategories.cshtml" />
+    <Content Include="Views\Calendar\ManageLabels.cshtml" />
+    <Content Include="Views\Calendar\UndefinedActivityDetails.cshtml" />
+    <Content Include="Views\Calendar\UnfixedActivityDetails.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Account\" />
-    <Folder Include="Views\Calendar\" />
+    <Folder Include="Views\CalendarEditor\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

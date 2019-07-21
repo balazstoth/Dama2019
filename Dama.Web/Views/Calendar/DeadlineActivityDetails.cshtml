@@ -1,0 +1,59 @@
+﻿@model Dama.Web.Models.ViewModels.Activity.Display.DeadlineActivityViewModel
+@using Dama.Data.Enums
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4 style="color:orangered"><b>@ViewBag.Title</b></h4>
+<table class="table" style="table-layout:fixed">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Start)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.End)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.MileStones)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.DeadlineActivityCollection)
+    {
+        string appendedMileStones = string.Join(" | ", item.Milestones);
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Start)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.End)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => appendedMileStones)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "EditActivity", new { id = item.Id, type = ActivityType.DeadlineActivity }) |
+                @Html.ActionLink("Delete", "DeleteActivity", new { id = item.Id, type = ActivityType.DeadlineActivity })
+            </td>
+        </tr>
+    }
+</table>
+
+@Html.ActionLink("Manage activities", "ManageActivities") |
+@Html.ActionLink("Manage categories", "ManageCategories")
+

@@ -1,0 +1,390 @@
+﻿@model ViewModelManagerContainer
+
+@using Dama.Web.Controllers
+@using Dama.Web.Models
+@using Dama.Web.Models.ViewModels
+@using Dama.Data.Enums
+
+@{
+    ViewBag.Title = "Create new activity";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="@Url.Content("~/Content/themes/base/minified/jquery-ui.min.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Scripts/jquery-1.7.1.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery-ui-1.10.4.min.js")"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $('.date-picker').datepicker({
+            format: 'DD-M-YYYY hh:mm A'
+        });
+    })
+</script>
+
+<h2>@ViewBag.Title</h2>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+@if (Model.FixedActivityManageViewModel != null && 
+     Model.UnfixedActivityManageViewModel != null && 
+     Model.UndefinedActivityManageViewModel != null && 
+     Model.DeadlineActivityManageViewModel != null)
+{
+    <script type="text/javascript">
+        $(function () {
+            $('div.UnfixedActivity,div.UndefinedActivity,div.DeadlineActivity').hide();
+            $('div.FixedActivity').show();
+        })
+    </script>
+}
+else
+{
+    <script>
+        $(function () {
+            $('div.combobox').hide();
+        })
+    </script>
+
+    if (Model.FixedActivityManageViewModel != null)
+    {
+        <script>
+            $('#selectActivity').val("FixedActivity");
+        </script>
+    }
+    else
+    {
+        if (Model.UnfixedActivityManageViewModel != null)
+        {
+            <script>
+                $('#selectActivity').val("UnfixedActivity");
+            </script>
+        }
+        else
+        {
+            if (Model.UndefinedActivityManageViewModel != null)
+            {
+                <script>
+                    $('#selectActivity').val("UndefinedActivity");
+                </script>
+            }
+            else
+            {
+                <script>
+                    $('#selectActivity').val("DeadlineActivity");
+                </script>
+            }
+        }
+    }
+}
+
+<script type="text/javascript">
+    $(function () {
+        $("#selectActivity").change(function () {
+            var currentdiv = $("div." + $(this).val());
+            currentdiv.show();
+            $('div.UnfixedActivity,div.UndefinedActivity,div.DeadlineActivity,div.FixedActivity').not(currentdiv).hide();
+        });
+    })
+</script>
+
+<div class="combobox">
+    <label>Select an activity type</label>
+    <select id="selectActivity">
+        <option>FixedActivity</option>
+        <option>UnfixedActivity</option>
+        <option>DeadlineActivity</option>
+        <option>UndefinedActivity</option>
+    </select>
+</div>
+
+<div>
+    <div class="FixedActivity">
+        @using (Html.BeginForm("AddNewActivity", "Calendar", FormMethod.Post, new { @class = "form-horizontal", role = "form", type = ActivityType.FixedActivity }))
+        {
+            if (Model.FixedActivityManageViewModel != null)
+            {
+                @Html.AntiForgeryToken()
+                <hr />
+                @Html.ValidationSummary()
+                <div class="form-group">
+                    @Html.LabelFor(m => m.FixedActivityManageViewModel.Name, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.FixedActivityManageViewModel.Name, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.FixedActivityManageViewModel.Description, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.FixedActivityManageViewModel.Description, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.FixedActivityManageViewModel.Labels, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.ListBoxFor(m => m.FixedActivityManageViewModel.Labels, Model.FixedActivityManageViewModel.LabelSourceCollection)
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.FixedActivityManageViewModel.Color, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.DropDownListFor(m => m.FixedActivityManageViewModel.Color, Model.FixedActivityManageViewModel.ColorSourceCollection, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.FixedActivityManageViewModel.Category, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.DropDownListFor(m => m.FixedActivityManageViewModel.Category, Model.FixedActivityManageViewModel.CategorySourceCollection, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.FixedActivityManageViewModel.Priority, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.FixedActivityManageViewModel.Priority, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.FixedActivityManageViewModel.StartTime, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.FixedActivityManageViewModel.StartTime, new { @class = "date-picker", type = "time" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.FixedActivityManageViewModel.EndTime, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.FixedActivityManageViewModel.EndTime, new { @class = "date-picker", type = "time" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" class="btn btn-default" value="Create" />
+                    </div>
+                </div>
+            }
+        }
+    </div>
+    <div class="UnfixedActivity">
+        @using (Html.BeginForm("AddNewActivity", "Calendar", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+        {
+            if (Model.UnfixedActivityManageViewModel != null)
+            {
+                @Html.AntiForgeryToken()
+                <hr />
+                @Html.ValidationSummary()
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UnfixedActivityManageViewModel.Name, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.UnfixedActivityManageViewModel.Name, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UnfixedActivityManageViewModel.Description, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.UnfixedActivityManageViewModel.Description, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UnfixedActivityManageViewModel.Labels, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.ListBoxFor(m => m.UnfixedActivityManageViewModel.Labels, Model.UnfixedActivityManageViewModel.LabelSourceCollection)
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UnfixedActivityManageViewModel.Color, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.DropDownListFor(m => m.UnfixedActivityManageViewModel.Color, Model.UnfixedActivityManageViewModel.ColorSourceCollection, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UnfixedActivityManageViewModel.Category, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.DropDownListFor(m => m.UnfixedActivityManageViewModel.Category, Model.UnfixedActivityManageViewModel.CategorySourceCollection, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UnfixedActivityManageViewModel.Priority, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.UnfixedActivityManageViewModel.Priority, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UnfixedActivityManageViewModel.Timespan, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.UnfixedActivityManageViewModel.Timespan, new { @class = "form-control" })
+                        <p>Correct format: HH:MM:SS</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" class="btn btn-default" value="Create" />
+                    </div>
+                </div>
+            }
+        }
+    </div>
+    <div class="DeadlineActivity">
+        @using (Html.BeginForm("AddNewActivity", "Calendar", FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "deadlineForm" }))
+        {
+            if (Model.DeadlineActivityManageViewModel != null)
+            {
+                @Html.AntiForgeryToken()
+                <hr />
+                @Html.ValidationSummary()
+                <div class="form-group">
+                    @Html.LabelFor(m => m.DeadlineActivityManageViewModel.Name, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.DeadlineActivityManageViewModel.Name, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.DeadlineActivityManageViewModel.Description, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.DeadlineActivityManageViewModel.Description, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.DeadlineActivityManageViewModel.StartDate, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.DeadlineActivityManageViewModel.StartDate, new { @class = "date-picker", type = "date" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.DeadlineActivityManageViewModel.StartTime, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.DeadlineActivityManageViewModel.StartTime, new { @class = "date-picker", type = "time" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.DeadlineActivityManageViewModel.EndDate, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.DeadlineActivityManageViewModel.EndDate, new { @class = "date-picker", type = "date" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.DeadlineActivityManageViewModel.EndTime, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.DeadlineActivityManageViewModel.EndTime, new { @class = "date-picker", type = "time" })
+                    </div>
+                </div>
+
+                @Html.HiddenFor(m => m.DeadlineActivityManageViewModel.Milestones, new { id = "MilestoneId" })
+
+                <script type="text/javascript">
+                $(document).ready(function () {
+                    var counter = 2;
+                    $("#addButton").click(function () {
+                        if (counter > 15) {
+                            alert("Milestone limit is 15!");
+                            return false;
+                        }
+                        var newTextBoxDiv = $(document.createElement('div')).attr("id", 'TextBoxDiv' + counter);
+                        newTextBoxDiv.after().html('<label style="margin-left:12em">Milestone ' + counter + ':</label> Name:<input type="text" id="tbName' + counter + '"> Date:<input type="datetime-local" name="textBox' + counter + '" id="textbox' + counter + '" value="" >');
+                        newTextBoxDiv.appendTo("#TextBoxesGroup");
+                        counter++;
+                    });
+
+                    $("#removeButton").click(function () {
+                        if (counter == 1) {
+                            alert("There's no more milestone to remove!");
+                            return false;
+                        }
+                        counter--;
+
+                        $("#TextBoxDiv" + counter).remove();
+                    });
+
+                    $("#submitButton").click(function () {
+                        var appendedLines = '';
+                        for (i = 1; i < counter; i++) {
+                            if ($('#tbName' + i).val() != ""){
+                                appendedLines += $('#tbName' + i).val() + ';' + $('#textbox' + i).val() + '|';
+                            }
+                        }
+                        $("#MilestoneId").val(appendedLines);
+                        $("#deadlineForm").submit();
+                    });
+
+                });
+                </script>
+                <br>
+                <h4 style="padding-left:4em"><b>Milestone values:</b></h4>
+
+                <div id='TextBoxesGroup'>
+                    <div id="TextBoxDiv1">
+                        <label style="padding-left:12em">MileStone 1: </label> Name:<input type="text" id="tbName1"> Date:<input type='datetime-local' id='textbox1'>
+                    </div>
+                </div>
+                <input style="margin-left:12em" type='button' value='Add' id='addButton'>
+                <input type='button' value='Remove' id='removeButton'>
+                <br>
+                <br>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type='button' class="btn btn-default" value='Create' id='submitButton'>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+    <div class="Undefined">
+        @using (Html.BeginForm("AddNewActivity", "Calendar", FormMethod.Post, new { @class = "form-horizontal", role = "form", type = ActivityType.UndefinedActivity }))
+        {
+            if (Model.UndefinedActivityManageViewModel != null)
+            {
+                @Html.AntiForgeryToken()
+                <hr />
+                @Html.ValidationSummary()
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UndefinedActivityManageViewModel.Name, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.UndefinedActivityManageViewModel.Name, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UndefinedActivityManageViewModel.Description, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.UndefinedActivityManageViewModel.Description, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UndefinedActivityManageViewModel.Labels, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.ListBoxFor(m => m.UndefinedActivityManageViewModel.Labels, Model.UndefinedActivityManageViewModel.LabelSourceCollection)
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UndefinedActivityManageViewModel.Color, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.DropDownListFor(m => m.UndefinedActivityManageViewModel.Color, Model.UndefinedActivityManageViewModel.ColorSourceCollection, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UndefinedActivityManageViewModel.Category, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.DropDownListFor(m => m.UndefinedActivityManageViewModel.Category, Model.UndefinedActivityManageViewModel.CategorySourceCollection, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UndefinedActivityManageViewModel.MinimumTime, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.UndefinedActivityManageViewModel.MinimumTime, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UndefinedActivityManageViewModel.MaximumTime, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.UndefinedActivityManageViewModel.MaximumTime, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" class="btn btn-default" value="Create" />
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+@Html.ActionLink("Back", "ManageActivities")

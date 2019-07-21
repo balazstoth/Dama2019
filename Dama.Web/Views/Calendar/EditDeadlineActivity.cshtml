@@ -1,0 +1,127 @@
+﻿@model Dama.Web.Models.ViewModels.Activity.Manage.DeadlineActivityManageViewModel
+
+@{
+    ViewBag.Title = "Edit activity";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="@Url.Content("~/Content/themes/base/minified/jquery-ui.min.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Scripts/jquery-1.7.1.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery-ui-1.10.4.min.js")"></script>
+
+<h2>@ViewBag.Title</h2>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+@using (Html.BeginForm("EditDeadlineActivity", "Calendar", FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "deadlineForm", activityId = Model.Id }))
+{
+    @Html.AntiForgeryToken()
+    <hr />
+    @Html.ValidationSummary()
+    <div class="form-group">
+        @Html.LabelFor(m => m.Name, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Description, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(m => m.Description, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.StartDate, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(m => m.StartDate, new { type = "date", @Value = Model.StartDate.ToString("yyyy-MM-dd") })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.StartTime, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(m => m.StartTime, new { type = "time", @Value = Model.StartTime.ToString("HH:mm") })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.EndDate, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(m => m.EndDate, new { type = "date", @Value = Model.EndDate.ToString("yyyy-MM-dd") })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.EndTime, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(m => m.EndTime, new { type = "time", @Value = Model.EndTime.ToString("HH:mm") })
+        </div>
+    </div>
+    @Html.HiddenFor(m => m.Milestones, new { id = "MileStoneId" })
+
+    <script type="text/javascript">
+        $(document).ready(function ()
+        {
+            var counter = 1;
+            var milestones = '@Model.Milestones';
+            var milestone = milestones.split('|');
+
+            for (var i = 0; i < milestone.length - 1; i++)
+            {
+                var msDetails = milestone[i].split(';');
+                msDetails[1] = msDetails[1].replace(/. /g, '-');
+                msDetails[1] = msDetails[1].substr(0, 10) + 'T' + msDetails[1].substr(11);
+                var newTextBoxDiv = $(document.createElement('div')).attr("id", 'TextBoxDiv' + counter);
+                newTextBoxDiv.after().html('<label style="margin-left:12em">Milestone ' + counter + ':</label> Name:<input type="text" id="tbName' + counter + '" value="' + msDetails[0] + '"> Date:<input type="datetime-local" name="textBox' + counter + '" id="textbox' + counter + '" value="' + msDetails[1] + '" >');
+                newTextBoxDiv.appendTo("#TextBoxesGroup");
+                counter++;
+            }
+
+            $("#addButton").click(function () {
+                if (counter > 15) {
+                    alert("Milestone limit is 15!");
+                    return false;
+                }
+                var newTextBoxDiv = $(document.createElement('div')).attr("id", 'TextBoxDiv' + counter);
+                newTextBoxDiv.after().html('<label style="margin-left:12em">MileStone ' + counter + ':</label> Name:<input type="text" id="tbName' + counter + '" value=""> Date:<input type="datetime-local" name="textBox' + counter + '" id="textbox' + counter + '" value="" >');
+                newTextBoxDiv.appendTo("#TextBoxesGroup");
+                counter++;
+            });
+            $("#removeButton").click(function () {
+                if (counter == 1) {
+                    alert("There's no more milestone to remove!");
+                    return false;
+                }
+                counter--;
+                $("#TextBoxDiv" + counter).remove();
+            });
+            $("#submitButton").click(function () {
+                var appendedLines = '';
+                for (i = 1; i < counter; i++) {
+                    if ($('#tbName' + i).val() != "") {
+                        appendedLines += $('#tbName' + i).val() + ';' + $('#textbox' + i).val() + '|';
+                    }
+                }
+                $("#MileStoneId").val(appendedLines);
+                $("#deadlineForm").submit();
+            });
+        });
+    </script>
+    <br>
+    <h4 style="padding-left:4em"><b>Milestone values:</b></h4>
+
+    <div id='TextBoxesGroup'>
+    </div>
+    <input style="margin-left:12em" type='button' value='Add' id='addButton'>
+    <input type='button' value='Remove' id='removeButton'>
+    <br>
+    <br>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type='button' class="btn btn-default" value='Save' id='submitButton'>
+        </div>
+    </div>
+
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.CalledFromEditor)
+}
+@if (!Model.CalledFromEditor)
+{
+    @Html.ActionLink("Back", "ManageActivities")
+}

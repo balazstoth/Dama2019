@@ -1,0 +1,78 @@
+﻿@model Dama.Web.Models.ViewModels.Activity.Display.FixedActivityViewModel
+
+@using Dama.Data.Enums
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4 style="color:orangered"><b>@ViewBag.Title</b></h4>
+<table class="table" style="table-layout:fixed">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Color)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Labels)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Category)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Priority)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Start)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.End)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.FixedActivityCollection)
+    {
+        string appendedLabels = string.Join(" | ", item.LabelCollection);
+        string categoryString = item.Category == null ? string.Empty : item.Category.ToString();
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Color)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => appendedLabels)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => categoryString)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Priority)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Start)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.End)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "EditActivity", new { id = item.Id, type = ActivityType.FixedActivity }) |
+                @Html.ActionLink("Delete", "DeleteActivity", new { id = item.Id, type = ActivityType.FixedActivity })
+            </td>
+        </tr>
+    }
+</table>
+
+@Html.ActionLink("Manage activities", "ManageActivities") |
+@Html.ActionLink("Manage categories", "ManageCategories")

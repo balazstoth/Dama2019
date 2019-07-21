@@ -32,6 +32,7 @@ namespace Dama.Data.Models
         [DisplayName("Registered")]
         public DateTime DateOfRegistration { get; set; }
 
+        [DisplayName("Roles")]
         public List<UserRole> RolesCollection { get; set; }
 
         public bool Blocked { get; set; }
