@@ -13,5 +13,8 @@
         EditUndefinedActivity,
         EditDeadlineActivity,
         GetActivityData,
+        GetActivityDetails,
+        GetAllFilters,
+        GetReducedFilters,
     }
 }

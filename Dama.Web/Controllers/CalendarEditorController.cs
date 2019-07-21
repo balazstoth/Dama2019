@@ -1,6 +1,9 @@
-﻿using Dama.Data.Enums;
+﻿using Dama.Data;
+using Dama.Data.Enums;
+using Dama.Data.Models;
 using Dama.Organizer.Models;
 using Dama.Web.Attributes;
+using Dama.Web.Models.ViewModels.Activity.Display;
 using Dama.Web.Models.ViewModels.Editor;
 using System;
 using System.Collections.Generic;
@@ -79,155 +82,271 @@ namespace Dama.Web.Controllers
             return PartialView(ViewNames.GetActivityData.ToString(), viewModel);
         } 
 
-        public PartialViewResult GetActivityDetails(string activityTypeName, string activityid)
+        public PartialViewResult GetActivityDetails(string activityTypeName, string activityId)
         {
             //For the selected listboxes
             if (activityTypeName == "null")
             {
                 //In this case the activityid contains two parameters
-                string[] p = activityid.Split('|');
-                activityTypeName = p[1];
-                activityid = p[0];
+                var parameters = activityId.Split('|');
+                activityTypeName = parameters[1];
+                activityId = parameters[0];
             }
 
             //For the first lisbox
-            DisplayDetailsViewModel vm = new DisplayDetailsViewModel();
+            var viewModel = new DisplayDetailsViewModel();
+
+            using (var container = new ActivityContainer())
             switch (activityTypeName)
             {
-                case "Fixed":
-                    FixedActivity fixedA = Cont.FixedActivities.Where(x => x.ID.ToString() == activityid && x.OwnType == ActivityType.Fixed).FirstOrDefault();
-                    if (fixedA == null)
-                        fixedA = Cont.ActivitySelectedByUserForSure.Where(x => x.ID.ToString() == activityid && x.OwnType == ActivityType.Fixed).FirstOrDefault() as FixedActivity;
-                    if (fixedA == null)
-                        fixedA = Cont.ActivitySelectedByUserForOptional.Where(x => x.ID.ToString() == activityid && x.OwnType == ActivityType.Fixed).FirstOrDefault() as FixedActivity;
-                    vm.fixedActivity = fixedA;
-                    break;
+                case _fixedActivityName:
+                {
+                    var fixedActivity = container.FixedActivities
+                                                        .Where(a => a.Id.ToString() == activityId && a.ActivityType == ActivityType.FixedActivity)
+                                                        .FirstOrDefault();
+                    if (fixedActivity == null)
+                        fixedActivity = container.ActivitySelectedByUserForSure
+                                                        .Where(a => a.Id.ToString() == activityId && a.ActivityType == ActivityType.FixedActivity)
+                                                        .FirstOrDefault() as FixedActivity;
 
-                case "Unfixed":
-                    UnfixedActivity unfixedA = Cont.UnfixedActivities.Where(x => x.ID.ToString() == activityid && x.OwnType == ActivityType.Unfixed).FirstOrDefault();
-                    if (unfixedA == null)
-                        unfixedA = Cont.ActivitySelectedByUserForSure.Where(x => x.ID.ToString() == activityid && x.OwnType == ActivityType.Unfixed).FirstOrDefault() as UnfixedActivity;
-                    if (unfixedA == null)
-                        unfixedA = Cont.ActivitySelectedByUserForOptional.Where(x => x.ID.ToString() == activityid && x.OwnType == ActivityType.Unfixed).FirstOrDefault() as UnfixedActivity;
-                    vm.unfixedActivity = unfixedA;
-                    break;
+                    if (fixedActivity == null)
+                        fixedActivity = container.ActivitySelectedByUserForOptional
+                                                        .Where(a => a.Id.ToString() == activityId && a.ActivityType == ActivityType.FixedActivity)
+                                                        .FirstOrDefault() as FixedActivity;
 
-                case "Undefined":
-                    UndefinedActivity undefinedA = Cont.UndefinedActivities.Where(x => x.ID.ToString() == activityid && x.OwnType == ActivityType.Undefined).FirstOrDefault();
-                    if (undefinedA == null)
-                        undefinedA = Cont.ActivitySelectedByUserForSure.Where(x => x.ID.ToString() == activityid && x.OwnType == ActivityType.Undefined).FirstOrDefault() as UndefinedActivity;
-                    if (undefinedA == null)
-                        undefinedA = Cont.ActivitySelectedByUserForOptional.Where(x => x.ID.ToString() == activityid && x.OwnType == ActivityType.Undefined).FirstOrDefault() as UndefinedActivity;
-                    vm.undefinedActivity = undefinedA;
+                    viewModel.FixedActivity = fixedActivity;
                     break;
+                }
 
-                case "Deadline":
-                    DeadlineActivity deadlineA = Cont.DeadlineActivities.Where(x => x.ID.ToString() == activityid && x.OwnType == ActivityType.Deadline).FirstOrDefault();
-                    if (deadlineA == null)
-                        deadlineA = Cont.ActivitySelectedByUserForSure.Where(x => x.ID.ToString() == activityid && x.OwnType == ActivityType.Deadline).FirstOrDefault() as DeadlineActivity;
-                    if (deadlineA == null)
-                        deadlineA = Cont.ActivitySelectedByUserForOptional.Where(x => x.ID.ToString() == activityid && x.OwnType == ActivityType.Deadline).FirstOrDefault() as DeadlineActivity;
-                    vm.deadlineActivity = deadlineA;
+                case _unfixedActivityName:
+                {
+                    var unfixedActivity = container.UnfixedActivities
+                                                        .Where(a => a.Id.ToString() == activityId && a.ActivityType == ActivityType.UnfixedActivity)
+                                                        .FirstOrDefault();
+
+                    if (unfixedActivity == null)
+                        unfixedActivity = container.ActivitySelectedByUserForSure
+                                                        .Where(a => a.Id.ToString() == activityId && a.ActivityType == ActivityType.UnfixedActivity)
+                                                        .FirstOrDefault() as UnfixedActivity;
+
+                    if (unfixedActivity == null)
+                        unfixedActivity = container.ActivitySelectedByUserForOptional
+                                                        .Where(a => a.Id.ToString() == activityId && a.ActivityType == ActivityType.UnfixedActivity)
+                                                        .FirstOrDefault() as UnfixedActivity;
+
+                    viewModel.UnfixedActivity = unfixedActivity;
                     break;
+                }
+
+                case _undefinedActivityName:
+                {
+                    var undefinedActivity = container.UndefinedActivities
+                                                .Where(a => a.Id.ToString() == activityId && a.ActivityType == ActivityType.UndefinedActivity)
+                                                .FirstOrDefault();
+
+                    if (undefinedActivity == null)
+                        undefinedActivity = container.ActivitySelectedByUserForSure.Where(a => a.Id.ToString() == activityId && a.ActivityType == ActivityType.UndefinedActivity)
+                                                    .FirstOrDefault() as UndefinedActivity;
+
+                    if (undefinedActivity == null)
+                        undefinedActivity = container.ActivitySelectedByUserForOptional.Where(a => a.Id.ToString() == activityId && a.ActivityType == ActivityType.UndefinedActivity)
+                                                    .FirstOrDefault() as UndefinedActivity;
+
+                    viewModel.UndefinedActivity = undefinedActivity;
+                    break;
+                }
+
+                case _deadlineActivityName:
+                {
+                    var deadlineActivity = container.DeadlineActivities
+                                                .Where(a => a.Id.ToString() == activityId && a.ActivityType == ActivityType.DeadlineActivity)
+                                                .FirstOrDefault();
+
+                    if (deadlineActivity == null)
+                        deadlineActivity = container.ActivitySelectedByUserForSure
+                                                        .Where(a => a.Id.ToString() == activityId && a.ActivityType == ActivityType.DeadlineActivity)
+                                                        .FirstOrDefault() as DeadlineActivity;
+                    if (deadlineActivity == null)
+                        deadlineActivity = container.ActivitySelectedByUserForSure
+                                                    .Where(a => a.Id.ToString() == activityId && a.ActivityType == ActivityType.DeadlineActivity)
+                                                    .FirstOrDefault() as DeadlineActivity;
+
+                    viewModel.DeadlineActivity = deadlineActivity;
+                    break;
+                }
 
                 default:
-                    //DropDownList onchange has never run yet, the default is fixedactivity
-                    FixedActivity fixedAct = Cont.FixedActivities.Where(x => x.ID.ToString() == activityid).FirstOrDefault();
-                    vm.fixedActivity = fixedAct;
+                {
+                    //DropDownList onchange has never run yet, the default is "FixedaActivity"
+                    var fixedAct = container.FixedActivities.Where(a => a.Id.ToString() == activityId).FirstOrDefault();
+                    viewModel.FixedActivity = fixedAct;
                     break;
+                }
             }
-            return PartialView("GetActivityDetails", vm);
+            
+            return PartialView(ViewNames.GetActivityDetails.ToString(), viewModel);
         }
 
         public PartialViewResult GetAvailableFilters(string activityTypeName)
         {
+            CalendarEditorViewModel viewModel = null;
+            var message = "Not active";
+
             switch (activityTypeName)
             {
-                case "Fixed":
-                case "Unfixed":
-                    Cont.VM.CategoryFilter = new List<SelectListItem>(Cont.Categories.Select(x => new SelectListItem() { Text = x.Name, Value = x.Name }));
-                    Cont.VM.CategoryFilter.Add(new SelectListItem() { Text = "Not active", Value = String.Empty, Selected = true });
+                case _fixedActivityName:
+                case _unfixedActivityName:
+                {
+                    using (var container = new ActivityContainer())
+                    {
+                        container.CalendarEditorViewModel
+                                 .CategoryFilterSourceCollection = new List<SelectListItem>(
+                                        container.Categories
+                                                    .Select(c => new SelectListItem() { Text = c.Name, Value = c.Name }));
 
-                    Cont.VM.LabelFilter = (from x in Cont.Labels group x by x.Name into grpdLabel select new SelectListItem() { Text = grpdLabel.Key, Value = grpdLabel.Select(x => x.Name).First() }).ToList();
-                    Cont.VM.LabelFilter.Add(new SelectListItem() { Text = "Not active", Value = String.Empty, Selected = true });
-                    return PartialView("GetAllFilters", Cont.VM);
+                        container.CalendarEditorViewModel
+                                 .CategoryFilterSourceCollection
+                                                    .Add(new SelectListItem() { Text = message, Value = string.Empty, Selected = true });
 
-                case "Undefined":
-                    Cont.VM.CategoryFilter = new List<SelectListItem>(Cont.Categories.Select(x => new SelectListItem() { Text = x.Name, Value = x.Name }));
-                    Cont.VM.CategoryFilter.Add(new SelectListItem() { Text = "Not active", Value = String.Empty, Selected = true });
+                        container.CalendarEditorViewModel
+                                 .LabelFilterSourceCollection = 
+                                                    (from l in container.Labels
+                                                        group l by l.Name 
+                                                        into grpdLabel
+                                                        select new SelectListItem()
+                                                        {
+                                                            Text = grpdLabel.Key,
+                                                            Value = grpdLabel
+                                                                        .Select(x => x.Name)
+                                                                        .First()
+                                                        }).ToList();
 
-                    Cont.VM.LabelFilter = (from x in Cont.Labels group x by x.Name into grpdLabel select new SelectListItem() { Text = grpdLabel.Key, Value = grpdLabel.Select(x => x.Name).First() }).ToList();
-                    Cont.VM.LabelFilter.Add(new SelectListItem() { Text = "Not active", Value = String.Empty, Selected = true });
-                    return PartialView("GetReducedFilters", Cont.VM);
+                        container.CalendarEditorViewModel
+                                 .LabelFilterSourceCollection
+                                    .Add(new SelectListItem() { Text = message, Value = string.Empty, Selected = true });
 
-                case "Deadline":
+                        viewModel = container.CalendarEditorViewModel;
+                    }
+                           
+                    return PartialView(ViewNames.GetAllFilters.ToString(), viewModel);
+                }
+
+                case _undefinedActivityName:
+                {
+                    using (var container = new ActivityContainer())
+                    {
+                        container.CalendarEditorViewModel
+                                 .CategoryFilterSourceCollection = new List<SelectListItem>(
+                                     container.Categories
+                                                .Select(c => new SelectListItem() { Text = c.Name, Value = c.Name }));
+
+                        container.CalendarEditorViewModel
+                                 .CategoryFilterSourceCollection
+                                 .Add(new SelectListItem() { Text = message, Value = string.Empty, Selected = true });
+
+                        container.CalendarEditorViewModel
+                                 .LabelFilterSourceCollection = 
+                                        (from l in container.Labels
+                                        group l by l.Name 
+                                        into grpdLabel
+                                        select new SelectListItem()
+                                        {
+                                            Text = grpdLabel.Key,
+                                            Value = grpdLabel.Select(x => x.Name).First()
+                                        }).ToList();
+
+                        container.CalendarEditorViewModel
+                                 .LabelFilterSourceCollection
+                                 .Add(new SelectListItem() { Text = message, Value = string.Empty, Selected = true });
+
+                        viewModel = container.CalendarEditorViewModel;
+                    }
+                
+                    return PartialView(ViewNames.GetReducedFilters.ToString(), viewModel);
+                }
+
+                default:
                     return null;
             }
-            return null;
         }
 
-        public PartialViewResult GetFilteredActivities(string type, string name, string category, string label, string priority, string order)
+        public PartialViewResult GetFilteredActivities(string activityType, string activityName, string category, string label, string priority)
         {
-            Cont.VM.SelectedType = type;
-            int parsedPriority = int.MinValue;
-            Cont.VM.ActivitySelectedList.Clear();
-            switch (type)
+            CalendarEditorViewModel viewModel = null;
+
+            using (var container = new ActivityContainer())
             {
-                case "Fixed":
-                    List<FixedActivity> filteredFixed = new List<FixedActivity>();
-                    filteredFixed = Cont.FixedActivities.ToList();
+                container.CalendarEditorViewModel.SelectedType = activityType;
+                var parsedPriority = int.MinValue;
+                container.CalendarEditorViewModel.ActivityCollectionForActivityTypes.Clear();
 
-                    if (!name.Equals(String.Empty))
-                        filteredFixed = Cont.FixedActivities.Where(x => x.Name.ToLower().Contains(name.ToLower())).ToList();
+                switch (activityType)
+                {
+                    case _fixedActivityName:
+                        var filteredFixed = container.FixedActivities.ToList();
 
-                    if (!category.Equals(String.Empty))
-                        filteredFixed = filteredFixed.Where(x => x.Category != null && x.Category.Name.Equals(category)).ToList();
+                        if (!activityName.Equals(string.Empty))
+                            filteredFixed = container.FixedActivities.Where(a => a.Name.ToLower().Contains(activityName.ToLower())).ToList();
 
-                    if (!label.Equals(String.Empty))
-                        filteredFixed = filteredFixed.Where(x => x.ContainsLabel(label)).ToList();
+                        if (!category.Equals(string.Empty))
+                            filteredFixed = filteredFixed.Where(a => a.Category != null && a.Category.Name.Equals(category)).ToList();
 
-                    if (!priority.Equals(String.Empty) && int.TryParse(priority, out parsedPriority))
-                        filteredFixed = filteredFixed.Where(x => x.Priority.Equals(parsedPriority)).ToList();
+                        if (!label.Equals(string.Empty))
+                            filteredFixed = filteredFixed.Where(a => a.ContainsLabel(label)).ToList();
 
-                    Cont.VM.ActivitySelectedList.AddRange(filteredFixed.Select(x => new SelectListItem() { Text = x.Name, Value = x.ID.ToString() }));
+                        if (!priority.Equals(string.Empty) && int.TryParse(priority, out parsedPriority))
+                            filteredFixed = filteredFixed.Where(a => a.Priority.Equals(parsedPriority)).ToList();
 
-                    return PartialView("GetActivityData", Cont.VM);
+                        container.CalendarEditorViewModel
+                                 .ActivityCollectionForActivityTypes
+                                    .AddRange(filteredFixed.Select(a => new SelectListItem() { Text = a.Name, Value = a.Id.ToString() }));
+                        break;
 
-                case "Unfixed":
-                    List<UnfixedActivity> filteredUnfixed = Cont.UnfixedActivities.ToList();
-                    if (!name.Equals(String.Empty))
-                        filteredUnfixed = filteredUnfixed.Where(x => x.Name.ToLower().Contains(name.ToLower())).ToList();
+                    case _unfixedActivityName:
+                        var filteredUnfixed = container.UnfixedActivities.ToList();
 
-                    if (!category.Equals(String.Empty))
-                        filteredUnfixed = filteredUnfixed.Where(x => x.Category != null && x.Category.Name.Equals(category)).ToList();
+                        if (!activityName.Equals(string.Empty))
+                            filteredUnfixed = filteredUnfixed.Where(a => a.Name.ToLower().Contains(activityName.ToLower())).ToList();
 
-                    if (!label.Equals(String.Empty))
-                        filteredUnfixed = filteredUnfixed.Where(x => x.ContainsLabel(label)).ToList();
+                        if (!category.Equals(string.Empty))
+                            filteredUnfixed = filteredUnfixed.Where(a => a.Category != null && a.Category.Name.Equals(category)).ToList();
 
-                    if (!priority.Equals(String.Empty) && int.TryParse(priority, out parsedPriority))
-                        filteredUnfixed = filteredUnfixed.Where(x => x.Priority.Equals(parsedPriority)).ToList();
+                        if (!label.Equals(string.Empty))
+                            filteredUnfixed = filteredUnfixed.Where(a => a.ContainsLabel(label)).ToList();
 
-                    Cont.VM.ActivitySelectedList.AddRange(filteredUnfixed.Select(x => new SelectListItem() { Text = x.Name, Value = x.ID.ToString() }));
+                        if (!priority.Equals(string.Empty) && int.TryParse(priority, out parsedPriority))
+                            filteredUnfixed = filteredUnfixed.Where(a => a.Priority.Equals(parsedPriority)).ToList();
 
-                    return PartialView("GetActivityData", Cont.VM);
+                        container.CalendarEditorViewModel
+                                 .ActivityCollectionForActivityTypes
+                                    .AddRange(filteredUnfixed.Select(a => new SelectListItem() { Text = a.Name, Value = a.Id.ToString() }));
+                        break;
 
-                case "Undefined":
-                    List<UndefinedActivity> filteredUndefined = Cont.UndefinedActivities.ToList();
-                    if (!name.Equals(String.Empty))
-                        filteredUndefined = filteredUndefined.Where(x => x.Name.ToLower().Contains(name.ToLower())).ToList();
+                    case _undefinedActivityName:
+                        var filteredUndefined = container.UndefinedActivities.ToList();
 
-                    if (!category.Equals(String.Empty))
-                        filteredUndefined = filteredUndefined.Where(x => x.Category != null && x.Category.Name.Equals(category)).ToList();
+                        if (!activityName.Equals(string.Empty))
+                            filteredUndefined = filteredUndefined.Where(a => a.Name.ToLower().Contains(activityName.ToLower())).ToList();
 
-                    if (!label.Equals(String.Empty))
-                        filteredUndefined = filteredUndefined.Where(x => x.ContainsLabel(label)).ToList();
+                        if (!category.Equals(string.Empty))
+                            filteredUndefined = filteredUndefined.Where(a => a.Category != null && a.Category.Name.Equals(category)).ToList();
 
-                    Cont.VM.ActivitySelectedList.AddRange(filteredUndefined.Select(x => new SelectListItem() { Text = x.Name, Value = x.ID.ToString() }));
+                        if (!label.Equals(string.Empty))
+                            filteredUndefined = filteredUndefined.Where(a => a.ContainsLabel(label)).ToList();
 
-                    return PartialView("GetActivityData", Cont.VM);
+                        container.CalendarEditorViewModel
+                                 .ActivityCollectionForActivityTypes
+                                    .AddRange(filteredUndefined.Select(a => new SelectListItem() { Text = a.Name, Value = a.Id.ToString() }));
+                        break;
+
+                    default:
+                        return null;
+                }
+
+                viewModel = container.CalendarEditorViewModel;
             }
 
-            return null;
+            return PartialView(ViewNames.GetActivityData.ToString(), viewModel);
         }
 
         public PartialViewResult GetSelectedActivities(string type, string idList, string forOptional)
@@ -236,17 +355,17 @@ namespace Dama.Web.Controllers
             {
                 ViewBag.AddActIsNotValid = "Cannot add this activity to this list!";
                 if (forOptional == "true")
-                    return PartialView("GetSelectedOptionalActivities", Cont.VM);
+                    return PartialView("GetSelectedOptionalActivities", container.VM);
                 else
-                    return PartialView("GetSelectedActivities", Cont.VM);
+                    return PartialView("GetSelectedActivities", container.VM);
             }
 
             List<int> selectedIDs = SeparateidList(idList);
             if (selectedIDs == null)
                 if (forOptional == "true")
-                    return PartialView("GetSelectedOptionalActivities", Cont.VM);
+                    return PartialView("GetSelectedOptionalActivities", container.VM);
                 else
-                    return PartialView("GetSelectedActivities", Cont.VM);
+                    return PartialView("GetSelectedActivities", container.VM);
 
             Activity tmp = null;
 
@@ -255,38 +374,38 @@ namespace Dama.Web.Controllers
                 switch (type)
                 {
                     case "Fixed":
-                        tmp = Cont.FixedActivities.Where(x => x.ID == Convert.ToInt32(i)).FirstOrDefault();
-                        Cont.FixedActivities.Remove(tmp as FixedActivity);
+                        tmp = container.FixedActivities.Where(x => x.ID == Convert.ToInt32(i)).FirstOrDefault();
+                        container.FixedActivities.Remove(tmp as FixedActivity);
                         break;
 
                     case "Unfixed":
-                        tmp = Cont.UnfixedActivities.Where(x => x.ID == Convert.ToInt32(i)).FirstOrDefault();
-                        Cont.UnfixedActivities.Remove(tmp as UnfixedActivity);
+                        tmp = container.UnfixedActivities.Where(x => x.ID == Convert.ToInt32(i)).FirstOrDefault();
+                        container.UnfixedActivities.Remove(tmp as UnfixedActivity);
                         break;
 
                     case "Undefined":
-                        tmp = Cont.UndefinedActivities.Where(x => x.ID == Convert.ToInt32(i)).FirstOrDefault();
-                        Cont.UndefinedActivities.Remove(tmp as UndefinedActivity);
+                        tmp = container.UndefinedActivities.Where(x => x.ID == Convert.ToInt32(i)).FirstOrDefault();
+                        container.UndefinedActivities.Remove(tmp as UndefinedActivity);
                         break;
 
                     case "Deadline":
-                        tmp = Cont.DeadlineActivities.Where(x => x.ID == Convert.ToInt32(i)).FirstOrDefault();
-                        Cont.DeadlineActivities.Remove(tmp as DeadlineActivity);
+                        tmp = container.DeadlineActivities.Where(x => x.ID == Convert.ToInt32(i)).FirstOrDefault();
+                        container.DeadlineActivities.Remove(tmp as DeadlineActivity);
                         break;
                 }
                 if (forOptional == "true")
                 {
-                    Cont.VM.OptionalActivitiesSelectedByUser.Add(new SelectListItem() { Text = tmp.Name, Value = tmp.ID.ToString() + "|" + type });
-                    Cont.VM.OptionalActivitiesSelectedByUser = Cont.VM.OptionalActivitiesSelectedByUser.OrderBy(x => x.Text).ToList();
-                    Cont.ActivitySelectedByUserForOptional.AddSorted(tmp);
-                    Cont.VM.ActivitySelectedList.RemoveAll(x => x.Value.Split('|')[0] == i.ToString());
+                    container.VM.OptionalActivitiesSelectedByUser.Add(new SelectListItem() { Text = tmp.Name, Value = tmp.ID.ToString() + "|" + type });
+                    container.VM.OptionalActivitiesSelectedByUser = container.VM.OptionalActivitiesSelectedByUser.OrderBy(x => x.Text).ToList();
+                    container.ActivitySelectedByUserForOptional.AddSorted(tmp);
+                    container.VM.ActivitySelectedList.RemoveAll(x => x.Value.Split('|')[0] == i.ToString());
                 }
                 else
                 {
-                    Cont.VM.ActivitiesSelectedByUser.Add(new SelectListItem() { Text = tmp.Name, Value = tmp.ID.ToString() + "|" + type });
-                    Cont.VM.ActivitiesSelectedByUser = Cont.VM.ActivitiesSelectedByUser.OrderBy(x => x.Text).ToList();
-                    Cont.ActivitySelectedByUserForSure.AddSorted(tmp);
-                    Cont.VM.ActivitySelectedList.RemoveAll(x => x.Value.Split('|')[0] == i.ToString());
+                    container.VM.ActivitiesSelectedByUser.Add(new SelectListItem() { Text = tmp.Name, Value = tmp.ID.ToString() + "|" + type });
+                    container.VM.ActivitiesSelectedByUser = container.VM.ActivitiesSelectedByUser.OrderBy(x => x.Text).ToList();
+                    container.ActivitySelectedByUserForSure.AddSorted(tmp);
+                    container.VM.ActivitySelectedList.RemoveAll(x => x.Value.Split('|')[0] == i.ToString());
 
                     if (type == "Unfixed")
                     {
@@ -296,9 +415,9 @@ namespace Dama.Web.Controllers
             }
 
             if (forOptional == "true")
-                return PartialView("GetSelectedOptionalActivities", Cont.VM);
+                return PartialView("GetSelectedOptionalActivities", container.VM);
             else
-                return PartialView("GetSelectedActivities", Cont.VM);
+                return PartialView("GetSelectedActivities", container.VM);
         }
 
         public PartialViewResult MoveBack(string id_type_List, string fromOptional)
@@ -309,15 +428,15 @@ namespace Dama.Web.Controllers
 
             if (splittedValues == null || id_type_List == "null") //There's nothing selected
                 if (fromOptional == "true")
-                    return PartialView("GetSelectedOptionalActivities", Cont.VM);
+                    return PartialView("GetSelectedOptionalActivities", container.VM);
                 else
-                    return PartialView("GetSelectedActivities", Cont.VM);
+                    return PartialView("GetSelectedActivities", container.VM);
 
             if (fromOptional == "true")
             {
                 foreach (string value in splittedValues)
                 {
-                    foreach (SelectListItem item in Cont.VM.OptionalActivitiesSelectedByUser)
+                    foreach (SelectListItem item in container.VM.OptionalActivitiesSelectedByUser)
                     {
                         if (item.Value == value)
                         {
@@ -327,36 +446,36 @@ namespace Dama.Web.Controllers
                     }
 
                     string[] idNtype = value.Split('|');
-                    Cont.VM.OptionalActivitiesSelectedByUser.Remove(sli); //Remove from view list
-                    foreach (var i in Cont.ActivitySelectedByUserForOptional)
+                    container.VM.OptionalActivitiesSelectedByUser.Remove(sli); //Remove from view list
+                    foreach (var i in container.ActivitySelectedByUserForOptional)
                     {
                         switch (idNtype[1])
                         {
                             case "Fixed":
                                 if (i.ID == int.Parse(idNtype[0]) && (i as FixedActivity) != null)
                                 {
-                                    Cont.FixedActivities.AddSorted(i as FixedActivity);
+                                    container.FixedActivities.AddSorted(i as FixedActivity);
                                     tmp = i;
                                 }
                                 break;
                             case "Unfixed":
                                 if (i.ID == int.Parse(idNtype[0]) && (i as UnfixedActivity) != null)
                                 {
-                                    Cont.UnfixedActivities.AddSorted(i as UnfixedActivity);
+                                    container.UnfixedActivities.AddSorted(i as UnfixedActivity);
                                     tmp = i;
                                 }
                                 break;
                             case "Undefined":
                                 if (i.ID == int.Parse(idNtype[0]) && (i as UndefinedActivity) != null)
                                 {
-                                    Cont.UndefinedActivities.AddSorted(i as UndefinedActivity);
+                                    container.UndefinedActivities.AddSorted(i as UndefinedActivity);
                                     tmp = i;
                                 }
                                 break;
                             case "Deadline":
                                 if (i.ID == int.Parse(idNtype[0]) && (i as DeadlineActivity) != null)
                                 {
-                                    Cont.DeadlineActivities.AddSorted(i as DeadlineActivity);
+                                    container.DeadlineActivities.AddSorted(i as DeadlineActivity);
                                     tmp = i;
                                 }
                                 break;
@@ -364,14 +483,14 @@ namespace Dama.Web.Controllers
                     }
                     //Cont.VM.ActivitySelectedList.Add(new SelectListItem() { Text = tmp.Name, Value = tmp.ID.ToString() });
 
-                    Cont.ActivitySelectedByUserForOptional.Remove(tmp);
+                    container.ActivitySelectedByUserForOptional.Remove(tmp);
                 }
             }
             else
             {
                 foreach (string value in splittedValues)
                 {
-                    foreach (SelectListItem item in Cont.VM.ActivitiesSelectedByUser)
+                    foreach (SelectListItem item in container.VM.ActivitiesSelectedByUser)
                     {
                         if (item.Value == value)
                         {
@@ -381,8 +500,8 @@ namespace Dama.Web.Controllers
                     }
 
                     string[] idNtype = value.Split('|');
-                    Cont.VM.ActivitiesSelectedByUser.Remove(sli); //Remove from view list
-                    foreach (var i in Cont.ActivitySelectedByUserForSure)
+                    container.VM.ActivitiesSelectedByUser.Remove(sli); //Remove from view list
+                    foreach (var i in container.ActivitySelectedByUserForSure)
                     {
                         switch (idNtype[1])
                         {
@@ -393,11 +512,11 @@ namespace Dama.Web.Controllers
                                     if (current.IsUnfixedOriginally)
                                     {
                                         UnfixedActivity ua = new UnfixedActivity(current);
-                                        Cont.UnfixedActivities.AddSorted(ua);
+                                        container.UnfixedActivities.AddSorted(ua);
                                     }
                                     else
                                     {
-                                        Cont.FixedActivities.AddSorted(current);
+                                        container.FixedActivities.AddSorted(current);
                                     }
                                     tmp = i;
                                 }
@@ -405,33 +524,33 @@ namespace Dama.Web.Controllers
                             case "Unfixed":
                                 if (i.ID == int.Parse(idNtype[0]) && (i as UnfixedActivity) != null)
                                 {
-                                    Cont.UnfixedActivities.AddSorted(i as UnfixedActivity);
+                                    container.UnfixedActivities.AddSorted(i as UnfixedActivity);
                                     tmp = i;
                                 }
                                 break;
                             case "Undefined":
                                 if (i.ID == int.Parse(idNtype[0]) && (i as UndefinedActivity) != null)
                                 {
-                                    Cont.UndefinedActivities.AddSorted(i as UndefinedActivity);
+                                    container.UndefinedActivities.AddSorted(i as UndefinedActivity);
                                     tmp = i;
                                 }
                                 break;
                             case "Deadline":
                                 if (i.ID == int.Parse(idNtype[0]) && (i as DeadlineActivity) != null)
                                 {
-                                    Cont.DeadlineActivities.AddSorted(i as DeadlineActivity);
+                                    container.DeadlineActivities.AddSorted(i as DeadlineActivity);
                                     tmp = i;
                                 }
                                 break;
                         }
                     }
-                    Cont.ActivitySelectedByUserForSure.Remove(tmp);
+                    container.ActivitySelectedByUserForSure.Remove(tmp);
                 }
             }
             if (fromOptional == "true")
-                return PartialView("GetSelectedOptionalActivities", Cont.VM);
+                return PartialView("GetSelectedOptionalActivities", container.VM);
             else
-                return PartialView("GetSelectedActivities", Cont.VM);
+                return PartialView("GetSelectedActivities", container.VM);
         }
 
         public async Task<ActionResult> GetDataForChange(string id_type_string, string isAsc, string selectedDate, string nameFilter, string priorityFilter, string labelFilter, string categoryFilter)
@@ -475,14 +594,14 @@ namespace Dama.Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult RequestStartTime(RequestTimeViewModel vm)
         {
-            Cont.Reset = false;
+            container.Reset = false;
 
             if (ModelState.IsValid)
             {
-                UnfixedActivity ua = Cont.ActivitySelectedByUserForSure.FirstOrDefault(i => i.ID == vm.ActivityID && i.OwnType == ActivityType.Unfixed) as UnfixedActivity;
+                UnfixedActivity ua = container.ActivitySelectedByUserForSure.FirstOrDefault(i => i.ID == vm.ActivityID && i.OwnType == ActivityType.Unfixed) as UnfixedActivity;
                 FixedActivity fa = new FixedActivity(ua, vm.StartTime) { IsUnfixedOriginally = true };
-                Cont.ActivitySelectedByUserForSure.Remove(ua);
-                Cont.ActivitySelectedByUserForSure.AddSorted(fa);
+                container.ActivitySelectedByUserForSure.Remove(ua);
+                container.ActivitySelectedByUserForSure.AddSorted(fa);
             }
             else
             {
@@ -499,9 +618,9 @@ namespace Dama.Web.Controllers
             if (ModelState.Values.First().Errors.Count == 0)
             {
                 SaveCurrentDayToDB(vm);
-                List<FixedActivity> l = Cont.ActivitySelectedByUserForSure.Where(x => x.OwnType == ActivityType.Fixed).Select(x => x as FixedActivity).ToList();
+                List<FixedActivity> l = container.ActivitySelectedByUserForSure.Where(x => x.OwnType == ActivityType.Fixed).Select(x => x as FixedActivity).ToList();
                 AutoFill fill = new AutoFill(l,
-                                                Cont.ActivitySelectedByUserForOptional,
+                                                container.ActivitySelectedByUserForOptional,
                                                 new DateTime(DateTime.Now.Year, DateTime.Today.Month, DateTime.Today.Day, 8, 0, 0),
                                                 new DateTime(DateTime.Now.Year, DateTime.Today.Month, DateTime.Today.Day, 20, 0, 0),
                                                 new TimeSpan(0, 5, 0));
@@ -519,12 +638,12 @@ namespace Dama.Web.Controllers
             //Get all the necessary data from DB
             using (DamaDB db = new DamaDB())
             {
-                Cont.FixedActivities.AddSortedRange(db.FixedActivities.Where(x => x.UserID == Cont.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).ToList());
-                Cont.UnfixedActivities.AddSortedRange(db.UnFixedActivities.Where(x => x.UserID == Cont.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).ToList());
-                Cont.UndefinedActivities.AddSortedRange(db.UndefinedActivities.Where(x => x.UserID == Cont.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).ToList());
-                Cont.DeadlineActivities.AddSortedRange(db.DeadLineActivities.Where(x => x.UserID == Cont.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).Include(act => act.MileStones).ToList());
-                Cont.Categories = db.Categories.Where(x => x.UserID == Cont.CurrentUserID).ToList();
-                Cont.Labels = db.Labels.Where(x => x.UserID == Cont.CurrentUserID).ToList();
+                container.FixedActivities.AddSortedRange(db.FixedActivities.Where(x => x.UserID == container.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).ToList());
+                container.UnfixedActivities.AddSortedRange(db.UnFixedActivities.Where(x => x.UserID == container.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).ToList());
+                container.UndefinedActivities.AddSortedRange(db.UndefinedActivities.Where(x => x.UserID == container.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).ToList());
+                container.DeadlineActivities.AddSortedRange(db.DeadLineActivities.Where(x => x.UserID == container.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).Include(act => act.MileStones).ToList());
+                container.Categories = db.Categories.Where(x => x.UserID == container.CurrentUserID).ToList();
+                container.Labels = db.Labels.Where(x => x.UserID == container.CurrentUserID).ToList();
             }
         }
 
@@ -535,29 +654,29 @@ namespace Dama.Web.Controllers
 
         public PartialViewResult RefreshActivityListbox()
         {
-            return PartialView("GetActivityData", Cont.VM);
+            return PartialView("GetActivityData", container.VM);
         }
 
         public PartialViewResult RefreshFixList()
         {
-            Cont.VM.ActivitiesSelectedByUser.Clear();
-            foreach (Activity i in Cont.ActivitySelectedByUserForSure)
+            container.VM.ActivitiesSelectedByUser.Clear();
+            foreach (Activity i in container.ActivitySelectedByUserForSure)
             {
-                Cont.VM.ActivitiesSelectedByUser.Add(new SelectListItem() { Text = i.Name, Value = i.ID.ToString() + "|" + i.OwnType });
+                container.VM.ActivitiesSelectedByUser.Add(new SelectListItem() { Text = i.Name, Value = i.ID.ToString() + "|" + i.OwnType });
             }
-            Cont.VM.ActivitiesSelectedByUser = Cont.VM.ActivitiesSelectedByUser.OrderBy(x => x.Text).ToList();
-            return PartialView("GetSelectedActivities", Cont.VM);
+            container.VM.ActivitiesSelectedByUser = container.VM.ActivitiesSelectedByUser.OrderBy(x => x.Text).ToList();
+            return PartialView("GetSelectedActivities", container.VM);
         }
 
         public PartialViewResult RefreshOptionalList()
         {
-            Cont.VM.OptionalActivitiesSelectedByUser.Clear();
-            foreach (Activity i in Cont.ActivitySelectedByUserForOptional)
+            container.VM.OptionalActivitiesSelectedByUser.Clear();
+            foreach (Activity i in container.ActivitySelectedByUserForOptional)
             {
-                Cont.VM.OptionalActivitiesSelectedByUser.Add(new SelectListItem() { Text = i.Name, Value = i.ID.ToString() + "|" + i.OwnType });
+                container.VM.OptionalActivitiesSelectedByUser.Add(new SelectListItem() { Text = i.Name, Value = i.ID.ToString() + "|" + i.OwnType });
             }
-            Cont.VM.OptionalActivitiesSelectedByUser = Cont.VM.OptionalActivitiesSelectedByUser.OrderBy(x => x.Text).ToList();
-            return PartialView("GetSelectedOptionalActivities", Cont.VM);
+            container.VM.OptionalActivitiesSelectedByUser = container.VM.OptionalActivitiesSelectedByUser.OrderBy(x => x.Text).ToList();
+            return PartialView("GetSelectedOptionalActivities", container.VM);
         }
 
         public PartialViewResult ReOrderLists(string checkBoxValue, string orderBy, string type)
@@ -567,36 +686,36 @@ namespace Dama.Web.Controllers
                 if (checkBoxValue == "true")
                 {
                     //Asc
-                    Cont.FixedActivities.SetComparatorProperties(ComparableMethods.Asc, ComparableProperties.Name);
-                    Cont.FixedActivities.ReSetElements(Cont.FixedActivities.OrderBy(x => x.Name).ToList());
+                    container.FixedActivities.SetComparatorProperties(ComparableMethods.Asc, ComparableProperties.Name);
+                    container.FixedActivities.ReSetElements(Cont.FixedActivities.OrderBy(x => x.Name).ToList());
 
-                    Cont.UnfixedActivities.SetComparatorProperties(ComparableMethods.Asc, ComparableProperties.Name);
-                    Cont.UnfixedActivities.ReSetElements(Cont.UnfixedActivities.OrderBy(x => x.Name).ToList());
+                    container.UnfixedActivities.SetComparatorProperties(ComparableMethods.Asc, ComparableProperties.Name);
+                    container.UnfixedActivities.ReSetElements(Cont.UnfixedActivities.OrderBy(x => x.Name).ToList());
 
-                    Cont.UndefinedActivities.SetComparatorProperties(ComparableMethods.Asc, ComparableProperties.Name);
-                    Cont.UndefinedActivities.ReSetElements(Cont.UndefinedActivities.OrderBy(x => x.Name).ToList());
+                    container.UndefinedActivities.SetComparatorProperties(ComparableMethods.Asc, ComparableProperties.Name);
+                    container.UndefinedActivities.ReSetElements(Cont.UndefinedActivities.OrderBy(x => x.Name).ToList());
 
-                    Cont.DeadlineActivities.SetComparatorProperties(ComparableMethods.Asc, ComparableProperties.Name);
-                    Cont.DeadlineActivities.ReSetElements(Cont.DeadlineActivities.OrderBy(x => x.Name).ToList());
+                    container.DeadlineActivities.SetComparatorProperties(ComparableMethods.Asc, ComparableProperties.Name);
+                    container.DeadlineActivities.ReSetElements(Cont.DeadlineActivities.OrderBy(x => x.Name).ToList());
                 }
                 else
                 {
                     //Desc
-                    Cont.FixedActivities.SetComparatorProperties(ComparableMethods.Desc, ComparableProperties.Name);
-                    Cont.FixedActivities.ReSetElements(Cont.FixedActivities.OrderByDescending(x => x.Name).ToList());
+                    container.FixedActivities.SetComparatorProperties(ComparableMethods.Desc, ComparableProperties.Name);
+                    container.FixedActivities.ReSetElements(Cont.FixedActivities.OrderByDescending(x => x.Name).ToList());
 
-                    Cont.UnfixedActivities.SetComparatorProperties(ComparableMethods.Desc, ComparableProperties.Name);
-                    Cont.UnfixedActivities.ReSetElements(Cont.UnfixedActivities.OrderByDescending(x => x.Name).ToList());
+                    container.UnfixedActivities.SetComparatorProperties(ComparableMethods.Desc, ComparableProperties.Name);
+                    container.UnfixedActivities.ReSetElements(Cont.UnfixedActivities.OrderByDescending(x => x.Name).ToList());
 
-                    Cont.UndefinedActivities.SetComparatorProperties(ComparableMethods.Desc, ComparableProperties.Name);
-                    Cont.UndefinedActivities.ReSetElements(Cont.UndefinedActivities.OrderByDescending(x => x.Name).ToList());
+                    container.UndefinedActivities.SetComparatorProperties(ComparableMethods.Desc, ComparableProperties.Name);
+                    container.UndefinedActivities.ReSetElements(Cont.UndefinedActivities.OrderByDescending(x => x.Name).ToList());
 
-                    Cont.DeadlineActivities.SetComparatorProperties(ComparableMethods.Desc, ComparableProperties.Name);
-                    Cont.DeadlineActivities.ReSetElements(Cont.DeadlineActivities.OrderByDescending(x => x.Name).ToList());
+                    container.DeadlineActivities.SetComparatorProperties(ComparableMethods.Desc, ComparableProperties.Name);
+                    container.DeadlineActivities.ReSetElements(Cont.DeadlineActivities.OrderByDescending(x => x.Name).ToList());
                 }
             }
             Debug.WriteLine("Ordered elements:");
-            foreach (var i in Cont.FixedActivities)
+            foreach (var i in container.FixedActivities)
             {
                 Debug.WriteLine(i);
             }
@@ -620,23 +739,23 @@ namespace Dama.Web.Controllers
 
         private void ResetVM()
         {
-            Cont.FixedActivitiesSLI.Clear();
-            Cont.UnfixedActivitiesSLI.Clear();
-            Cont.UndefinedActivitiesSLI.Clear();
-            Cont.DeadlineActivitiesSLI.Clear();
+            container.FixedActivitiesSLI.Clear();
+            container.UnfixedActivitiesSLI.Clear();
+            container.UndefinedActivitiesSLI.Clear();
+            container.DeadlineActivitiesSLI.Clear();
 
-            Cont.ActivitySelectedByUserForOptional.Clear();
-            Cont.ActivitySelectedByUserForSure.Clear();
+            container.ActivitySelectedByUserForOptional.Clear();
+            container.ActivitySelectedByUserForSure.Clear();
 
-            Cont.FixedActivities.Clear();
-            Cont.UndefinedActivities.Clear();
-            Cont.UnfixedActivities.Clear();
-            Cont.DeadlineActivities.Clear();
-            Cont.VM = new CalendarEditorViewModel();
-            Cont.CurrentUserID = User.Identity.GetUserId();
-            Cont.SelectedDate = null;
-            Cont.IsAsc = true;
-            Cont.Filters.Reset();
+            container.FixedActivities.Clear();
+            container.UndefinedActivities.Clear();
+            container.UnfixedActivities.Clear();
+            container.DeadlineActivities.Clear();
+            container.VM = new CalendarEditorViewModel();
+            container.CurrentUserID = User.Identity.GetUserId();
+            container.SelectedDate = null;
+            container.IsAsc = true;
+            container.Filters.Reset();
         }
 
         private ActivityType? GetOriginalTypeFromString(string type)
@@ -658,19 +777,19 @@ namespace Dama.Web.Controllers
 
         private void SaveValues(string isAsc, string date, string name, string priority, string category, string label)
         {
-            Cont.IsAsc = Boolean.Parse(isAsc);
+            container.IsAsc = Boolean.Parse(isAsc);
             if (date != "")
-                Cont.SelectedDate = DateTime.Parse(date);
+                container.SelectedDate = DateTime.Parse(date);
             else
-                Cont.SelectedDate = null;
+                container.SelectedDate = null;
 
-            Cont.Filters = new SaveFilters(name, category, priority, label);
+            container.Filters = new SaveFilters(name, category, priority, label);
         }
 
         private void SaveCurrentDayToDB(CalendarEditorViewModel vm)
         {
-            List<Activity> fix = Cont.ActivitySelectedByUserForSure.ToList();
-            List<Activity> optional = Cont.ActivitySelectedByUserForOptional.ToList();
+            List<Activity> fix = container.ActivitySelectedByUserForSure.ToList();
+            List<Activity> optional = container.ActivitySelectedByUserForOptional.ToList();
 
             foreach (Activity i in fix)
             {
