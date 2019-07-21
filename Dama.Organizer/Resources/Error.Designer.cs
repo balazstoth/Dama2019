@@ -70,6 +70,15 @@ namespace Dama.Organizer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot add this activity to this list!.
+        /// </summary>
+        public static string AddActivityToListDenied {
+            get {
+                return ResourceManager.GetString("AddActivityToListDenied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You cannot execute this command!.
         /// </summary>
         public static string AuthenticationError {

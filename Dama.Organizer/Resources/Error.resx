@@ -120,6 +120,9 @@
   <data name="ActivityNotFound" xml:space="preserve">
     <value>Activity not found!</value>
   </data>
+  <data name="AddActivityToListDenied" xml:space="preserve">
+    <value>Cannot add this activity to this list!</value>
+  </data>
   <data name="AuthenticationError" xml:space="preserve">
     <value>You cannot execute this command!</value>
   </data>

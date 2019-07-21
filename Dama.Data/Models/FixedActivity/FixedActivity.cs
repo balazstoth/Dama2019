@@ -13,7 +13,8 @@ namespace Dama.Data.Models
         public DateTime End { get; set; }
         public TimeSpan TimeSpan { get; set; }
         public ActivityType OriginalType { get; set; }
-        public Repeat Repeat { get; set; } 
+        public Repeat Repeat { get; set; }
+        public bool IsUnfixedOriginally { get; set; }
         #endregion
 
         #region Constructor
@@ -47,6 +48,7 @@ namespace Dama.Data.Models
             TimeSpan = CalculateTimeSpan(Start.GetValueOrDefault(), End);
             OriginalType = ActivityType.FixedActivity;
             Repeat = null;
+            IsUnfixedOriginally = false;
         }
 
         public FixedActivity(DateTime start, UnfixedActivity unfixedActivity)
@@ -66,12 +68,13 @@ namespace Dama.Data.Models
             CreationType = CreationType.ManuallyCreated;
             TimeSpan = unfixedActivity.TimeSpan;
             UserId = unfixedActivity.UserId;
+            IsUnfixedOriginally = true;
         } 
         #endregion
 
         public override string ToString()
         {
-            return String.Format($"Name: {Name}, Start: {Start}, End: {End}, Priority: {Priority}");
+            return string.Format($"Name: {Name}, Start: {Start}, End: {End}, Priority: {Priority}");
         }
 
         public static FixedActivity operator +(FixedActivity first, FixedActivity second)
@@ -89,6 +92,7 @@ namespace Dama.Data.Models
             first.Repeat = second.Repeat;
             first.Start = second.Start;
             first.TimeSpan = second.TimeSpan;
+            first.IsUnfixedOriginally = second.IsUnfixedOriginally;
 
             return first;
         }

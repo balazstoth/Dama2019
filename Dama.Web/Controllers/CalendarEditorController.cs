@@ -7,10 +7,16 @@ using Dama.Web.Models.ViewModels.Activity.Display;
 using Dama.Web.Models.ViewModels.Editor;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using Dama.Web.Models.ViewModels;
+using Dama.Generate;
+using Dama.Organizer.Enums;
+using Microsoft.AspNet.Identity;
+using Filter = Dama.Web.Models.Filter;
+using Repeat = Dama.Data.Models.Repeat;
+using Error = Dama.Organizer.Resources.Error;
 using ActionNames = Dama.Organizer.Enums.ActionNames;
 using ControllerNames = Dama.Organizer.Enums.ControllerNames;
 using ViewNames = Dama.Organizer.Enums.ViewNames;
@@ -349,94 +355,130 @@ namespace Dama.Web.Controllers
             return PartialView(ViewNames.GetActivityData.ToString(), viewModel);
         }
 
-        public PartialViewResult GetSelectedActivities(string type, string idList, string forOptional)
+        public PartialViewResult GetSelectedActivities(string activityType, string idCollection, string forOptional)
         {
-            if (!IsValidForFixedOrOpt(type, forOptional))
+            CalendarEditorViewModel viewModel = null;
+            var container = new ActivityContainer();
+
+            if (!IsValidForFixedOrOptional(activityType, forOptional))
             {
-                ViewBag.AddActIsNotValid = "Cannot add this activity to this list!";
+                ViewBag.AddActIsNotValid = Error.AddActivityToListDenied;
+
                 if (forOptional == "true")
-                    return PartialView("GetSelectedOptionalActivities", container.VM);
-                else
-                    return PartialView("GetSelectedActivities", container.VM);
+                    return PartialView(ViewNames.GetSelectedOptionalActivities.ToString(), container.CalendarEditorViewModel);
+
+                return PartialView(ViewNames.GetSelectedActivities.ToString(), container.CalendarEditorViewModel);
             }
 
-            List<int> selectedIDs = SeparateidList(idList);
-            if (selectedIDs == null)
-                if (forOptional == "true")
-                    return PartialView("GetSelectedOptionalActivities", container.VM);
-                else
-                    return PartialView("GetSelectedActivities", container.VM);
+            var selectedIds = SeparateIdCollection(idCollection);
 
-            Activity tmp = null;
-
-            foreach (int i in selectedIDs)
+            if (selectedIds == null)
             {
-                switch (type)
+                if (forOptional == "true")
+                    return PartialView(ViewNames.GetSelectedOptionalActivities.ToString(), container.CalendarEditorViewModel);
+                
+                return PartialView(ViewNames.GetSelectedActivities.ToString(), container.CalendarEditorViewModel);
+            }
+
+            Activity tmpActivity = null;
+
+            foreach (int id in selectedIds)
+            {
+                switch (activityType)
                 {
-                    case "Fixed":
-                        tmp = container.FixedActivities.Where(x => x.ID == Convert.ToInt32(i)).FirstOrDefault();
-                        container.FixedActivities.Remove(tmp as FixedActivity);
+                    case _fixedActivityName:
+                        tmpActivity = container.FixedActivities.Where(x => x.Id == Convert.ToInt32(id)).FirstOrDefault();
+                        container.FixedActivities.Remove(tmpActivity as FixedActivity);
                         break;
 
-                    case "Unfixed":
-                        tmp = container.UnfixedActivities.Where(x => x.ID == Convert.ToInt32(i)).FirstOrDefault();
-                        container.UnfixedActivities.Remove(tmp as UnfixedActivity);
+                    case _unfixedActivityName:
+                        tmpActivity = container.UnfixedActivities.Where(x => x.Id == Convert.ToInt32(id)).FirstOrDefault();
+                        container.UnfixedActivities.Remove(tmpActivity as UnfixedActivity);
                         break;
 
-                    case "Undefined":
-                        tmp = container.UndefinedActivities.Where(x => x.ID == Convert.ToInt32(i)).FirstOrDefault();
-                        container.UndefinedActivities.Remove(tmp as UndefinedActivity);
+                    case _undefinedActivityName:
+                        tmpActivity = container.UndefinedActivities.Where(x => x.Id == Convert.ToInt32(id)).FirstOrDefault();
+                        container.UndefinedActivities.Remove(tmpActivity as UndefinedActivity);
                         break;
 
-                    case "Deadline":
-                        tmp = container.DeadlineActivities.Where(x => x.ID == Convert.ToInt32(i)).FirstOrDefault();
-                        container.DeadlineActivities.Remove(tmp as DeadlineActivity);
+                    case _deadlineActivityName:
+                        tmpActivity = container.DeadlineActivities.Where(x => x.Id == Convert.ToInt32(id)).FirstOrDefault();
+                        container.DeadlineActivities.Remove(tmpActivity as DeadlineActivity);
                         break;
                 }
+
                 if (forOptional == "true")
                 {
-                    container.VM.OptionalActivitiesSelectedByUser.Add(new SelectListItem() { Text = tmp.Name, Value = tmp.ID.ToString() + "|" + type });
-                    container.VM.OptionalActivitiesSelectedByUser = container.VM.OptionalActivitiesSelectedByUser.OrderBy(x => x.Text).ToList();
-                    container.ActivitySelectedByUserForOptional.AddSorted(tmp);
-                    container.VM.ActivitySelectedList.RemoveAll(x => x.Value.Split('|')[0] == i.ToString());
+                    container.CalendarEditorViewModel
+                             .OptionalActivitiesSelectedByUser
+                                .Add(new SelectListItem()
+                                {
+                                    Text = tmpActivity.Name,
+                                    Value = tmpActivity.Id.ToString() + "|" + activityType
+                                });
+
+                    container.CalendarEditorViewModel
+                             .OptionalActivitiesSelectedByUser = container.CalendarEditorViewModel
+                                                                          .OptionalActivitiesSelectedByUser
+                                                                             .OrderBy(a => a.Text).ToList();
+
+                    container.ActivitySelectedByUserForOptional.AddSorted(tmpActivity);
+                    container.CalendarEditorViewModel
+                             .ActivityCollectionForActivityTypes
+                                .RemoveAll(a => a.Value.Split('|')[0] == id.ToString());
                 }
                 else
                 {
-                    container.VM.ActivitiesSelectedByUser.Add(new SelectListItem() { Text = tmp.Name, Value = tmp.ID.ToString() + "|" + type });
-                    container.VM.ActivitiesSelectedByUser = container.VM.ActivitiesSelectedByUser.OrderBy(x => x.Text).ToList();
-                    container.ActivitySelectedByUserForSure.AddSorted(tmp);
-                    container.VM.ActivitySelectedList.RemoveAll(x => x.Value.Split('|')[0] == i.ToString());
+                    container.CalendarEditorViewModel
+                             .MandatoryActivitiesSelectedByUser
+                                .Add(new SelectListItem() { Text = tmpActivity.Name, Value = tmpActivity.Id.ToString() + "|" + activityType });
 
-                    if (type == "Unfixed")
-                    {
+                    container.CalendarEditorViewModel
+                             .MandatoryActivitiesSelectedByUser = container.CalendarEditorViewModel
+                                                                           .MandatoryActivitiesSelectedByUser
+                                                                               .OrderBy(a => a.Text).ToList();
+
+                    container.ActivitySelectedByUserForSure.AddSorted(tmpActivity);
+                    container.CalendarEditorViewModel
+                             .ActivityCollectionForActivityTypes
+                                 .RemoveAll(a => a.Value.Split('|')[0] == id.ToString());
+
+                    if (activityType == _unfixedActivityName)
                         break;
-                    }
                 }
             }
+
+            viewModel = container.CalendarEditorViewModel;
+            container.Dispose();
 
             if (forOptional == "true")
-                return PartialView("GetSelectedOptionalActivities", container.VM);
-            else
-                return PartialView("GetSelectedActivities", container.VM);
+                return PartialView(ViewNames.GetSelectedOptionalActivities.ToString(), viewModel);
+
+            return PartialView(ViewNames.GetSelectedActivities.ToString(), viewModel);
         }
 
-        public PartialViewResult MoveBack(string id_type_List, string fromOptional)
+        public PartialViewResult MoveBack(string idAndTypeCollection, string fromOptional)
         {
-            string[] splittedValues = id_type_List.Split(',');
+            var splittedValues = idAndTypeCollection.Split(',');
             SelectListItem sli = null;
             Activity tmp = null;
+            var container = new ActivityContainer();
+            CalendarEditorViewModel viewModel;
 
-            if (splittedValues == null || id_type_List == "null") //There's nothing selected
+            //There's nothing selected
+            if (splittedValues == null || idAndTypeCollection == "null") 
+            {
                 if (fromOptional == "true")
-                    return PartialView("GetSelectedOptionalActivities", container.VM);
-                else
-                    return PartialView("GetSelectedActivities", container.VM);
+                    return PartialView(ViewNames.GetSelectedOptionalActivities.ToString(), container.CalendarEditorViewModel);
 
+                return PartialView(ViewNames.GetSelectedActivities.ToString(), container.CalendarEditorViewModel);
+            }
+                
             if (fromOptional == "true")
             {
-                foreach (string value in splittedValues)
+                foreach (var value in splittedValues)
                 {
-                    foreach (SelectListItem item in container.VM.OptionalActivitiesSelectedByUser)
+                    foreach (var item in container.CalendarEditorViewModel.OptionalActivitiesSelectedByUser)
                     {
                         if (item.Value == value)
                         {
@@ -445,132 +487,155 @@ namespace Dama.Web.Controllers
                         }
                     }
 
-                    string[] idNtype = value.Split('|');
-                    container.VM.OptionalActivitiesSelectedByUser.Remove(sli); //Remove from view list
-                    foreach (var i in container.ActivitySelectedByUserForOptional)
+                    var idAndType = value.Split('|');
+                    container.CalendarEditorViewModel.OptionalActivitiesSelectedByUser.Remove(sli); //Remove from view list
+
+                    foreach (var activity in container.ActivitySelectedByUserForOptional)
                     {
-                        switch (idNtype[1])
+                        switch (idAndType[1])
                         {
-                            case "Fixed":
-                                if (i.ID == int.Parse(idNtype[0]) && (i as FixedActivity) != null)
+                            case _fixedActivityName:
+                                if (activity.Id == int.Parse(idAndType[0]) && (activity as FixedActivity) != null)
                                 {
-                                    container.FixedActivities.AddSorted(i as FixedActivity);
-                                    tmp = i;
+                                    container.FixedActivities.AddSorted(activity as FixedActivity);
+                                    tmp = activity;
                                 }
+
                                 break;
-                            case "Unfixed":
-                                if (i.ID == int.Parse(idNtype[0]) && (i as UnfixedActivity) != null)
+
+                            case _unfixedActivityName:
+                                if (activity.Id == int.Parse(idAndType[0]) && (activity as UnfixedActivity) != null)
                                 {
-                                    container.UnfixedActivities.AddSorted(i as UnfixedActivity);
-                                    tmp = i;
+                                    container.UnfixedActivities.AddSorted(activity as UnfixedActivity);
+                                    tmp = activity;
                                 }
+
                                 break;
-                            case "Undefined":
-                                if (i.ID == int.Parse(idNtype[0]) && (i as UndefinedActivity) != null)
+
+                            case _undefinedActivityName:
+                                if (activity.Id == int.Parse(idAndType[0]) && (activity as UndefinedActivity) != null)
                                 {
-                                    container.UndefinedActivities.AddSorted(i as UndefinedActivity);
-                                    tmp = i;
+                                    container.UndefinedActivities.AddSorted(activity as UndefinedActivity);
+                                    tmp = activity;
                                 }
+
                                 break;
-                            case "Deadline":
-                                if (i.ID == int.Parse(idNtype[0]) && (i as DeadlineActivity) != null)
+
+                            case _deadlineActivityName:
+                                if (activity.Id == int.Parse(idAndType[0]) && (activity as DeadlineActivity) != null)
                                 {
-                                    container.DeadlineActivities.AddSorted(i as DeadlineActivity);
-                                    tmp = i;
+                                    container.DeadlineActivities.AddSorted(activity as DeadlineActivity);
+                                    tmp = activity;
                                 }
+
                                 break;
                         }
                     }
-                    //Cont.VM.ActivitySelectedList.Add(new SelectListItem() { Text = tmp.Name, Value = tmp.ID.ToString() });
 
                     container.ActivitySelectedByUserForOptional.Remove(tmp);
                 }
             }
             else
             {
-                foreach (string value in splittedValues)
+                foreach (var value in splittedValues)
                 {
-                    foreach (SelectListItem item in container.VM.ActivitiesSelectedByUser)
+                    foreach (var activity in container.CalendarEditorViewModel.MandatoryActivitiesSelectedByUser)
                     {
-                        if (item.Value == value)
+                        if (activity.Value == value)
                         {
-                            sli = item;
+                            sli = activity;
                             break;
                         }
                     }
 
-                    string[] idNtype = value.Split('|');
-                    container.VM.ActivitiesSelectedByUser.Remove(sli); //Remove from view list
-                    foreach (var i in container.ActivitySelectedByUserForSure)
+                    var idAndType = value.Split('|');
+                    container.CalendarEditorViewModel.MandatoryActivitiesSelectedByUser.Remove(sli); //Remove from view list
+
+                    foreach (var activity in container.ActivitySelectedByUserForSure)
                     {
-                        switch (idNtype[1])
+                        switch (idAndType[1])
                         {
-                            case "Fixed":
-                                if (i.ID == int.Parse(idNtype[0]) && (i as FixedActivity) != null)
+                            case _fixedActivityName:
+                                if (activity.Id == int.Parse(idAndType[0]) && (activity as FixedActivity) != null)
                                 {
-                                    FixedActivity current = i as FixedActivity;
-                                    if (current.IsUnfixedOriginally)
+                                    var currentActivity = activity as FixedActivity;
+                                    if (currentActivity.IsUnfixedOriginally)
                                     {
-                                        UnfixedActivity ua = new UnfixedActivity(current);
-                                        container.UnfixedActivities.AddSorted(ua);
+                                        var unfixedActivity = new UnfixedActivity(currentActivity);
+                                        container.UnfixedActivities.AddSorted(unfixedActivity);
                                     }
                                     else
                                     {
-                                        container.FixedActivities.AddSorted(current);
+                                        container.FixedActivities.AddSorted(currentActivity);
                                     }
-                                    tmp = i;
+
+                                    tmp = activity;
                                 }
+
                                 break;
-                            case "Unfixed":
-                                if (i.ID == int.Parse(idNtype[0]) && (i as UnfixedActivity) != null)
+
+                            case _unfixedActivityName:
+                                if (activity.Id == int.Parse(idAndType[0]) && (activity as UnfixedActivity) != null)
                                 {
-                                    container.UnfixedActivities.AddSorted(i as UnfixedActivity);
-                                    tmp = i;
+                                    container.UnfixedActivities.AddSorted(activity as UnfixedActivity);
+                                    tmp = activity;
                                 }
+
                                 break;
-                            case "Undefined":
-                                if (i.ID == int.Parse(idNtype[0]) && (i as UndefinedActivity) != null)
+
+                            case _undefinedActivityName:
+                                if (activity.Id == int.Parse(idAndType[0]) && (activity as UndefinedActivity) != null)
                                 {
-                                    container.UndefinedActivities.AddSorted(i as UndefinedActivity);
-                                    tmp = i;
+                                    container.UndefinedActivities.AddSorted(activity as UndefinedActivity);
+                                    tmp = activity;
                                 }
+
                                 break;
-                            case "Deadline":
-                                if (i.ID == int.Parse(idNtype[0]) && (i as DeadlineActivity) != null)
+
+                            case _deadlineActivityName:
+                                if (activity.Id == int.Parse(idAndType[0]) && (activity as DeadlineActivity) != null)
                                 {
-                                    container.DeadlineActivities.AddSorted(i as DeadlineActivity);
-                                    tmp = i;
+                                    container.DeadlineActivities.AddSorted(activity as DeadlineActivity);
+                                    tmp = activity;
                                 }
+
                                 break;
                         }
                     }
+
                     container.ActivitySelectedByUserForSure.Remove(tmp);
                 }
             }
+
+            viewModel = container.CalendarEditorViewModel;
+            container.Dispose();
+
             if (fromOptional == "true")
-                return PartialView("GetSelectedOptionalActivities", container.VM);
-            else
-                return PartialView("GetSelectedActivities", container.VM);
+                return PartialView(ViewNames.GetSelectedOptionalActivities.ToString(), viewModel);
+
+            return PartialView(ViewNames.GetSelectedActivities.ToString(), viewModel);
         }
 
-        public async Task<ActionResult> GetDataForChange(string id_type_string, string isAsc, string selectedDate, string nameFilter, string priorityFilter, string labelFilter, string categoryFilter)
+        public async Task<ActionResult> GetDataForChange(string idAndType, string isAsc, string selectedDate, string nameFilter, string priorityFilter, string labelFilter, string categoryFilter)
         {
-            if (id_type_string == "null") //There's nothing selected
+            if (idAndType == "null") //There's nothing selected
                 return null;
 
             SaveValues(isAsc, selectedDate, nameFilter, priorityFilter, categoryFilter, labelFilter);
-            string[] firstID;
-            if (id_type_string.Contains(','))
-                firstID = id_type_string.Substring(0, id_type_string.IndexOf(',')).Split('|');
-            else
-                firstID = id_type_string.Split('|');
 
-            string id = firstID[0];
-            string type = firstID[1];
-            bool optional = firstID[2] == "true";
+            string[] firstId;
+
+            if (idAndType.Contains(','))
+                firstId = idAndType.Substring(0, idAndType.IndexOf(',')).Split('|');
+            else
+                firstId = idAndType.Split('|');
+
+            var id = firstId[0];
+            var type = firstId[1];
+            var optional = firstId[2] == "true";
 
             var controller = DependencyResolver.Current.GetService<CalendarController>();
-            controller.ControllerContext = new ControllerContext(this.Request.RequestContext, controller);
+            controller.ControllerContext = new ControllerContext(Request.RequestContext, controller);
             return await controller.EditActivity(id, GetOriginalTypeFromString(type), true, optional);
         }
 
@@ -579,269 +644,329 @@ namespace Dama.Web.Controllers
             if (value == "null")
                 return null;
 
-            string firstID;
+            string firstId;
 
             if (value.Contains(','))
-                firstID = value.Substring(0, value.IndexOf(','));
+                firstId = value.Substring(0, value.IndexOf(','));
             else
-                firstID = value;
+                firstId = value;
 
-            RequestTimeViewModel vm = new RequestTimeViewModel(int.Parse(firstID));
-            return PartialView("RequestStartTime", vm);
+            var viewModel = new RequestTimeViewModel(int.Parse(firstId));
+            return PartialView(ViewNames.RequestStartTime.ToString(), viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult RequestStartTime(RequestTimeViewModel vm)
+        public ActionResult RequestStartTime(RequestTimeViewModel viewModel)
         {
-            container.Reset = false;
-
-            if (ModelState.IsValid)
+            using (var container = new ActivityContainer())
             {
-                UnfixedActivity ua = container.ActivitySelectedByUserForSure.FirstOrDefault(i => i.ID == vm.ActivityID && i.OwnType == ActivityType.Unfixed) as UnfixedActivity;
-                FixedActivity fa = new FixedActivity(ua, vm.StartTime) { IsUnfixedOriginally = true };
-                container.ActivitySelectedByUserForSure.Remove(ua);
-                container.ActivitySelectedByUserForSure.AddSorted(fa);
-            }
-            else
-            {
-                return View();
+                container.Reset = false;
+
+                if (ModelState.IsValid)
+                {
+                    var unfixedActivity = container.ActivitySelectedByUserForSure
+                                                        .FirstOrDefault(a => a.Id == viewModel.ActivityId && a.ActivityType == ActivityType.UnfixedActivity) as UnfixedActivity;
+
+                    var fixedActivity = new FixedActivity(viewModel.StartTime, unfixedActivity) { IsUnfixedOriginally = true };
+                    container.ActivitySelectedByUserForSure.Remove(unfixedActivity);
+                    container.ActivitySelectedByUserForSure.AddSorted(fixedActivity);
+                }
+                else
+                {
+                    return View();
+                }
             }
 
-            return RedirectToAction("Editor");
+            return RedirectToAction(ActionNames.Editor.ToString());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Editor(CalendarEditorViewModel vm)
+        public ActionResult Editor(CalendarEditorViewModel viewModel)
         {
             if (ModelState.Values.First().Errors.Count == 0)
             {
-                SaveCurrentDayToDB(vm);
-                List<FixedActivity> l = container.ActivitySelectedByUserForSure.Where(x => x.OwnType == ActivityType.Fixed).Select(x => x as FixedActivity).ToList();
-                AutoFill fill = new AutoFill(l,
-                                                container.ActivitySelectedByUserForOptional,
-                                                new DateTime(DateTime.Now.Year, DateTime.Today.Month, DateTime.Today.Day, 8, 0, 0),
-                                                new DateTime(DateTime.Now.Year, DateTime.Today.Month, DateTime.Today.Day, 20, 0, 0),
-                                                new TimeSpan(0, 5, 0));
-
-
+                SaveCurrentDayToDatabase(viewModel);
+                using (var container = new ActivityContainer())
+                {
+                    var fixedActivityCollection = container.ActivitySelectedByUserForSure.Where(a => a.ActivityType == ActivityType.FixedActivity).Select(x => x as FixedActivity).ToList();
+                    var autoFillFeature = new AutoFill(fixedActivityCollection,
+                                                        container.ActivitySelectedByUserForOptional,
+                                                        new DateTime(DateTime.Now.Year, DateTime.Today.Month, DateTime.Today.Day, 8, 0, 0),
+                                                        new DateTime(DateTime.Now.Year, DateTime.Today.Month, DateTime.Today.Day, 20, 0, 0),
+                                                        new TimeSpan(0, 5, 0));
+                }
             }
             else
-                return View(vm);
-
-            return RedirectToAction("Index", "Calendar");
-        }
-
-        private void FillListsFromDB()
-        {
-            //Get all the necessary data from DB
-            using (DamaDB db = new DamaDB())
             {
-                container.FixedActivities.AddSortedRange(db.FixedActivities.Where(x => x.UserID == container.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).ToList());
-                container.UnfixedActivities.AddSortedRange(db.UnFixedActivities.Where(x => x.UserID == container.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).ToList());
-                container.UndefinedActivities.AddSortedRange(db.UndefinedActivities.Where(x => x.UserID == container.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).ToList());
-                container.DeadlineActivities.AddSortedRange(db.DeadLineActivities.Where(x => x.UserID == container.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).Include(act => act.MileStones).ToList());
-                container.Categories = db.Categories.Where(x => x.UserID == container.CurrentUserID).ToList();
-                container.Labels = db.Labels.Where(x => x.UserID == container.CurrentUserID).ToList();
+                return View(viewModel);
             }
+
+            return RedirectToAction(ActionNames.Index.ToString(), ControllerNames.Home.ToString());
         }
 
-        private List<int> SeparateidList(string idList)
-        {
-            return idList == "null" || idList == null ? null : idList.Split(',').Select(x => Convert.ToInt32(x)).ToList();
-        }
+        //private void FillListsFromDB()
+        //{
+        //    //Get all the necessary data from DB
+        //    using (DamaDB db = new DamaDB())
+        //    {
+        //        container.FixedActivities.AddSortedRange(db.FixedActivities.Where(x => x.UserID == container.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).ToList());
+        //        container.UnfixedActivities.AddSortedRange(db.UnFixedActivities.Where(x => x.UserID == container.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).ToList());
+        //        container.UndefinedActivities.AddSortedRange(db.UndefinedActivities.Where(x => x.UserID == container.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).ToList());
+        //        container.DeadlineActivities.AddSortedRange(db.DeadLineActivities.Where(x => x.UserID == container.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).Include(act => act.MileStones).ToList());
+        //        container.Categories = db.Categories.Where(x => x.UserID == container.CurrentUserID).ToList();
+        //        container.Labels = db.Labels.Where(x => x.UserID == container.CurrentUserID).ToList();
+        //    }
+        //}
 
         public PartialViewResult RefreshActivityListbox()
         {
-            return PartialView("GetActivityData", container.VM);
+            var container = new ActivityContainer();
+            return PartialView(ViewNames.GetActivityData.ToString(), container.CalendarEditorViewModel);
         }
 
         public PartialViewResult RefreshFixList()
         {
-            container.VM.ActivitiesSelectedByUser.Clear();
-            foreach (Activity i in container.ActivitySelectedByUserForSure)
+            using (var container = new ActivityContainer())
             {
-                container.VM.ActivitiesSelectedByUser.Add(new SelectListItem() { Text = i.Name, Value = i.ID.ToString() + "|" + i.OwnType });
+                container.CalendarEditorViewModel.MandatoryActivitiesSelectedByUser.Clear();
+
+                foreach (var activity in container.ActivitySelectedByUserForSure)
+                    container.CalendarEditorViewModel
+                             .MandatoryActivitiesSelectedByUser
+                                .Add(new SelectListItem()
+                                {
+                                    Text = activity.Name,
+                                    Value = activity.Id.ToString() + "|" + activity.ActivityType
+                                });
+
+                container.CalendarEditorViewModel
+                         .MandatoryActivitiesSelectedByUser = container.CalendarEditorViewModel
+                                                                       .MandatoryActivitiesSelectedByUser
+                                                                       .OrderBy(a => a.Text).ToList();
+
+                return PartialView(ViewNames.GetSelectedActivities.ToString(), container.CalendarEditorViewModel);
             }
-            container.VM.ActivitiesSelectedByUser = container.VM.ActivitiesSelectedByUser.OrderBy(x => x.Text).ToList();
-            return PartialView("GetSelectedActivities", container.VM);
         }
 
         public PartialViewResult RefreshOptionalList()
         {
-            container.VM.OptionalActivitiesSelectedByUser.Clear();
-            foreach (Activity i in container.ActivitySelectedByUserForOptional)
+            using (var container = new ActivityContainer())
             {
-                container.VM.OptionalActivitiesSelectedByUser.Add(new SelectListItem() { Text = i.Name, Value = i.ID.ToString() + "|" + i.OwnType });
+                container.CalendarEditorViewModel.OptionalActivitiesSelectedByUser.Clear();
+
+                foreach (var activity in container.ActivitySelectedByUserForOptional)
+                    container.CalendarEditorViewModel
+                             .OptionalActivitiesSelectedByUser
+                                .Add(new SelectListItem()
+                                {
+                                    Text = activity.Name,
+                                    Value = activity.Id.ToString() + "|" + activity.ActivityType
+                                });
+
+                container.CalendarEditorViewModel
+                         .OptionalActivitiesSelectedByUser = container.CalendarEditorViewModel
+                                                                      .OptionalActivitiesSelectedByUser
+                                                                      .OrderBy(a => a.Text).ToList();
+
+                return PartialView(ViewNames.GetSelectedOptionalActivities.ToString(), container.CalendarEditorViewModel);
             }
-            container.VM.OptionalActivitiesSelectedByUser = container.VM.OptionalActivitiesSelectedByUser.OrderBy(x => x.Text).ToList();
-            return PartialView("GetSelectedOptionalActivities", container.VM);
         }
 
-        public PartialViewResult ReOrderLists(string checkBoxValue, string orderBy, string type)
+        public PartialViewResult ReOrderLists(string checkBoxValue, string orderBy, string activityType)
         {
-            if (orderBy == "name")
+            using (var container = new ActivityContainer())
             {
-                if (checkBoxValue == "true")
+                if (orderBy == "name")
                 {
-                    //Asc
-                    container.FixedActivities.SetComparatorProperties(ComparableMethods.Asc, ComparableProperties.Name);
-                    container.FixedActivities.ReSetElements(Cont.FixedActivities.OrderBy(x => x.Name).ToList());
+                    if (checkBoxValue == "true")
+                    {
+                        //Asc
+                        container.FixedActivities.SetComparatorProperties(ComparableSequence.Asc, ComparableProperties.Name);
+                        container.FixedActivities.ResetElements(container.FixedActivities.OrderBy(x => x.Name).ToList());
 
-                    container.UnfixedActivities.SetComparatorProperties(ComparableMethods.Asc, ComparableProperties.Name);
-                    container.UnfixedActivities.ReSetElements(Cont.UnfixedActivities.OrderBy(x => x.Name).ToList());
+                        container.UnfixedActivities.SetComparatorProperties(ComparableSequence.Asc, ComparableProperties.Name);
+                        container.UnfixedActivities.ResetElements(container.UnfixedActivities.OrderBy(x => x.Name).ToList());
 
-                    container.UndefinedActivities.SetComparatorProperties(ComparableMethods.Asc, ComparableProperties.Name);
-                    container.UndefinedActivities.ReSetElements(Cont.UndefinedActivities.OrderBy(x => x.Name).ToList());
+                        container.UndefinedActivities.SetComparatorProperties(ComparableSequence.Asc, ComparableProperties.Name);
+                        container.UndefinedActivities.ResetElements(container.UndefinedActivities.OrderBy(x => x.Name).ToList());
 
-                    container.DeadlineActivities.SetComparatorProperties(ComparableMethods.Asc, ComparableProperties.Name);
-                    container.DeadlineActivities.ReSetElements(Cont.DeadlineActivities.OrderBy(x => x.Name).ToList());
-                }
-                else
-                {
-                    //Desc
-                    container.FixedActivities.SetComparatorProperties(ComparableMethods.Desc, ComparableProperties.Name);
-                    container.FixedActivities.ReSetElements(Cont.FixedActivities.OrderByDescending(x => x.Name).ToList());
+                        container.DeadlineActivities.SetComparatorProperties(ComparableSequence.Asc, ComparableProperties.Name);
+                        container.DeadlineActivities.ResetElements(container.DeadlineActivities.OrderBy(x => x.Name).ToList());
+                    }
+                    else
+                    {
+                        //Desc
+                        container.FixedActivities.SetComparatorProperties(ComparableSequence.Desc, ComparableProperties.Name);
+                        container.FixedActivities.ResetElements(container.FixedActivities.OrderByDescending(x => x.Name).ToList());
 
-                    container.UnfixedActivities.SetComparatorProperties(ComparableMethods.Desc, ComparableProperties.Name);
-                    container.UnfixedActivities.ReSetElements(Cont.UnfixedActivities.OrderByDescending(x => x.Name).ToList());
+                        container.UnfixedActivities.SetComparatorProperties(ComparableSequence.Desc, ComparableProperties.Name);
+                        container.UnfixedActivities.ResetElements(container.UnfixedActivities.OrderByDescending(x => x.Name).ToList());
 
-                    container.UndefinedActivities.SetComparatorProperties(ComparableMethods.Desc, ComparableProperties.Name);
-                    container.UndefinedActivities.ReSetElements(Cont.UndefinedActivities.OrderByDescending(x => x.Name).ToList());
+                        container.UndefinedActivities.SetComparatorProperties(ComparableSequence.Desc, ComparableProperties.Name);
+                        container.UndefinedActivities.ResetElements(container.UndefinedActivities.OrderByDescending(x => x.Name).ToList());
 
-                    container.DeadlineActivities.SetComparatorProperties(ComparableMethods.Desc, ComparableProperties.Name);
-                    container.DeadlineActivities.ReSetElements(Cont.DeadlineActivities.OrderByDescending(x => x.Name).ToList());
+                        container.DeadlineActivities.SetComparatorProperties(ComparableSequence.Desc, ComparableProperties.Name);
+                        container.DeadlineActivities.ResetElements(container.DeadlineActivities.OrderByDescending(x => x.Name).ToList());
+                    }
                 }
             }
-            Debug.WriteLine("Ordered elements:");
-            foreach (var i in container.FixedActivities)
-            {
-                Debug.WriteLine(i);
-            }
-            return GetActivityData(type);
+
+            return GetActivityData(activityType);
         }
 
-        private bool IsValidForFixedOrOpt(string type, string optional)
+        private bool IsValidForFixedOrOptional(string activityType, string optional)
         {
             if (optional == "true")
-            {
-                if (type == "Deadline")
+                if (activityType == _deadlineActivityName)
                     return false;
-            }
             else
-            {
-                if (type == "Undefined")
+                if (activityType == _undefinedActivityName)
                     return false;
-            }
+
             return true;
         }
 
-        private void ResetVM()
+        private void ResetViewModel()
         {
-            container.FixedActivitiesSLI.Clear();
-            container.UnfixedActivitiesSLI.Clear();
-            container.UndefinedActivitiesSLI.Clear();
-            container.DeadlineActivitiesSLI.Clear();
+            using (var container = new ActivityContainer())
+            {
+                container.FixedActivitiesSLI.Clear();
+                container.UnfixedActivitiesSLI.Clear();
+                container.UndefinedActivitiesSLI.Clear();
+                container.DeadlineActivitiesSLI.Clear();
 
-            container.ActivitySelectedByUserForOptional.Clear();
-            container.ActivitySelectedByUserForSure.Clear();
+                container.ActivitySelectedByUserForOptional.Clear();
+                container.ActivitySelectedByUserForSure.Clear();
 
-            container.FixedActivities.Clear();
-            container.UndefinedActivities.Clear();
-            container.UnfixedActivities.Clear();
-            container.DeadlineActivities.Clear();
-            container.VM = new CalendarEditorViewModel();
-            container.CurrentUserID = User.Identity.GetUserId();
-            container.SelectedDate = null;
-            container.IsAsc = true;
-            container.Filters.Reset();
+                container.FixedActivities.Clear();
+                container.UndefinedActivities.Clear();
+                container.UnfixedActivities.Clear();
+                container.DeadlineActivities.Clear();
+                container.CalendarEditorViewModel = new CalendarEditorViewModel();
+                container.UserId = User.Identity.GetUserId();
+                container.SelectedDate = null;
+                container.IsAsc = true;
+                container.Filter.ResetValues();
+            }
         }
 
-        private ActivityType? GetOriginalTypeFromString(string type)
+        private ActivityType? GetOriginalTypeFromString(string activityType)
         {
-            switch (type)
+            switch (activityType)
             {
-                case "Fixed":
-                    return ActivityType.Fixed;
-                case "Unfixed":
-                    return ActivityType.Unfixed;
-                case "Undefined":
-                    return ActivityType.Undefined;
-                case "Deadline":
-                    return ActivityType.Deadline;
-            }
+                case _fixedActivityName:
+                    return ActivityType.FixedActivity;
 
-            return null;
+                case _unfixedActivityName:
+                    return ActivityType.UnfixedActivity;
+
+                case _undefinedActivityName:
+                    return ActivityType.UndefinedActivity;
+
+                case _deadlineActivityName:
+                    return ActivityType.DeadlineActivity;
+
+                default:
+                    return null;
+            }
+        }
+
+        private List<int> SeparateIdCollection(string idCollection)
+        {
+            return (idCollection == "null" ||
+                    idCollection == null) ?
+                null : idCollection.Split(',').Select(id => Convert.ToInt32(id)).ToList();
         }
 
         private void SaveValues(string isAsc, string date, string name, string priority, string category, string label)
         {
-            container.IsAsc = Boolean.Parse(isAsc);
-            if (date != "")
-                container.SelectedDate = DateTime.Parse(date);
-            else
-                container.SelectedDate = null;
+            using (var container = new ActivityContainer())
+            {
+                container.IsAsc = Boolean.Parse(isAsc);
 
-            container.Filters = new SaveFilters(name, category, priority, label);
+                if (date == "")
+                    container.SelectedDate = null;
+                else
+                    container.SelectedDate = DateTime.Parse(date);
+
+                container.Filter = new Filter()
+                {
+                    Name = name,
+                    Category = category,
+                    Priority = priority,
+                    Label = label
+                };
+            }
         }
 
-        private void SaveCurrentDayToDB(CalendarEditorViewModel vm)
+        private void SaveCurrentDayToDatabase(CalendarEditorViewModel viewModel)
         {
-            List<Activity> fix = container.ActivitySelectedByUserForSure.ToList();
-            List<Activity> optional = container.ActivitySelectedByUserForOptional.ToList();
+            var container = new ActivityContainer();
+            var fixCollection = container.ActivitySelectedByUserForSure.ToList();
+            var optionalCollection = container.ActivitySelectedByUserForOptional.ToList();
+            var repeat = new Repeat(viewModel.SelectedDate, viewModel.SelectedDate, RepeatPeriod.Single);
 
-            foreach (Activity i in fix)
+            foreach (var activity in fixCollection)
             {
-                switch (i.OwnType)
+                switch (activity.ActivityType)
                 {
-                    case ActivityType.Fixed:
-                        FixedActivity f = i as FixedActivity;
-                        if (f.Repeat == null)
-                            f.Repeat = new Repeat(vm.SelectedDate, RepeatPeriod.Single, vm.SelectedDate);
+                    case ActivityType.FixedActivity:
+                        var fixedActivity = activity as FixedActivity;
+
+                        if (fixedActivity.Repeat == null)
+                            fixedActivity.Repeat = repeat;
+
                         break;
-                    case ActivityType.Unfixed:
-                        UnfixedActivity uf = i as UnfixedActivity;
-                        if (uf.Repeat == null)
-                            uf.Repeat = new Repeat(vm.SelectedDate, RepeatPeriod.Single, vm.SelectedDate);
+
+                    case ActivityType.UnfixedActivity:
+                        var unfixedActivity = activity as UnfixedActivity;
+
+                        if (unfixedActivity.Repeat == null)
+                            unfixedActivity.Repeat = repeat;
+
                         break;
                 }
-            } //Set default repeat values
-
-            using (DamaDB db = new DamaDB())
-            {
-                foreach (Activity activity in fix)
-                {
-                    switch (activity.OwnType)
-                    {
-                        case ActivityType.Fixed:
-                            FixedActivity fa = activity as FixedActivity;
-                            if (fa.Category != null)
-                                db.Entry(fa.Category).State = EntityState.Unchanged;
-                            fa.Base = false;
-                            db.FixedActivities.Add(fa);
-                            break;
-                        case ActivityType.Unfixed:
-                            UnfixedActivity ufa = activity as UnfixedActivity;
-                            if (ufa.Category != null)
-                                db.Entry(ufa.Category).State = EntityState.Unchanged;
-                            ufa.Base = false;
-                            db.UnFixedActivities.Add(ufa);
-                            break;
-                        case ActivityType.Deadline:
-                            DeadlineActivity dla = activity as DeadlineActivity;
-                            dla.Base = false;
-                            db.DeadLineActivities.Add(dla);
-                            break;
-                    }
-                }
-                db.SaveChanges();
-
-                foreach (Activity activity in fix)
-                    db.Calendar.Add(new CalendarSystem(vm.SelectedDate, activity));
-
-                db.SaveChanges();
             }
+            
+            foreach (var activity in fixCollection)
+            {
+                switch (activity.ActivityType)
+                {
+                    case ActivityType.FixedActivity:
+                        var fixedActivity = activity as FixedActivity;
+
+                        if (fixedActivity.Category != null)
+                            db.Entry(fixedActivity.Category).State = EntityState.Unchanged;
+
+                        fixedActivity.Base = false;
+                        db.FixedActivities.Add(fixedActivity);
+                        break;
+
+                    case ActivityType.UnfixedActivity:
+                        var unfixedActivity = activity as UnfixedActivity;
+
+                        if (unfixedActivity.Category != null)
+                            db.Entry(unfixedActivity.Category).State = EntityState.Unchanged;
+
+                        unfixedActivity.Base = false;
+                        db.UnFixedActivities.Add(unfixedActivity);
+
+                        break;
+
+                    case ActivityType.DeadlineActivity:
+                        var deadlineActivity = activity as DeadlineActivity;
+                        deadlineActivity.Base = false;
+                        db.DeadLineActivities.Add(deadlineActivity);
+
+                        break;
+                }
+            }
+
+            foreach (var activity in fixCollection)
+                db.Calendar.Add(new CalendarSystem(viewModel.SelectedDate, activity));
+
         }
 
         private CalendarEditorViewModel GetValidViewModel()
@@ -856,8 +981,7 @@ namespace Dama.Web.Controllers
 
                 if (container.Reset)
                 {
-                    ResetVM();
-                    FillListsFromDB();
+                    ResetViewModel();
                     container.CalendarEditorViewModel.ActivityCollectionForActivityTypes
                                                             .AddRange(container.FixedActivities
                                                                                 .OrderBy(a => a.Name)

@@ -16,5 +16,9 @@
         GetActivityDetails,
         GetAllFilters,
         GetReducedFilters,
+        GetSelectedOptionalActivities,
+        GetSelectedActivities,
+        RequestStartTime,
+
     }
 }

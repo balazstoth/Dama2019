@@ -301,6 +301,10 @@
       <Project>{0F30BC0D-4D81-4AE3-8CA5-547EE4752C25}</Project>
       <Name>Dama.Data</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Dama.Generate\Dama.Generate.csproj">
+      <Project>{D2457B8D-0974-4F76-8A48-91564340BD89}</Project>
+      <Name>Dama.Generate</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Dama.Organizer\Dama.Organizer.csproj">
       <Project>{7129d0e1-47c0-42ff-9c7b-063c4a3a68f9}</Project>
       <Name>Dama.Organizer</Name>
