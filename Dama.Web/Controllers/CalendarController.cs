@@ -99,47 +99,6 @@ namespace Dama.Web.Controllers
             return RedirectToAction(ActionNames.ManageCategories.ToString());
         }
 
-        private void RemoveCategoryFromTables(string categoryId)
-        {
-            Action<DbSet<FixedActivity>> fixedActivityAction = (activity) =>
-            {
-                foreach (var record in activity.Include(r => r.Category))
-                    if (record.Category != null && record.Category.Id.Equals(categoryId))
-                        record.Category = null;
-            };
-            Action<DbSet<UnfixedActivity>> unfixedActivityAction = (activity) =>
-            {
-                foreach (var record in activity.Include(r => r.Category))
-                    if (record.Category != null && record.Category.Id.Equals(categoryId))
-                        record.Category = null;
-            };
-            Action<DbSet<UndefinedActivity>> undefinedActivityAction = (activity) =>
-            {
-                foreach (var record in activity.Include(r => r.Category))
-                    if (record.Category != null && record.Category.Id.Equals(categoryId))
-                        record.Category = null;
-            };
-            Action<DbSet<DeadlineActivity>> deadlineActivityAction = (activity) =>
-            {
-                foreach (var record in activity.Include(r => r.Category))
-                    if (record.Category != null && record.Category.Id.Equals(categoryId))
-                        record.Category = null;
-            };
-
-            var dbSetActions = new DbSetAction()
-            {
-                FixedActivityAction = fixedActivityAction,
-                UnfixedActivityAction = unfixedActivityAction,
-                UndefinedActivityAction = undefinedActivityAction,
-                DeadlineActivityAction = deadlineActivityAction
-            };
-
-            _repositoryManager.RemoveCategoryFromDataTables(dbSetActions, ActivityType.FixedActivity);
-            _repositoryManager.RemoveCategoryFromDataTables(dbSetActions, ActivityType.UnfixedActivity);
-            _repositoryManager.RemoveCategoryFromDataTables(dbSetActions, ActivityType.UndefinedActivity);
-            _repositoryManager.RemoveCategoryFromDataTables(dbSetActions, ActivityType.DeadlineActivity);
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> AddNewCategory(AddNewCategoryViewModel viewModel)
@@ -228,6 +187,47 @@ namespace Dama.Web.Controllers
             viewModel.Color = _colors;
             return View(viewModel);
         }
+
+        private void RemoveCategoryFromTables(string categoryId)
+        {
+            Action<DbSet<FixedActivity>> fixedActivityAction = (activity) =>
+            {
+                foreach (var record in activity.Include(r => r.Category))
+                    if (record.Category != null && record.Category.Id.Equals(categoryId))
+                        record.Category = null;
+            };
+            Action<DbSet<UnfixedActivity>> unfixedActivityAction = (activity) =>
+            {
+                foreach (var record in activity.Include(r => r.Category))
+                    if (record.Category != null && record.Category.Id.Equals(categoryId))
+                        record.Category = null;
+            };
+            Action<DbSet<UndefinedActivity>> undefinedActivityAction = (activity) =>
+            {
+                foreach (var record in activity.Include(r => r.Category))
+                    if (record.Category != null && record.Category.Id.Equals(categoryId))
+                        record.Category = null;
+            };
+            Action<DbSet<DeadlineActivity>> deadlineActivityAction = (activity) =>
+            {
+                foreach (var record in activity.Include(r => r.Category))
+                    if (record.Category != null && record.Category.Id.Equals(categoryId))
+                        record.Category = null;
+            };
+
+            var dbSetActions = new DbSetAction()
+            {
+                FixedActivityAction = fixedActivityAction,
+                UnfixedActivityAction = unfixedActivityAction,
+                UndefinedActivityAction = undefinedActivityAction,
+                DeadlineActivityAction = deadlineActivityAction
+            };
+
+            _repositoryManager.RemoveCategoryFromDataTables(dbSetActions, ActivityType.FixedActivity);
+            _repositoryManager.RemoveCategoryFromDataTables(dbSetActions, ActivityType.UnfixedActivity);
+            _repositoryManager.RemoveCategoryFromDataTables(dbSetActions, ActivityType.UndefinedActivity);
+            _repositoryManager.RemoveCategoryFromDataTables(dbSetActions, ActivityType.DeadlineActivity);
+        }
         #endregion
 
         #region Label
@@ -297,7 +297,6 @@ namespace Dama.Web.Controllers
         #region Activity
         /// <param name="categoryId"> If the Id is not 0, it is managed as sorted by category</param>
         public async Task<ActionResult> ManageActivities(int categoryId = -1)
-
         {
             Predicate<Activity> predicate;
             var sortedByCategory = categoryId != -1;

@@ -1,0 +1,105 @@
+﻿@model Dama.Models.CalendarEditorViewModel
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#tbxName").on("change", function(){
+            $.ajax(
+                {
+                    url: "/dama/CalendarEditor/GetFilteredActivities?type=" + $("#activityDDL").val() + "&name=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        $("#ActivityListPartial").html(data);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception in GetAllFilters.cshtml in #tbxName: ' + exception);
+                    }
+                });
+        });
+        $("#ddlCategory").on("change", function () {
+            $.ajax(
+                {
+                    url: "/dama/CalendarEditor/GetFilteredActivities?type=" + $("#activityDDL").val() + "&name=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        $("#ActivityListPartial").html(data);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception in GetAllFilters.cshtml in #ddlCategory: ' + exception);
+                    }
+                });
+        });
+        $("#ddlLabel").on("change", function () {
+            $.ajax(
+                {
+                    url: "/dama/CalendarEditor/GetFilteredActivities?type=" + $("#activityDDL").val() + "&name=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        $("#ActivityListPartial").html(data);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception in GetAllFilters.cshtml in #ddlLabel: ' + exception);
+                    }
+                });
+        });
+        $("#tbxPriority").on("change", function () {
+            $.ajax(
+                {
+                    url: "/dama/CalendarEditor/GetFilteredActivities?type=" + $("#activityDDL").val() + "&name=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        $("#ActivityListPartial").html(data);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception in GetAllFilters.cshtml in #tbxPriority: ' + exception);
+                    }
+                });
+        });
+        $("#activityOrder").on("change", function () {
+            $.ajax(
+                {
+                    url: "/dama/CalendarEditor/GetFilteredActivities?type=" + $("#activityDDL").val() + "&name=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        $("#ActivityListPartial").html(data);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception in GetAllFilters.cshtml in #activityOrder: ' + exception);
+                    }
+                });
+        });
+    });
+</script>
+
+<p style="font-size:medium"><b>Filters:</b></p>
+<div class="form-group">
+    @Html.LabelFor(m => m.Name, new { @class = "col-md-2 control-label" })
+    <div class="col-md-10">
+        @Html.TextBoxFor(m => m.Name, new { @class = "form-control", id = "tbxName" })
+    </div>
+</div>
+
+<div class="form-group">
+    @Html.LabelFor(m => m.SelectedCategory, new { @class = "col-md-2 control-label" })
+    <div class="col-md-10">
+        @Html.DropDownListFor(m => m.SelectedCategory, Model.CategoryFilter, new { @class = "form-control", id = "ddlCategory" })
+    </div>
+</div>
+
+<div class="form-group">
+    @Html.LabelFor(m => m.SelectedLabel, new { @class = "col-md-2 control-label" })
+    <div class="col-md-10">
+        @Html.DropDownListFor(m => m.SelectedLabel, Model.LabelFilter, new { @class = "form-control", id = "ddlLabel" })
+    </div>
+</div>
+
+<div class="form-group">
+    @Html.LabelFor(m => m.SelectedPriorityFilter, new { @class = "col-md-2 control-label" })
+    <div class="col-md-10">
+        @Html.TextBoxFor(m => m.SelectedPriorityFilter, new { @class = "form-control", id = "tbxPriority" })
+    </div>
+</div>

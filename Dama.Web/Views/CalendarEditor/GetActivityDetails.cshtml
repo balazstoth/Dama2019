@@ -1,0 +1,195 @@
+﻿@model Dama.Web.Models.ViewModels.Activity.Display.DisplayDetailsViewModel
+
+@if (Model.FixedActivity != null)
+{
+    <script>
+        $('div.UnfixedActivity,div.UndefinedActivity,div.DeadlineActivity,div.Warning').hide();
+        $('div.FixedActivity').Show();
+    </script>
+}
+else
+{
+    if (Model.UnfixedActivity != null)
+    {
+        <script>
+            $('div.FixedActivity,div.UndefinedActivity,div.DeadlineActivity,div.Warning').hide();
+            $('div.UnfixedActivity').Show();
+        </script>
+    }
+    else
+    {
+        if (Model.UndefinedActivity != null)
+        {
+            <script>
+                $('div.UnfixedActivity,div.FixedActivity,div.DeadlineActivity,div.Warning').hide();
+                $('div.UndefinedActivity').Show();
+            </script>
+        }
+        else
+        {
+            if (Model.DeadlineActivity != null) //If more activities are selected from listBox, this should not be executed
+            {
+                <script>
+                    $('div.UnfixedActivity,div.UndefinedActivity,div.FixedActivity,div.Warning').hide();
+                    $('div.DeadlineActivity').Show();
+                </script>
+            }
+            else
+            {
+                <script>
+                    $('div.UnfixedActivity,div.UndefinedActivity,div.FixedActivity,div.DeadlineActivity').hide();
+                    đ('div.Warning').Show();
+                </script>
+            }
+        }
+    }
+}
+
+@{
+    string appendedLabels = string.Empty;
+    string appendedMileStones = string.Empty;
+    string categoryString = string.Empty;
+
+    if (Model.FixedActivity != null)
+    {
+        appendedLabels = string.Join(" | ", Model.FixedActivity.LabelCollection);
+        categoryString = Model.FixedActivity.Category == null ? string.Empty : Model.FixedActivity.Category.ToString();
+    }
+
+    if (Model.UnfixedActivity != null)
+    {
+        appendedLabels = string.Join(" | ", Model.UnfixedActivity.LabelCollection);
+        categoryString = Model.UnfixedActivity.Category == null ? string.Empty : Model.UnfixedActivity.Category.ToString();
+    }
+
+    if (Model.UndefinedActivity != null)
+    {
+        appendedLabels = string.Join(" | ", Model.UndefinedActivity.LabelCollection);
+        categoryString = Model.UndefinedActivity.Category == null ? string.Empty : Model.UndefinedActivity.Category.ToString();
+    }
+
+    if (Model.DeadlineActivity != null)
+    {
+        appendedMileStones = string.Join(" | ", Model.DeadlineActivity.Milestones);
+    }
+}
+<p><b style="font-size:medium">Activity details:</b></p>
+<div class="Fixed">
+    <div class="form-group">
+        @Html.LabelFor(m => m.FixedActivity.Name, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.FixedActivity.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.FixedActivity.Description, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.FixedActivity.Description, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.FixedActivity.Color, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.FixedActivity.Color, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.FixedActivity.LabelCollection, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => appendedLabels, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.FixedActivity.Category, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => categoryString, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.FixedActivity.Priority, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.FixedActivity.Priority, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.FixedActivity.Start, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.GetFixedActStartValue, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.FixedActivity.End, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.GetFixedActEndValue, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+</div>
+<div class="Unfixed">
+    <div class="form-group">
+        @Html.LabelFor(m => m.UnfixedActivity.Name, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.UnfixedActivity.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.UnfixedActivity.Description, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.UnfixedActivity.Description, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.UnfixedActivity.Color, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.UnfixedActivity.Color, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.UnfixedActivity.LabelCollection, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => appendedLabels, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.UnfixedActivity.Category, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => categoryString, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.UnfixedActivity.Priority, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.UnfixedActivity.Priority, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.UnfixedActivity.TimeSpan, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.UnfixedActivity.TimeSpan, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+</div>
+<div class="Undefined">
+    <div class="form-group">
+        @Html.LabelFor(m => m.UndefinedActivity.Name, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.UndefinedActivity.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.UndefinedActivity.Description, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.UndefinedActivity.Description, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.UndefinedActivity.Color, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.UndefinedActivity.Color, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.UndefinedActivity.LabelCollection, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => appendedLabels, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.UndefinedActivity.Category, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => categoryString, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.GetShorterMinTime, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.UndefinedActivity.MinimumTime, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.GetShorterMaxTime, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.UndefinedActivity.MaximumTime, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+</div>
+<div class="Deadline">
+    <div class="form-group">
+        @Html.LabelFor(m => m.DeadlineActivity.Name, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.DeadlineActivity.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.DeadlineActivity.Description, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.DeadlineActivity.Description, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.DeadlineActivity.Start, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.DeadlineActivity.Start, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.DeadlineActivity.End, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => m.DeadlineActivity.End, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.DeadlineActivity.Milestones, new { @class = "col-md-2 control-label" })
+        @Html.EditorFor(m => appendedMileStones, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    </div>
+</div>
+<div class="Warning">
+    <p class="alert-warning">If more items are selected, the details view is inactive!</p>
+</div>

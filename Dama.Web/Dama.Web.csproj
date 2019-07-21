@@ -306,10 +306,13 @@
     <Content Include="Views\Calendar\ManageLabels.cshtml" />
     <Content Include="Views\Calendar\UndefinedActivityDetails.cshtml" />
     <Content Include="Views\Calendar\UnfixedActivityDetails.cshtml" />
+    <Content Include="Views\CalendarEditor\Editor.cshtml" />
+    <Content Include="Views\CalendarEditor\GetActivityData.cshtml" />
+    <Content Include="Views\CalendarEditor\GetActivityDetails.cshtml" />
+    <Content Include="Views\CalendarEditor\GetAllFilters.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\CalendarEditor\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

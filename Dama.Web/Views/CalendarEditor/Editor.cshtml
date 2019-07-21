@@ -1,0 +1,379 @@
+﻿<head>
+    <style>
+        leftside {
+            float: left;
+            width: 50%;
+            padding: 20px;
+        }
+
+        rightside {
+            float: left;
+            padding: 20px;
+            width: 50%;
+        }
+
+        section:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        selectedLists {
+            padding: 10px;
+            text-align: center;
+            color: white;
+        }
+    </style>
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <script type="text/javascript">
+        function GetDefaultFiltersAjax() {
+            return $.ajax(
+                {
+                    url: "/dama/CalendarEditor/GetAvailableFilters?activityTypeName=" + $("#activityDDL").val(),
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        $("#activityFilter").html(data);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception:' + exception);
+                    }
+                });
+        }
+        function GetSelectedActivitiesAjax(optional) {
+            return $.ajax(
+                {
+                    url: "/dama/CalendarEditor/GetSelectedActivities?activityType=" + $("#activityDDL").val() + "&idCollection=" + $("#activityListBox").val() + "&forOptional=" + optional,
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        if (optional == "true")
+                            $("#OptionalActivitySelectedByUser").html(data);
+                        else
+                            $("#ActivitySelectedByUser").html(data);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception:' + exception);
+                    }
+                });
+        }
+        function RefreshActivityListboxAjax() {
+            return $.ajax(
+                {
+                    url: "/dama/CalendarEditor/RefreshActivityListbox",
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        $("#ActivityListPartial").html(data);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception:' + exception);
+                    }
+                });
+        }
+        function GetActivityDataAjax(itemID) {
+            return $.ajax(
+                {
+                    url: "/dama/CalendarEditor/GetActivityData?activityTypeName=" + $(itemID).val(),
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        $("#ActivityListPartial").html(data);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception:' + exception);
+                    }
+                });
+        }
+        function GetAvailableFiltersAjax(itemID) {
+            return $.ajax(
+                {
+                    url: "/dama/CalendarEditor/GetAvailableFilters?activityTypeName=" + $(itemID).val(),
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        $("#activityFilter").html(data);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception:' + exception);
+                    }
+                });
+        }
+        function MoveBackAjax(itemID, optional) {
+            return $.ajax(
+                {
+                    url: "/dama/CalendarEditor/MoveBack?idAndTypeCollection=" + $(itemID).val() + "&fromOptional=" + optional,
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        if (optional == "true")
+                            $("#OptionalActivitySelectedByUser").html(data);
+                        else
+                            $("#ActivitySelectedByUser").html(data);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception:' + exception);
+                    }
+                });
+        }
+        function ReOrderList() {
+            return $.ajax(
+                {
+                    url: "/dama/CalendarEditor/ReOrderLists?checkBoxValue=" + $("#rdBtnAsc").is(':checked') + "&orderBy=name" + "&activityType=" + $("#activityDDL").val(),
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                       $("#ActivityListPartial").html(data);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception:' + exception);
+                    }
+                });
+        }
+        function GetDataForChange(value, optional) {
+            return $.ajax(
+                {
+                    url: "/dama/CalendarEditor/GetDataForChange?idAndType=" + value + "|" + optional + "&isAsc=" + $("#rdBtnAsc").is(':checked') + "&selectedDate=" + $("#DatePickerField").val() + "&nameFilter=" + $("#tbxName").val() + "&priorityFilter=" + $("#tbxPriority").val() + "&labelFilter=" + $("#ddlLabel").val() + "&categoryFilter=" + $("#ddlCategory").val(),
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        $('#btnChangeAct').click();
+                        $("#changePopUpBody").html(data);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(xhr.status);
+                        alert(thrownError);
+                    }
+                });
+        }
+        function ReFreshFixListOnLoad() {
+            return $.ajax(
+                {
+                    url: "/dama/CalendarEditor/RefreshFixList",
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                            $("#ActivitySelectedByUser").html(data);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception:' + exception);
+                    }
+                });
+        }
+        function ReFreshOptionalListOnLoad() {
+            return $.ajax(
+                {
+                    url: "/dama/CalendarEditor/RefreshOptionalList",
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        $("#OptionalActivitySelectedByUser").html(data);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception:' + exception);
+                    }
+                });
+        }
+        function RequestStartTime(value) {
+            return $.ajax(
+                {
+                    url: "/dama/CalendarEditor/RequestStartTime?value=" + value,
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        $('#btnChangeAct').click();
+                        $("#changePopUpBody").html(data);
+                    },
+                    error: function (xhr, thrownError) {
+                        alert(xhr.status);
+                        alert(thrownError);
+                    }
+                });
+        }
+        function OnFilterChanged() {
+            return $.ajax(
+                    {
+                        url: "/dama/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                        type: 'GET',
+                        data: "",
+                        success: function (data) {
+                            $("#ActivityListPartial").html(data);
+                        },
+                        error: function (jqxhr, status, exception) {
+                            alert(exception);
+                        }
+                    });
+        }
+
+        $(document).ready(function () {
+            GetDefaultFiltersAjax();
+            $("#rdBtnAsc").on("change", function () {
+                $.when(ReOrderList()).done(function () {
+                    RefreshActivityListboxAjax();
+                })
+            });
+            $("#selectOneBtn").on("click", function () {
+                var value = $("#activityListBox").val();
+                $("#closeButton").hide();
+                if ($("#activityDDL").val() == "UnfixedActivity" && value != null) //If type is unfixed, then the start value must be set
+                {
+                    RequestStartTime(value);
+                }
+                $.when(GetSelectedActivitiesAjax("false")).done(function () {
+                    RefreshActivityListboxAjax();
+                })
+            });
+            $("#selectOneBackBtn").on("click", function () {
+                $.when(MoveBackAjax("#finalActLsb", "false")).done(function () {
+                    RefreshActivityListboxAjax();
+                    //GetActivityDataAjax("#activityDDL");
+                    OnFilterChanged();
+                })
+            });
+            $("#selectOneOptionalBtn").on("click", function () {
+                $.when(GetSelectedActivitiesAjax("true")).done(function () {
+                    RefreshActivityListboxAjax();
+                    GetActivityDataAjax("#activityDDL");
+                })
+            });
+            $("#selectOneOptionalBackBtn").on("click", function () {
+                $.when(MoveBackAjax("#finalOptActLsb", "true")).done(function () {
+                    RefreshActivityListboxAjax();
+                    //GetActivityDataAjax("#activityDDL");
+                    OnFilterChanged();
+                })
+            });
+            $("#activityDDL").on("change", function () {
+                GetActivityDataAjax("#activityDDL");
+                GetAvailableFiltersAjax("#activityDDL");
+            });
+            $("#EditActivityBtn").on("click", function () {
+                var value = $("#finalActLsb").val();
+                if (value.toString().toLowerCase().indexOf('deadline') >= 0)
+                {
+                    window.location.href = "/dama/CalendarEditor/GetDataForChange?idAndType=" + value + "|false&isAsc=" + $("#rdBtnAsc").is(':checked') + "&selectedDate=" + $("#DatePickerField").val();
+                }
+                else
+                {
+                    $("#closeButton").show();
+                    if (value != null) {
+                        GetDataForChange(value, false);
+                    }
+                }
+            });
+            $("#EditOptionalActivityBtn").on("click", function () {
+                $("#closeButton").show();
+                var value = $("#finalOptActLsb").val();
+                if (value != null)
+                    GetDataForChange(value, true);
+            });
+            ReFreshFixListOnLoad();
+            ReFreshOptionalListOnLoad();
+        });
+    </script>
+</head>
+<body>
+    @model Dama.Web.Models.ViewModels.Editor.CalendarEditorViewModel
+    @{
+        Layout = "~/Views/Shared/_Layout.cshtml";
+        ViewBag.Title = "Create your day";
+    }
+
+    <h2>@ViewBag.Title</h2>
+    @using (Html.BeginForm("Editor", "CalendarEditor", FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "Calendarform" }))
+    {
+        @Html.AntiForgeryToken()
+        <hr />
+        @Html.ValidationSummary()
+
+        <div id="tid">
+        </div>
+
+        <section>
+            <leftside>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.SelectedDate, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.SelectedDate, new { type = "date", @class = "form-control", id = "DatePickerField", @Value = Model.SelectedDate.ToString("yyyy-MM-dd") })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.SelectedType, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.DropDownListFor(m => m.SelectedType, Model.ActivityTypes, new { @class = "form-control", id = "activityDDL" })
+                    </div>
+                </div>
+                <div id="ActivityListPartial">
+                    @Html.Partial("GetActivityData")
+                </div>
+            </leftside>
+            <rightside>
+                <div id="ActivityDetailsPartial">
+                </div>
+            </rightside>
+        </section>
+        <hr>
+        <section>
+            <leftside>
+                <div id="activityFilter">
+                </div>
+            </leftside>
+            <rightside>
+                <p style="font-size:,medium"><b>Order by:</b></p>
+                <div id="activityOrder">
+                    @*@Html.CheckBox("Asc", new { id = "rdBtnAsc", @checked = "true" }) Name - Asc*@
+                    @Html.CheckBoxFor(m => m.IsAsc, new { id = "rdBtnAsc" }) Name - ASC
+                </div>
+            </rightside>
+        </section>
+        <hr>
+        <hr>
+        <section>
+            <leftside>
+                <input type="button" id="selectOneBtn" value="Move to fix">
+                <input type="button" id="selectOneBackBtn" value="Move back">
+                <input type="button" id="EditActivityBtn" value="Change">
+                <div id="ActivitySelectedByUser">
+                    @Html.Partial("GetSelectedActivities")
+                </div>
+            </leftside>
+            <rightside>
+                <input type="button" id="selectOneOptionalBtn" value="Move to optional">
+                <input type="button" id="selectOneOptionalBackBtn" value="Move back">
+                <input type="button" id="EditOptionalActivityBtn" value="Change">
+                <div id="OptionalActivitySelectedByUser">
+                    @Html.Partial("GetSelectedOptionalActivities")
+                </div>
+            </rightside>
+        </section>
+
+        <input type="hidden" id="btnChangeAct" data-toggle="modal" data-target="#divChangeAct" data-backdrop="static" data-keyboard="false" />
+        <div class="container">
+            <div class="modal fade" id="divChangeAct" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div id="changePopUpBody" class="modal-body">
+                        </div>
+                        <div id="closeButton" class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" class="btn btn-default" value="Save plan" />
+            </div>
+        </div>
+
+
+        @Html.ActionLink("Back", "Index", "Calendar");
+    }
+</body>
