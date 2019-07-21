@@ -20,6 +20,8 @@ using Error = Dama.Organizer.Resources.Error;
 using ActionNames = Dama.Organizer.Enums.ActionNames;
 using ControllerNames = Dama.Organizer.Enums.ControllerNames;
 using ViewNames = Dama.Organizer.Enums.ViewNames;
+using Dama.Data.Interfaces;
+using System.Data.Entity;
 
 namespace Dama.Web.Controllers
 {
@@ -32,12 +34,19 @@ namespace Dama.Web.Controllers
         private const string _undefinedActivityName = "UndefinedActivity";
         private const string _deadlineActivityName = "DeadlineActivity";
 
+        private readonly IContentRepository _repositories;
+
+        public CalendarEditorController(IContentRepository contentRepository)
+        {
+            _repositories = contentRepository;
+        }
+
         /// <summary>
         /// Gives basic data for the Editor view
         /// </summary>
         public ActionResult Editor() 
         {
-            var viewModel = GetValidViewModel();
+            var viewModel = GetValidViewModelAsync();
             return View(viewModel);
         }
 
@@ -706,19 +715,51 @@ namespace Dama.Web.Controllers
             return RedirectToAction(ActionNames.Index.ToString(), ControllerNames.Home.ToString());
         }
 
-        //private void FillListsFromDB()
-        //{
-        //    //Get all the necessary data from DB
-        //    using (DamaDB db = new DamaDB())
-        //    {
-        //        container.FixedActivities.AddSortedRange(db.FixedActivities.Where(x => x.UserID == container.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).ToList());
-        //        container.UnfixedActivities.AddSortedRange(db.UnFixedActivities.Where(x => x.UserID == container.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).ToList());
-        //        container.UndefinedActivities.AddSortedRange(db.UndefinedActivities.Where(x => x.UserID == container.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).ToList());
-        //        container.DeadlineActivities.AddSortedRange(db.DeadLineActivities.Where(x => x.UserID == container.CurrentUserID && x.Base == true).Include(act => act.Labels).Include(act => act.Category).Include(act => act.MileStones).ToList());
-        //        container.Categories = db.Categories.Where(x => x.UserID == container.CurrentUserID).ToList();
-        //        container.Labels = db.Labels.Where(x => x.UserID == container.CurrentUserID).ToList();
-        //    }
-        //}
+        private async Task FillCollectionsFromDatabase()
+        {
+            using (var container = new ActivityContainer())
+            {
+                container.FixedActivities.AddSortedRange(
+                    await (_repositories.FixedActivitySqlRepository
+                                    .FindByExpressionAsync(t => t
+                                        .Where(a => a.UserId == container.UserId && a.BaseActivity)
+                                        .Include(a => a.LabelCollection)
+                                        .Include(a => a.Category).ToListAsync())));
+
+                container.UnfixedActivities.AddSortedRange(
+                    await (_repositories.UnfixedActivitySqlRepository
+                                    .FindByExpressionAsync(t => t
+                                        .Where(a => a.UserId == container.UserId && a.BaseActivity)
+                                        .Include(a => a.LabelCollection)
+                                        .Include(a => a.Category).ToListAsync())));
+
+
+
+                container.UndefinedActivities.AddSortedRange(
+                    await (_repositories.UndefinedActivitySqlRepository
+                                    .FindByExpressionAsync(t => t
+                                        .Where(a => a.UserId == container.UserId && a.BaseActivity)
+                                        .Include(a => a.LabelCollection)
+                                        .Include(a => a.Category).ToListAsync())));
+
+
+                container.DeadlineActivities.AddSortedRange(
+                    await (_repositories.DeadlineActivitySqlRepository
+                                    .FindByExpressionAsync(t => t
+                                        .Where(a => a.UserId == container.UserId && a.BaseActivity)
+                                        .Include(a => a.LabelCollection)
+                                        .Include(a => a.Category)
+                                        .Include(a => a.Milestones).ToListAsync())));
+
+                container.Categories = await (_repositories.CategorySqlRepository
+                                                                .FindByExpressionAsync(t => t
+                                                                    .Where(a => a.UserId == container.UserId).ToListAsync()));
+
+                container.Labels = await (_repositories.LabelSqlRepository
+                                                            .FindByExpressionAsync(t => t
+                                                                .Where(a => a.UserId == container.UserId).ToListAsync()));
+            }
+        }
 
         public PartialViewResult RefreshActivityListbox()
         {
@@ -938,38 +979,36 @@ namespace Dama.Web.Controllers
                         var fixedActivity = activity as FixedActivity;
 
                         if (fixedActivity.Category != null)
-                            db.Entry(fixedActivity.Category).State = EntityState.Unchanged;
+                           _repositories.RepositorySettings.ChangeCategoryEntryState(fixedActivity.Category, EntityState.Unchanged);
 
-                        fixedActivity.Base = false;
-                        db.FixedActivities.Add(fixedActivity);
+                        fixedActivity.BaseActivity = false;
+                         _repositories.FixedActivitySqlRepository.AddAsync(fixedActivity);
                         break;
 
                     case ActivityType.UnfixedActivity:
                         var unfixedActivity = activity as UnfixedActivity;
 
                         if (unfixedActivity.Category != null)
-                            db.Entry(unfixedActivity.Category).State = EntityState.Unchanged;
+                            _repositories.RepositorySettings.ChangeCategoryEntryState(unfixedActivity.Category, EntityState.Unchanged);
 
-                        unfixedActivity.Base = false;
-                        db.UnFixedActivities.Add(unfixedActivity);
-
+                        unfixedActivity.BaseActivity = false;
+                        _repositories.UnfixedActivitySqlRepository.AddAsync(unfixedActivity);
                         break;
 
                     case ActivityType.DeadlineActivity:
                         var deadlineActivity = activity as DeadlineActivity;
-                        deadlineActivity.Base = false;
-                        db.DeadLineActivities.Add(deadlineActivity);
-
+                        deadlineActivity.BaseActivity = false;
+                        _repositories.DeadlineActivitySqlRepository.AddAsync(deadlineActivity);
                         break;
                 }
             }
 
-            foreach (var activity in fixCollection)
-                db.Calendar.Add(new CalendarSystem(viewModel.SelectedDate, activity));
+            //foreach (var activity in fixCollection)
+            //    db.Calendar.Add(new CalendarSystem(viewModel.SelectedDate, activity));
 
         }
 
-        private CalendarEditorViewModel GetValidViewModel()
+        private async Task<CalendarEditorViewModel> GetValidViewModelAsync()
         {
             CalendarEditorViewModel viewModel;
 
@@ -982,6 +1021,7 @@ namespace Dama.Web.Controllers
                 if (container.Reset)
                 {
                     ResetViewModel();
+                    await FillCollectionsFromDatabase();
                     container.CalendarEditorViewModel.ActivityCollectionForActivityTypes
                                                             .AddRange(container.FixedActivities
                                                                                 .OrderBy(a => a.Name)

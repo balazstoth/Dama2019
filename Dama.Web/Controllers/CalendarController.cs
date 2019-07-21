@@ -36,8 +36,8 @@ namespace Dama.Web.Controllers
     [DisableUser]
     public class CalendarController : Controller
     {
-        private UserManager<User> _userManager;
-        private List<SelectListItem> _colors;
+        private readonly UserManager<User> _userManager;
+        private readonly List<SelectListItem> _colors;
         private readonly string[] _availableColors;
         private readonly IContentRepository _repositories;
         private readonly RepositoryManager _repositoryManager;
@@ -822,7 +822,7 @@ namespace Dama.Web.Controllers
                                                         .FirstOrDefault(a => a.Id == activityId &&
                                                                              a.ActivityType == ActivityType.UndefinedActivity) as UndefinedActivity;
 
-                        editedActivity = editedActivity + CreateNewUndefinedActivityMethod(viewModel, false);
+                        editedActivity += CreateNewUndefinedActivityMethod(viewModel, false);
                     }
 
                     return RedirectToAction(ActionNames.Editor.ToString(), ControllerNames.CalendarEditor.ToString());
@@ -880,7 +880,7 @@ namespace Dama.Web.Controllers
                                                           .FirstOrDefault(a => a.Id == activityId &&
                                                                                a.ActivityType == ActivityType.DeadlineActivity) as DeadlineActivity;
 
-                        editedActivity = editedActivity + CreateNewDeadlineActivityMethod(viewModel, false);
+                        editedActivity += CreateNewDeadlineActivityMethod(viewModel, false);
                     }
 
                     return RedirectToAction(ActionNames.Editor.ToString(), ControllerNames.CalendarEditor.ToString());
