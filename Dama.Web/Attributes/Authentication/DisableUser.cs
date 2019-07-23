@@ -28,7 +28,7 @@ namespace Dama.Web.Attributes
 
             var userName = HttpContext.Current.User.Identity.Name;
             
-            using (var context = new DamaContext(new SqlConfiguration() { DatabaseName = "DamaDb" }))
+            using (var context = new DamaContext())
             {
                 _user = context.Users
                                .Where(u => u.UserName == userName)

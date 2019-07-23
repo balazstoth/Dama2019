@@ -7,16 +7,9 @@ namespace Dama.Data.Sql.Repositories
 {
     public class RepositorySettings : IRepositorySettings
     {
-        private readonly SqlConfiguration _config;
-
-        public RepositorySettings(SqlConfiguration config)
-        {
-            _config = config;
-        }
-
         public void ChangeCategoryEntryState(Category category, EntityState entityState)
         {
-            using (var context = new DamaContext(_config))
+            using (var context = new DamaContext())
             {
                 context.Entry(category).State = entityState;
                 context.SaveChanges();

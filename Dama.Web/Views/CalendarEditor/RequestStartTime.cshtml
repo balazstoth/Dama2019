@@ -1,0 +1,33 @@
+﻿@model Dama.Web.Models.ViewModels.RequestTimeViewModel
+
+@{
+    ViewBag.Title = "Edit activity";
+}
+
+<h2>@ViewBag.Title</h2>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+@using (Html.BeginForm("RequestStartTime", "CalendarEditor", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    <hr />
+    @Html.ValidationSummary()
+    <div>
+        <h5>Please enter the start time:</h5>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.StartTime, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(m => m.StartTime, new { @class = "form-control", type = "time" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" class="btn btn-default" value="Save" />
+        </div>
+    </div>
+
+    @Html.HiddenFor(m => m.ActivityId)
+}

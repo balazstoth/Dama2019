@@ -6,12 +6,8 @@ namespace Dama.Data.Sql.SQL
 {
     public class DamaContext : IdentityDbContext<User>
     {
-        SqlConfiguration _config;
-
-        public DamaContext(SqlConfiguration config)
-            :base(config.ConnectionString)
+        public DamaContext() : base("DamaContext")
         {
-            _config = config;
         }
 
         public DbSet<FixedActivity> FixedActivities { get; set; }
@@ -27,6 +23,5 @@ namespace Dama.Data.Sql.SQL
         public DbSet<Category> Categories { get; set; }
 
         public DbSet<Milestone> Milestones { get; set; }
-
     }
 }

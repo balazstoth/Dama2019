@@ -5,9 +5,5 @@ namespace Dama.Data.Sql.Repositories
 {
     public class UndefinedActivitySqlRepository : SqlRepository<UndefinedActivity>
     {
-        public UndefinedActivitySqlRepository(SqlConfiguration configuration)
-            :base(configuration)
-        {
-        }
     }
 }

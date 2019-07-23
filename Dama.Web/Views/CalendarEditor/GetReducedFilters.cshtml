@@ -1,0 +1,85 @@
+﻿@model Dama.Web.Models.ViewModels.Editor.CalendarEditorViewModel
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#tbxName").on("change", function(){
+            $.ajax(
+            {
+                url: "/dama/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                type: 'GET',
+                data: "",
+                success: function (data) {
+                    $("#ActivityListPartial").html(data);
+                },
+                error: function (jqxhr, status, exception) {
+                    alert('Exception in GetReducedFilters.cshtml in #tbxName: ' + exception);
+                }
+            });
+        });
+        $("#ddlCategory").on("change", function () {
+            $.ajax(
+            {
+                    url: "/dama/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                type: 'GET',
+                data: "",
+                success: function (data) {
+                    $("#ActivityListPartial").html(data);
+                },
+                error: function (jqxhr, status, exception) {
+                    alert('Exception in GetReducedFilters.cshtml in #ddlCategory: ' + exception);
+                }
+            });
+        });
+        $("#ddlLabel").on("change", function () {
+            $.ajax(
+            {
+                url: "/dama/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                type: 'GET',
+                data: "",
+                success: function (data) {
+                    $("#ActivityListPartial").html(data);
+                },
+                error: function (jqxhr, status, exception) {
+                    alert('Exception in GetReducedFilters.cshtml in #ddlLabel: ' + exception);
+                }
+            });
+        });
+        $("#activityOrder").on("change", function () {
+            $.ajax(
+                {
+                    url: "/dama/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        $("#ActivityListPartial").html(data);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception in GetReducedFilters.cshtml in #activityOrder: ' + exception);
+                    }
+                });
+        });
+    });
+</script>
+
+
+<p style="font-size:medium"><b>Filters:</b></p>
+<div class="form-group">
+    @Html.LabelFor(m => m.Name, new { @class = "col-md-2 control-label" })
+    <div class="col-md-10">
+        @Html.TextBoxFor(m => m.Name, new { @class = "form-control", id = "tbxName" })
+    </div>
+</div>
+
+<div class="form-group">
+    @Html.LabelFor(m => m.SelectedCategory, new { @class = "col-md-2 control-label" })
+    <div class="col-md-10">
+        @Html.DropDownListFor(m => m.SelectedCategory, Model.CategoryFilterSourceCollection, new { @class = "form-control", id = "ddlCategory" })
+    </div>
+</div>
+
+<div class="form-group">
+    @Html.LabelFor(m => m.SelectedLabel, new { @class = "col-md-2 control-label" })
+    <div class="col-md-10">
+        @Html.DropDownListFor(m => m.SelectedLabel, Model.LabelFilterSourceCollection, new { @class = "form-control", id = "ddlLabel" })
+    </div>
+</div>

@@ -55,7 +55,7 @@ namespace Dama.Web.Controllers
             _superAdmin = "superAdmin";
 
             _userRepository = userRepository;
-            UserStore = new UserStore<User>(new DamaContext(new SqlConfiguration() {  DatabaseName = "DamaDb" }));
+            UserStore = new UserStore<User>(new DamaContext());
             UserManager = new UserManager<User>(UserStore);
         }
 
@@ -67,7 +67,7 @@ namespace Dama.Web.Controllers
             ViewBag.InvalidId = TempData[_invalidIdError];
             ViewBag.AccessDenied = TempData[_accessDeniedError];
 
-            IEnumerable<User> users = _userRepository.UserSqlRepository.GetAllEntitites();
+            IEnumerable<User> users = _userRepository.GetAllEntitites();
 
             foreach (var user in users)
                 user.RolesCollection = await GetUserRolesAsync(user);
@@ -223,8 +223,8 @@ namespace Dama.Web.Controllers
             User currentUser, targetUser;
             var currentUserId = User.Identity.GetUserId();
 
-            currentUser = _userRepository.UserSqlRepository.FindByPredicate(u => u.Id == currentUserId).FirstOrDefault();
-            targetUser = _userRepository.UserSqlRepository.FindByPredicate(u => u.Id == tartgetId).FirstOrDefault();
+            currentUser = _userRepository.FindByPredicate(u => u.Id == currentUserId).FirstOrDefault();
+            targetUser = _userRepository.FindByPredicate(u => u.Id == tartgetId).FirstOrDefault();
 
             if (currentUser == null || targetUser == null)
                 return false;

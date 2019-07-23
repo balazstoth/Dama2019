@@ -31,7 +31,7 @@ namespace Dama.Web.App_Start
 
         private void Initialize()
         {
-            using (var context = new DamaContext(new SqlConfiguration()))
+            using (var context = new DamaContext())
             {
                 var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
                 var userManager = new UserManager<User>(new UserStore<User>(context));

@@ -4,7 +4,6 @@ using Dama.Data.Models;
 using Dama.Data.Sql.Models;
 using Dama.Data.Sql.Repositories;
 using Dama.Data.Sql.SQL;
-using Dama.Organizer.Enums;
 using Dama.Organizer.Models;
 using Dama.Organizer.Resources;
 using Dama.Web.Attributes;
@@ -29,6 +28,7 @@ using ControllerNames = Dama.Organizer.Enums.ControllerNames;
 using ViewNames = Dama.Organizer.Enums.ViewNames;
 using Repeat = Dama.Data.Models.Repeat;
 using Milestone = Dama.Data.Models.Milestone;
+using Dama.Data.Sql.Interfaces;
 
 namespace Dama.Web.Controllers
 {
@@ -40,16 +40,17 @@ namespace Dama.Web.Controllers
         private readonly List<SelectListItem> _colors;
         private readonly string[] _availableColors;
         private readonly IContentRepository _repositories;
-        private readonly RepositoryManager _repositoryManager;
+        private readonly IRepositoryManager _repositoryManager;
         private readonly CalendarControllerManager _calendarControllerManager;
 
-        public CalendarController(IContentRepository contentRepository, RepositoryManager repositoryManager)
+        public CalendarController(IContentRepository contentRepository, IRepositoryManager repositoryManager)
         {
             _repositories = contentRepository;
             _repositoryManager = repositoryManager;
-            _userManager = new UserManager<User>(new UserStore<User>(new DamaContext(new SqlConfiguration())));
+            _userManager = new UserManager<User>(new UserStore<User>(new DamaContext()));
             _colors = new List<SelectListItem>();
-            _availableColors = Enum.GetValues(typeof(Color)).Cast<string>().ToArray();
+            //_availableColors = Enum.GetValues(typeof(Color)).Cast<string>().ToArray();
+            _availableColors = Enum.GetNames(typeof(Color));
             _colors = _availableColors.Select(c => new SelectListItem() { Text = c.ToString() }).ToList();
             _calendarControllerManager = new CalendarControllerManager(_repositories);
         }

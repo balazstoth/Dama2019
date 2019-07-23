@@ -79,6 +79,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interfaces\IRepositoryManager.cs" />
+    <Compile Include="Repositories\ContentRepository.cs" />
     <Compile Include="Repositories\RepositoryManager.cs" />
     <Compile Include="Models\DbSetAction.cs" />
     <Compile Include="Repositories\CategorySqlRepository.cs" />
@@ -92,7 +94,6 @@
     <Compile Include="SQL\DamaContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SQL\ContentRepository.cs" />
-    <Compile Include="SQL\SqlConfiguration.cs" />
     <Compile Include="SQL\SqlRepository.cs" />
     <Compile Include="Repositories\UserSqlRepository.cs" />
   </ItemGroup>

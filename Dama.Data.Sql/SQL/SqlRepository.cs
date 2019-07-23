@@ -10,16 +10,9 @@ namespace Dama.Data.Sql.SQL
 {
     public class SqlRepository<T> : IRepository<T> where T : class, IEntity
     {
-        private readonly SqlConfiguration _config;
-
-        public SqlRepository(SqlConfiguration config)
-        {
-            _config = config;
-        }
-
         public async Task AddAsync(T item)
         {
-            using (var context = new DamaContext(_config))
+            using (var context = new DamaContext())
             {
                 context.Set<T>().Add(item);
                 await context.SaveChangesAsync();
@@ -28,7 +21,7 @@ namespace Dama.Data.Sql.SQL
 
         public async Task RemoveAsync(T item)
         {
-            using (var context = new DamaContext(_config))
+            using (var context = new DamaContext())
             {
                 context.Set<T>().Remove(item);
                 await context.SaveChangesAsync();
@@ -37,7 +30,7 @@ namespace Dama.Data.Sql.SQL
 
         public async Task RemoveRangeAsync(IEnumerable<T> collection)
         {
-            using (var context = new DamaContext(_config))
+            using (var context = new DamaContext())
             {
                 context.Set<T>().RemoveRange(collection);
                 await context.SaveChangesAsync();
@@ -46,7 +39,7 @@ namespace Dama.Data.Sql.SQL
 
         public async Task UpdateAsync(T oldValue, T newValue)
         {
-            using (var context = new DamaContext(_config))
+            using (var context = new DamaContext())
             {
                 T value = GetEntityById(oldValue.Id.ToString());
                 value = newValue;
@@ -56,7 +49,7 @@ namespace Dama.Data.Sql.SQL
 
         //public IEnumerable<T> FindByPredicate(Predicate<T> predicate, Expression<Func<IQueryable<T>, IEnumerable<T>>> expression)
         //{
-        //    using (var context = new DamaContext(_config))
+        //    using (var context = new DamaContext())
         //    {
         //        Expression<Func<T, bool>> ex = a => predicate(a);
         //        var filteredResult = context.Set<T>().Where(ex);
@@ -67,7 +60,7 @@ namespace Dama.Data.Sql.SQL
 
         public IEnumerable<T> FindByPredicate(Predicate<T> predicate)
         {
-            using (var context = new DamaContext(_config))
+            using (var context = new DamaContext())
             {
                 Expression<Func<T, bool>> expression = a => predicate(a);
                 return context.Set<T>().Where(expression).ToList();
@@ -76,7 +69,7 @@ namespace Dama.Data.Sql.SQL
 
         public Task<List<T>> FindByExpressionAsync(Expression<Func<DbSet<T>, Task<List<T>>>> expression)
         {
-            using (var context = new DamaContext(_config))
+            using (var context = new DamaContext())
             {
                 var func = expression.Compile();
                 return func(context.Set<T>());
@@ -85,7 +78,7 @@ namespace Dama.Data.Sql.SQL
 
         public async Task<T> FindAsync(object value)
         {
-            using (var context = new DamaContext(_config))
+            using (var context = new DamaContext())
             {
                 return await context.Set<T>().FindAsync(value);
             }
@@ -93,7 +86,7 @@ namespace Dama.Data.Sql.SQL
 
         public T GetEntityById(string id)
         {
-            using (var context = new DamaContext(_config))
+            using (var context = new DamaContext())
             {
                 return context.Set<T>().Where(item => item.Id == int.Parse(id)).SingleOrDefault();
             }
@@ -101,7 +94,7 @@ namespace Dama.Data.Sql.SQL
 
         public IEnumerable<T> GetAllEntitites()
         {
-            using (var context = new DamaContext(_config))
+            using (var context = new DamaContext())
             {
                 return context.Set<T>().ToArray();
             }

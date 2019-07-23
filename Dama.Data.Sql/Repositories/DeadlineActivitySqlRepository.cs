@@ -5,9 +5,5 @@ namespace Dama.Data.Sql.Repositories
 {
     public class DeadlineActivitySqlRepository : SqlRepository<DeadlineActivity>
     {
-        public DeadlineActivitySqlRepository(SqlConfiguration configuration)
-            : base(configuration)
-        {
-        }
     }
 }

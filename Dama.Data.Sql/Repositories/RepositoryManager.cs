@@ -1,21 +1,15 @@
 ﻿using Dama.Data.Enums;
+using Dama.Data.Sql.Interfaces;
 using Dama.Data.Sql.Models;
 using Dama.Data.Sql.SQL;
 
 namespace Dama.Data.Sql.Repositories
 {
-    public class RepositoryManager
+    public class RepositoryManager : IRepositoryManager
     {
-        private readonly SqlConfiguration _config;
-
-        public RepositoryManager(SqlConfiguration config)
-        {
-            _config = config;
-        }
-
         public void RemoveCategoryFromDataTables(DbSetAction dbSetAction, ActivityType activityType)
         {
-            using (var context = new DamaContext(_config))
+            using (var context = new DamaContext())
             {
                 switch (activityType)
                 {

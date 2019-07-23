@@ -1,0 +1,33 @@
+﻿@model Dama.Web.Models.ViewModels.Editor.CalendarEditorViewModel
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#finalActLsb").on("change", function () {
+           $.ajax(
+                {
+                    url: "/dama/CalendarEditor/GetActivityDetails?activityTypeName=null" + "&activityId=" + $(this).val(),
+                    type: 'GET',
+                    data: "",
+                    success: function (data)
+                    {
+                        $("#ActivityDetailsPartial").html(data);
+                    },
+                    error: function (jqxhr, status, exception)
+                    {
+                        alert('Exception:' + exception);
+                    }
+                }
+            );
+        });
+    });
+</script>
+
+<p class="text-danger">@ViewBag.AddActIsNotValid</p>
+
+<div class="form-group">
+    @Html.LabelFor(m => m.ActivitiesSelectedByUser, new { @class = "col-md-2 control-label" })
+    <div class="col-md-10">
+        @Html.ListBoxFor(m => m.ActivitiesSelectedToReplaceByUser, Model.ActivitiesSelectedByUser, new { @class = "form-control", @style = "height: 300px", id = "finalActLsb" })
+    </div>
+</div>

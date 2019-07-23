@@ -2,8 +2,7 @@
 
 namespace Dama.Data.Interfaces
 {
-    public interface IUserRepository
+    public interface IUserRepository : IRepository<User>
     {
-        IRepository<User> UserSqlRepository { get; set; }
     }
 }

@@ -5,9 +5,5 @@ namespace Dama.Data.Sql.Repositories
 {
     public class MilestoneSqlRepository : SqlRepository<Milestone>
     {
-        public MilestoneSqlRepository(SqlConfiguration configuration)
-            : base(configuration)
-        {
-        }
     }
 }
