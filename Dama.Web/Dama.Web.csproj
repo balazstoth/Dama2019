@@ -180,6 +180,7 @@
     <Compile Include="Attributes\Validation\MinTime.cs" />
     <Compile Include="Attributes\Validation\Priority.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\CalendarController.cs" />
     <Compile Include="Controllers\CalendarEditorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />

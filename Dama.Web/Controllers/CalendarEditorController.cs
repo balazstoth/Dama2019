@@ -27,7 +27,7 @@ namespace Dama.Web.Controllers
 {
     [Authorize]
     [DisableUser]
-    public class CalendarEditorController : Controller
+    public class CalendarEditorController : BaseController
     {
         private const string _fixedActivityName = "FixedActivity";
         private const string _unfixedActivityName = "UnfixedActivity";

@@ -4,7 +4,7 @@ using System.Web.Mvc;
 namespace Dama.Web.Controllers
 {
     [DisableUser]
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         public ActionResult Index()
         {

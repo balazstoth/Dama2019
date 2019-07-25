@@ -34,7 +34,7 @@ namespace Dama.Web.Controllers
 {
     [Authorize]
     [DisableUser]
-    public class CalendarController : Controller
+    public class CalendarController : BaseController
     {
         private readonly UserManager<User> _userManager;
         private readonly List<SelectListItem> _colors;

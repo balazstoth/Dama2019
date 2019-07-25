@@ -24,7 +24,7 @@ namespace Dama.Web.Controllers
 {
     [Authorize]
     [DisableUser]
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         private readonly string _superAdmin;
         private readonly string _executeError;
