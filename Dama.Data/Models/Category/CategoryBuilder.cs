@@ -2,7 +2,7 @@
 
 namespace Dama.Data.Models
 {
-    class CategoryBuilder
+    public class CategoryBuilder
     {
         private string name;
         private string description;
@@ -38,14 +38,7 @@ namespace Dama.Data.Models
 
         public static implicit operator Category(CategoryBuilder cb)
         {
-            return new Category()
-            {
-                Name = cb.name,
-                Description = cb.description,
-                Color = cb.color,
-                Priority = cb.priority,
-                UserId = cb.userId
-            };
+            return new Category(cb.name, cb.description, cb.color, cb.priority, cb.userId);
         }
     }
 }

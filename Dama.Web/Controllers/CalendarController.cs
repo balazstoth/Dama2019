@@ -105,14 +105,13 @@ namespace Dama.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var newCategory = new Category()
-                {
-                    Name = viewModel.Name,
-                    Description = viewModel.Description,
-                    Color = (Color) Enum.Parse(typeof(Color), viewModel.SelectedColor),
-                    Priority = viewModel.Priority,
-                    UserId = UserId
-                };
+                var builder = new CategoryBuilder();
+
+                Category newCategory = builder.CreateCategory(viewModel.Name)
+                                         .WithDescription(viewModel.Description)
+                                         .WithColor((Color)Enum.Parse(typeof(Color), viewModel.SelectedColor))
+                                         .WithPriority(viewModel.Priority)
+                                         .WithUserId(UserId);
 
                 var categoryAlreadyExists = _repositories.CategorySqlRepository
                                                          .FindByPredicate(c => c.UserId == newCategory.UserId && c.Name == newCategory.Name)
