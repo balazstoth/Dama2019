@@ -6,7 +6,9 @@ namespace Dama.Data.Sql.SQL
 {
     public class DamaContext : IdentityDbContext<User>
     {
-        public DamaContext() : base("DamaContext")
+        private const string connectionStringName = "DamaContext";
+
+        public DamaContext() : base(connectionStringName)
         {
         }
 

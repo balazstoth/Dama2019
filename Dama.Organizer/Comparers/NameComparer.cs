@@ -7,6 +7,7 @@ namespace Dama.Organizer.Others
     public class NameComparer<T> : IComparer<T> where T : Activity
     {
         public ComparableProperties ComparableProperties { get; set; }
+
         public ComparableSequence ComparableSequence { get; set; }
 
         public NameComparer(ComparableSequence comparableSequence, ComparableProperties comparableProperties)

@@ -12,6 +12,9 @@ namespace Dama.Generate
 
         public FlexibleItem(UndefinedActivity undefinedActivity, DateTime start, DateTime end)
         {
+            if (undefinedActivity == null)
+                throw new ArgumentNullException("undefinedActivity");
+
             UndefinedActivity = undefinedActivity;
             Start = start;
             End = end;

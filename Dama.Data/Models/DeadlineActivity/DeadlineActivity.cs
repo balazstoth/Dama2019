@@ -31,13 +31,12 @@ namespace Dama.Data.Models
                                                   ActivityType.DeadlineActivity,
                                                   baseActivity)
         {
+            if (start >= end)
+                throw new ArgumentException("Start, End");
+
             this.Start = start;
             this.End = end;
-            this.Milestones = milestones;
-        }
-
-        public DeadlineActivity()
-        {
+            this.Milestones = milestones ?? new List<Milestone>();
         }
 
         public override string ToString()

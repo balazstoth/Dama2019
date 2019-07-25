@@ -8,17 +8,17 @@ namespace Dama.Generate
     public class BestResultFirst
     {
         public List<IDefinedActivity> ResultList { get; set; }
+
         public TimeSpan Break { get; set; }
-        public TimeSpan CoverTime
-        {
-            get
-            {
-                return GetCoverTime();
-            }
-        }
+
+        public TimeSpan CoverTime => GetCoverTime();
+        
         
         public BestResultFirst(IEnumerable<IDefinedActivity> results, TimeSpan breakValue)
         {
+            if (results == null)
+                throw new ArgumentNullException("result");
+
             Break = breakValue;
             ResultList = results.ToList();
         }

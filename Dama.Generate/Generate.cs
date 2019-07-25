@@ -9,11 +9,17 @@ namespace Dama.Generate
     public class Generate
     {
         public List<BestResultFirst> BestResultsForFirst { get; set; } //This is a list contains one BestResultFirst element for each freeTime object
+
         public List<BestResultLast> BestResultsForLast { get; set; }
+
         public List<FreeSlot> FreeSlotList { get; set; } //All the freeTime objects
+
         public List<FreeSlot> FreeSlotsForUndefined { get; set; }
+
         public List<IDefinedActivity> PriorityListFirst { get; set; } //All the IDefined items
+
         public List<UndefinedActivity> PriorityListSecond { get; set; } //Only Undefined items
+
         public TimeSpan Break { get; set; }
 
         //Constructor
@@ -401,6 +407,5 @@ namespace Dama.Generate
             }
         }
         #endregion
-
     }
 }

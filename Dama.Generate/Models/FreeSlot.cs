@@ -8,39 +8,38 @@ namespace Dama.Generate
 {
     public class FreeSlot
     {
-        private bool isFirst;
+        private bool _isFirst;
 
         #region Properties
         public DateTime Start { get; set; }
+
         public DateTime End { get; set; }
+
         public TimeSpan FullTimeSpan { get { return End.TimeOfDay - Start.TimeOfDay; } }
+
         public TimeSpan Break { get; set; }
-        public TimeSpan RemainingTimeSpan
-        {
-            get
-            {
-                return GetRemainingTimeSpan();
-            }
-        }
+
+        public TimeSpan RemainingTimeSpan => GetRemainingTimeSpan();
 
         //First search
         public List<IDefinedActivity> tmpActivitiesFirst { get; set; }
+
         public BestResultFirst BestResultFirst { get; set; }
 
         //Last search
         public List<FlexibleItem> tmpActivitiesLast { get; set; }
+
         public BestResultLast BestResultLast { get; set; }
         #endregion
 
-        //Constructor
         public FreeSlot(DateTime start, DateTime end, TimeSpan breakValue, bool first = true)
         {
-            isFirst = first;
+            _isFirst = first;
             Start = start;
             End = end;
             Break = breakValue;
 
-            if (isFirst)
+            if (_isFirst)
             {
                 tmpActivitiesFirst = new List<IDefinedActivity>();
                 BestResultFirst = new BestResultFirst(new List<IDefinedActivity>(), Break);
@@ -59,7 +58,7 @@ namespace Dama.Generate
 
         private TimeSpan GetRemainingTimeSpan()
         {
-            if (isFirst)
+            if (_isFirst)
             {
                 var sum = tmpActivitiesFirst
                                     .Where(a => a is UnfixedActivity)

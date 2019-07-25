@@ -11,12 +11,11 @@ namespace Dama.Data.Models
 
         public Milestone(string name, DateTime time)
         {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException("name");
+
             Name = name;
             Time = time;
-        }
-
-        public Milestone()
-        {
         }
 
         public override string ToString()

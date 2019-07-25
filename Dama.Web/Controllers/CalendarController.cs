@@ -49,7 +49,6 @@ namespace Dama.Web.Controllers
             _repositoryManager = repositoryManager;
             _userManager = new UserManager<User>(new UserStore<User>(new DamaContext()));
             _colors = new List<SelectListItem>();
-            //_availableColors = Enum.GetValues(typeof(Color)).Cast<string>().ToArray();
             _availableColors = Enum.GetNames(typeof(Color));
             _colors = _availableColors.Select(c => new SelectListItem() { Text = c.ToString() }).ToList();
             _calendarControllerManager = new CalendarControllerManager(_repositories);

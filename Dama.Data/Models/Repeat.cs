@@ -26,6 +26,9 @@ namespace Dama.Data.Models
 
         public Repeat(Repeat repeat)
         {
+            if (repeat == null)
+                throw new ArgumentNullException("repeat");
+
             StartDay = repeat.StartDay;
             EndDate = repeat.EndDate;
             RepeatPeriod = repeat.RepeatPeriod;

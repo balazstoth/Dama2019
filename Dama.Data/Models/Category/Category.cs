@@ -1,5 +1,6 @@
 ﻿using Dama.Data.Enums;
 using Dama.Data.Interfaces;
+using System;
 
 namespace Dama.Data.Models
 {
@@ -17,9 +18,35 @@ namespace Dama.Data.Models
 
         public string UserId { get; set; }
 
+        public Category(string name, string description, Color color, int priority, string userId)
+        {
+            CheckArguments(name, description, priority, userId);
+
+            Name = name;
+            Description = description;
+            Color = color;
+            Priority = priority;
+            UserId = userId;
+        }
+
         public override string ToString()
         {
             return Name;
+        }
+
+        private void CheckArguments(string name, string description, int priority, string userId)
+        {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException("name");
+
+            if (string.IsNullOrEmpty(description))
+                throw new ArgumentNullException("description");
+
+            if (string.IsNullOrEmpty(userId))
+                throw new ArgumentNullException("userId");
+
+            if (priority < 0)
+                throw new ArgumentOutOfRangeException("priority");
         }
     }
 }

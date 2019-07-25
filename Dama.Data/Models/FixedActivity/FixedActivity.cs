@@ -18,10 +18,6 @@ namespace Dama.Data.Models
         #endregion
 
         #region Constructor
-        public FixedActivity()
-        {
-        }
-
         public FixedActivity(string name,
                              string description,
                              Color color,
@@ -42,6 +38,12 @@ namespace Dama.Data.Models
                                                   ActivityType.FixedActivity,
                                                   baseActivity)
         {
+            if (start >= end)
+                throw new ArgumentException("Start, End");
+
+            if (priority < 0)
+                throw new ArgumentOutOfRangeException("priority");
+
             Start = start;
             End = end;
             Priority = priority;

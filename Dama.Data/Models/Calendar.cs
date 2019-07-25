@@ -14,7 +14,7 @@ namespace Dama.Data.Models
         public Calendar(DateTime date, Activity activity)
         {
             Date = date;
-            Activity = activity;
+            Activity = activity ?? throw new ArgumentNullException("activity");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Dama.Data.Models;
+using System;
 using System.Linq;
 
 namespace Dama.Data
@@ -7,6 +8,9 @@ namespace Dama.Data
     {
         public static bool ContainsLabel(this Activity activity, string label)
         {
+            if (string.IsNullOrEmpty(label))
+                throw new ArgumentNullException("label");
+
             label = label.ToLower();
             return activity.LabelCollection.Any(l => l.Name == label);
         }

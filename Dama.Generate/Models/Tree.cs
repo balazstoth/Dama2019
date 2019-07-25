@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Dama.Generate
 {
-    public class Tree<T>
+    public class Tree<T> where T : class
     {
         public Leaf<T> RootItem { get; set; }
 
@@ -24,6 +25,9 @@ namespace Dama.Generate
 
         public Tree(int priority, T value)
         {
+            if (value == null)
+                throw new ArgumentNullException("value");
+
             RootItem = new Leaf<T>(priority, value);
         } 
 
@@ -74,24 +78,27 @@ namespace Dama.Generate
         }
     }
 
-    public class Leaf<T>
+    public class Leaf<T> where T : class
     {
         public T Value { get; set; }
+
         public int Priority { get; set; }
+
         public bool IsChecked { get; set; }
+
         public List<Leaf<T>> Leaves { get; set; }
 
         public Leaf(int priority, T value, List<Leaf<T>> childItems)
             :this(priority, value)
         {
-            Leaves = childItems;
+            Leaves = childItems ?? throw new ArgumentNullException("childItems");
         }
 
         public Leaf(int priority, T value)
         {
             Priority = priority;
             IsChecked = false;
-            Value = value;
+            Value = value ?? throw new ArgumentNullException("value");
             Leaves = new List<Leaf<T>>();
         }
     }

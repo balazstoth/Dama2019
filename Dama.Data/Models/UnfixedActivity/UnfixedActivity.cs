@@ -13,10 +13,6 @@ namespace Dama.Data.Models
         public Repeat Repeat { get; set; }
 
         #region Constructors
-        public UnfixedActivity()
-        {
-        }
-
         public UnfixedActivity(
             string name, 
             string description,
@@ -37,6 +33,9 @@ namespace Dama.Data.Models
                                       ActivityType.UnfixedActivity,
                                       baseActivity)
         {
+            if (priority < 0)
+                throw new ArgumentOutOfRangeException("priority");
+
             Priority = priority;
             TimeSpan = timeSpan;
             Repeat = null;

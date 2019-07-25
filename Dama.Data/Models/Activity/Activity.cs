@@ -1,5 +1,6 @@
 ﻿using Dama.Data.Enums;
 using Dama.Data.Interfaces;
+using System;
 using System.Collections.Generic;
 
 namespace Dama.Data.Models
@@ -31,11 +32,13 @@ namespace Dama.Data.Models
         #region Constructors
         public Activity(string name, string description, Color color, CreationType creationType, IEnumerable<Label> labels, Category category, string userId, ActivityType activityType, bool baseActivity)
         {
+            CheckArguments(name,description, userId);
+
             Name = name;
             Description = description;
             Color = color;
             CreationType = creationType;
-            LabelCollection = labels;
+            LabelCollection = labels ?? new List<Label>();
             Category = category;
             UserId = userId;
             ActivityType = activityType;
@@ -44,12 +47,24 @@ namespace Dama.Data.Models
 
         public Activity()
         {
-        } 
+        }
         #endregion
 
         public override string ToString()
         {
             return $"Name: {Name}";
+        }
+
+        private void CheckArguments(string name, string description, string userId)
+        {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException("name");
+
+            if (string.IsNullOrEmpty(description))
+                throw new ArgumentNullException("description");
+
+            if (string.IsNullOrEmpty(userId))
+                throw new ArgumentNullException("userId");
         }
     }
 }

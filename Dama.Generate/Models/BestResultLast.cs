@@ -7,17 +7,16 @@ namespace Dama.Generate
     public class BestResultLast
     {
         public List<FlexibleItem> ResultList { get; set; }
+
         public TimeSpan Break { get; set; }
-        public TimeSpan CoverTime
-        {
-            get
-            {
-                return GetCoverTime();
-            }
-        }
+
+        public TimeSpan CoverTime => GetCoverTime();
 
         public BestResultLast(IEnumerable<FlexibleItem> results, TimeSpan breakValue)
         {
+            if (results == null)
+                throw new ArgumentNullException("results");
+
             Break = breakValue;
             ResultList = results.ToList();
         }

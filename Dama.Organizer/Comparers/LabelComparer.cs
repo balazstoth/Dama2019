@@ -7,7 +7,7 @@ namespace Dama.Organizer.Comparers
     {
         public bool Equals(Label x, Label y)
         {
-            return x.Name == y.Name;
+            return x?.Name == y?.Name;
         }
 
         public int GetHashCode(Label obj)

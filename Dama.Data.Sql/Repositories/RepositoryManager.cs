@@ -2,6 +2,7 @@
 using Dama.Data.Sql.Interfaces;
 using Dama.Data.Sql.Models;
 using Dama.Data.Sql.SQL;
+using System;
 
 namespace Dama.Data.Sql.Repositories
 {
@@ -9,6 +10,9 @@ namespace Dama.Data.Sql.Repositories
     {
         public void RemoveCategoryFromDataTables(DbSetAction dbSetAction, ActivityType activityType)
         {
+            if(dbSetAction == null)
+                throw new ArgumentNullException("dbSetAction");
+
             using (var context = new DamaContext())
             {
                 switch (activityType)

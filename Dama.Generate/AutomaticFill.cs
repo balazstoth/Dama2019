@@ -11,15 +11,26 @@ namespace Dama.Generate
 
         #region Properties
         public IEnumerable<Activity> OptionalActivities { get; set; }
+
         public List<FixedActivity> SortedFixedActivities { get; set; }
+
         public DateTime TimeFrameStart { get; set; }
+
         public DateTime TimeFrameEnd { get; set; }
+
         public TimeSpan Break { get; set; }
+
         public List<FreeSlot> FreeTimeList { get; set; } 
         #endregion
 
         public AutoFill(IEnumerable<FixedActivity> fixedActivities, IEnumerable<Activity> optionalActivities, DateTime start, DateTime end, TimeSpan timeSpan)
         {
+            if (fixedActivities == null)
+                throw new ArgumentNullException("fixedActivities");
+
+            if (optionalActivities == null)
+                throw new ArgumentNullException("optionalActivities");
+
             OptionalActivities = optionalActivities;
             TimeFrameStart = start;
             TimeFrameEnd = end;

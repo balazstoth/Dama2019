@@ -33,8 +33,17 @@ namespace Dama.Data.Models
                                                   ActivityType.UndefinedActivity,
                                                   baseActivity)
         {
-            this.MinimumTime = minTime;
-            this.MaximumTime = maxTime;
+            if (MinimumTime < 0)
+                throw new ArgumentOutOfRangeException("minimumTime");
+
+            if (MaximumTime < 0)
+                throw new ArgumentOutOfRangeException("MaximumTime");
+
+            if (MinimumTime >= MaximumTime)
+                throw new ArgumentException("MinimumTime, MaximumTime");
+
+            MinimumTime = minTime;
+            MaximumTime = maxTime;
         }
 
         public override string ToString()
