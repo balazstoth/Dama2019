@@ -11,6 +11,10 @@ namespace Dama.Data.Models
         public DateTime EndDate { get; set; }
         public DateTime StartDay { get; set; }
 
+        public Repeat()
+        {
+        }
+
         public Repeat(DateTime startDay, DateTime endDay, RepeatPeriod repeatPeriod)
         {
             StartDay = startDay;

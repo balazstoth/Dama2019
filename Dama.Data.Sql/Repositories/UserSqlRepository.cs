@@ -57,7 +57,7 @@ namespace Dama.Data.Sql.Repositories
             }
         }
 
-        public async Task<User> FindAsync(object value)
+        public async Task<User> FindAsync(string value)
         {
             using (var context = new DamaContext())
             {

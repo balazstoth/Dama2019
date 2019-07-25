@@ -46,9 +46,9 @@
                 @Html.DisplayFor(modelItem => item.Priority)
             </td>
             <td>
-                @Html.ActionLink("Edit", "EditCategory", new { id = item.Id }) |
-                @Html.ActionLink("List activities", "ManageActivities", new { categoryID = item.Id }) |
-                @Html.ActionLink("Delete", "DeleteCategory", new { id = item.Id })
+                @Html.ActionLink("Edit", "EditCategory", new { categoryId = item.Id }) |
+                @Html.ActionLink("List activities", "ManageActivities", new { categoryId = item.Id }) |
+                @Html.ActionLink("Delete", "DeleteCategory", new { categoryId = item.Id })
             </td>
         </tr>
     }

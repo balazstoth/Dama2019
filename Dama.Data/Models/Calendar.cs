@@ -11,6 +11,10 @@ namespace Dama.Data.Models
 
         public Activity Activity { get; set; }
 
+        public Calendar()
+        {
+        }
+
         public Calendar(DateTime date, Activity activity)
         {
             Date = date;

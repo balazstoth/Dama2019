@@ -182,7 +182,7 @@ namespace Dama.Web.Controllers
                 currentCategory.Color = (Color)Enum.Parse(typeof(Color), viewModel.SelectedColor);
                 ViewBag.CategoryChangedSuccessfully = Success.CategoryChangesSuccessfully;
             }
-
+            //Update
             viewModel.Color = _colors;
             return View(viewModel);
         }
@@ -251,18 +251,18 @@ namespace Dama.Web.Controllers
 
             if (selectedLabel == null)
             {
-                ViewBag.LabelNotFoundError = Error.LabelNotFound;
+                ViewBag.LabelNotFoundError = Error.LabelNotFound; //Not diplayed correctly
             }
             else
             {
                 var itemsToRemove = _repositories.LabelSqlRepository
                                                   .FindByPredicate(l => l.Name == selectedLabel.Name)
-                                                  .ToList();
+                                                 .ToList();
 
                 await _repositories.LabelSqlRepository.RemoveRangeAsync(itemsToRemove);
+                ViewBag.LabelRemovedSuccessFully = Success.LabelRemovedSuccessfully;
             }
-
-            ViewBag.LabelRemovedSuccessFully = Success.LabelRemovedSuccessfully;
+            
             return RedirectToAction(ActionNames.ManageLabels.ToString());
         }
 

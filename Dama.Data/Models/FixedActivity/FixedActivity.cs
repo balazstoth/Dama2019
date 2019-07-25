@@ -18,6 +18,10 @@ namespace Dama.Data.Models
         #endregion
 
         #region Constructor
+        public FixedActivity()
+        {
+        }
+
         public FixedActivity(string name,
                              string description,
                              Color color,

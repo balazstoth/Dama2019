@@ -32,7 +32,7 @@ namespace Dama.Data.Models
         #region Constructors
         public Activity(string name, string description, Color color, CreationType creationType, IEnumerable<Label> labels, Category category, string userId, ActivityType activityType, bool baseActivity)
         {
-            CheckArguments(name,description, userId);
+            CheckArguments(name, userId);
 
             Name = name;
             Description = description;
@@ -55,13 +55,10 @@ namespace Dama.Data.Models
             return $"Name: {Name}";
         }
 
-        private void CheckArguments(string name, string description, string userId)
+        private void CheckArguments(string name, string userId)
         {
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentNullException("name");
-
-            if (string.IsNullOrEmpty(description))
-                throw new ArgumentNullException("description");
 
             if (string.IsNullOrEmpty(userId))
                 throw new ArgumentNullException("userId");

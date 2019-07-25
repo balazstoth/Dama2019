@@ -18,9 +18,13 @@ namespace Dama.Data.Models
 
         public string UserId { get; set; }
 
+        public Category()
+        {
+        }
+
         public Category(string name, string description, Color color, int priority, string userId)
         {
-            CheckArguments(name, description, priority, userId);
+            CheckArguments(name, priority, userId);
 
             Name = name;
             Description = description;
@@ -34,13 +38,10 @@ namespace Dama.Data.Models
             return Name;
         }
 
-        private void CheckArguments(string name, string description, int priority, string userId)
+        private void CheckArguments(string name, int priority, string userId)
         {
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentNullException("name");
-
-            if (string.IsNullOrEmpty(description))
-                throw new ArgumentNullException("description");
 
             if (string.IsNullOrEmpty(userId))
                 throw new ArgumentNullException("userId");

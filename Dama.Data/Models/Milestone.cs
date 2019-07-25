@@ -9,6 +9,10 @@ namespace Dama.Data.Models
         public string Name { get; set; }
         public DateTime Time { get; set; }
 
+        public Milestone()
+        {
+        }
+
         public Milestone(string name, DateTime time)
         {
             if (string.IsNullOrEmpty(name))

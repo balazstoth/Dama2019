@@ -10,6 +10,10 @@ namespace Dama.Data.Models
         public DateTime End { get; set; }
         public List<Milestone> Milestones { get; set; }
 
+        public DeadlineActivity()
+        {
+        }
+
         public DeadlineActivity(string name,
                                  string description,
                                  Color color,

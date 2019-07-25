@@ -14,6 +14,7 @@ namespace Dama.Data.Sql.SQL
         {
             using (var context = new DamaContext())
             {
+                context.Set<T>().Attach(item);
                 context.Set<T>().Add(item);
                 await context.SaveChangesAsync();
             }
@@ -23,6 +24,7 @@ namespace Dama.Data.Sql.SQL
         {
             using (var context = new DamaContext())
             {
+                context.Set<T>().Attach(item);
                 context.Set<T>().Remove(item);
                 await context.SaveChangesAsync();
             }
@@ -32,6 +34,9 @@ namespace Dama.Data.Sql.SQL
         {
             using (var context = new DamaContext())
             {
+                foreach (var item in collection)
+                    context.Set<T>().Attach(item);
+
                 context.Set<T>().RemoveRange(collection);
                 await context.SaveChangesAsync();
             }
@@ -63,7 +68,8 @@ namespace Dama.Data.Sql.SQL
             using (var context = new DamaContext())
             {
                 Expression<Func<T, bool>> expression = a => predicate(a);
-                return context.Set<T>().Where(expression).ToList();
+                var c = expression.Compile();
+                return context.Set<T>().Where(c).ToList();
             }
         }
 
@@ -76,11 +82,12 @@ namespace Dama.Data.Sql.SQL
             }
         }
 
-        public async Task<T> FindAsync(object value)
+        public async Task<T> FindAsync(string value)
         {
+            var parsed = int.Parse(value);
             using (var context = new DamaContext())
             {
-                return await context.Set<T>().FindAsync(value);
+                return await context.Set<T>().FindAsync(parsed);
             }
         }
 

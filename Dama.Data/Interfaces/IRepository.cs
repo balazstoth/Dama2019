@@ -18,7 +18,7 @@ namespace Dama.Data.Interfaces
 
         T GetEntityById(string id);
 
-        Task<T> FindAsync(object value);
+        Task<T> FindAsync(string value);
 
         Task<List<T>> FindByExpressionAsync(Expression<Func<DbSet<T>, Task<List<T>>>> expression);
 

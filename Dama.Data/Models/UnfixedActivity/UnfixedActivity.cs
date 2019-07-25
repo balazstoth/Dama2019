@@ -13,6 +13,10 @@ namespace Dama.Data.Models
         public Repeat Repeat { get; set; }
 
         #region Constructors
+        public UnfixedActivity()
+        {
+        }
+
         public UnfixedActivity(
             string name, 
             string description,
