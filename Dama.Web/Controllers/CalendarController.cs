@@ -180,9 +180,11 @@ namespace Dama.Web.Controllers
                 currentCategory.Description = viewModel.Description;
                 currentCategory.Priority = viewModel.Priority;
                 currentCategory.Color = (Color)Enum.Parse(typeof(Color), viewModel.SelectedColor);
+
+                await _repositories.CategorySqlRepository.UpdateAsync(currentCategory);
                 ViewBag.CategoryChangedSuccessfully = Success.CategoryChangesSuccessfully;
             }
-            //Update
+            
             viewModel.Color = _colors;
             return View(viewModel);
         }

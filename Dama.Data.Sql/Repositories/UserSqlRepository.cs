@@ -39,12 +39,13 @@ namespace Dama.Data.Sql.Repositories
             }
         }
 
-        public async Task UpdateAsync(User oldValue, User newValue)
+        public async Task UpdateAsync(User newValue)
         {
             using (var context = new DamaContext())
             {
-                User value = GetEntityById(oldValue.Id);
-                value = newValue;
+                context.Set<User>().Attach(newValue);
+                var entry = context.Entry(newValue);
+                entry.State = EntityState.Modified;
                 await context.SaveChangesAsync();
             }
         }

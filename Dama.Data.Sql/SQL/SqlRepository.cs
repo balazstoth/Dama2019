@@ -42,12 +42,13 @@ namespace Dama.Data.Sql.SQL
             }
         }
 
-        public async Task UpdateAsync(T oldValue, T newValue)
+        public async Task UpdateAsync(T newValue)
         {
             using (var context = new DamaContext())
             {
-                T value = GetEntityById(oldValue.Id.ToString());
-                value = newValue;
+                context.Set<T>().Attach(newValue);
+                var entry = context.Entry(newValue);
+                entry.State = EntityState.Modified;
                 await context.SaveChangesAsync();
             }
         }

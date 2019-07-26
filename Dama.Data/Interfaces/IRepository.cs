@@ -14,7 +14,7 @@ namespace Dama.Data.Interfaces
 
         Task RemoveRangeAsync(IEnumerable<T> item);
 
-        Task UpdateAsync(T oldValue, T newValue);
+        Task UpdateAsync(T newValue);
 
         T GetEntityById(string id);
 
