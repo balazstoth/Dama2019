@@ -1,7 +1,7 @@
 ﻿using Dama.Data.Models;
 using System.Data.Entity;
 
-namespace Dama.Data.Interfaces
+namespace Dama.Data.Sql.Interfaces
 {
     public interface IRepositorySettings
     {

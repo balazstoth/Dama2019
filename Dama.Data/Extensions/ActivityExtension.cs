@@ -12,7 +12,7 @@ namespace Dama.Data
                 throw new ArgumentNullException("label");
 
             label = label.ToLower();
-            return activity.LabelCollection.Any(l => l.Name == label);
+            return activity.Labels.Any(l => l.Name == label);
         }
     }
 }

@@ -65,7 +65,7 @@ namespace Dama.Data.Models
             End = start + unfixedActivity.TimeSpan;
             OriginalType = ActivityType.UnfixedActivity;
             Id = unfixedActivity.Id;
-            LabelCollection = unfixedActivity.LabelCollection;
+            Labels = unfixedActivity.Labels;
             Name = unfixedActivity.Name;
             ActivityType = ActivityType.FixedActivity;
             Priority = unfixedActivity.Priority;
@@ -90,7 +90,7 @@ namespace Dama.Data.Models
             first.Description = second.Description;
             first.End = second.End;
             first.CreationType = second.CreationType;
-            first.LabelCollection = second.LabelCollection;
+            first.Labels = second.Labels;
             first.OriginalType = second.OriginalType;
             first.Name = second.Name;
             first.ActivityType = second.ActivityType;

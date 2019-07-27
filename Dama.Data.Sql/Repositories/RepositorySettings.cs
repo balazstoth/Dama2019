@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.Entity;
-using Dama.Data.Interfaces;
 using Dama.Data.Models;
+using Dama.Data.Sql.Interfaces;
 using Dama.Data.Sql.SQL;
 
 namespace Dama.Data.Sql.Repositories

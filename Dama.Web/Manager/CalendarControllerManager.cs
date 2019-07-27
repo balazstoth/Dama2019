@@ -1,27 +1,25 @@
 ﻿using Dama.Data.Enums;
-using Dama.Data.Interfaces;
 using Dama.Data.Models;
 using Dama.Organizer.Models;
 using Dama.Web.Models;
 using Dama.Web.Models.ViewModels.Activity.Manage;
 using System;
 using System.Linq;
-using System.Data.Entity;
-using System.Threading.Tasks;
 using System.Text;
+using Dama.Data.Sql.Interfaces;
 
 namespace Dama.Web.Manager
 {
     public class CalendarControllerManager
     {
-        private readonly IContentRepository _contentRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CalendarControllerManager(IContentRepository contentRepository)
+        public CalendarControllerManager(IUnitOfWork unitOfWork)
         {
-            _contentRepository = contentRepository;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<FixedActivityManageViewModel> AssembleFixedActivityManageViewModelAsync(EditDetails details)
+        public FixedActivityManageViewModel AssembleFixedActivityManageViewModel(EditDetails details)
         {
             bool? optional = null;
             FixedActivity fixedActivity;
@@ -43,13 +41,9 @@ namespace Dama.Web.Manager
                 }
                 else
                 {
-                    fixedActivity = (await _contentRepository.FixedActivitySqlRepository.FindByExpressionAsync(t => t
-                                                                  .Include(a => a.Category)
-                                                                  .Include(a => a.LabelCollection)
-                                                                  .ToListAsync()))
-                                                                        .FirstOrDefault(a =>
-                                                                                a.Id == details.ActivityId && 
-                                                                                a.CreationType == CreationType.ManuallyCreated);
+                    fixedActivity = _unitOfWork.FixedActivityRepository.Get(includeProperties: "Category,Labels")
+                                                                       .FirstOrDefault(a => a.Id == details.ActivityId &&
+                                                                                            a.CreationType == CreationType.ManuallyCreated);
                 }
             }
 
@@ -63,7 +57,7 @@ namespace Dama.Web.Manager
                 Description = fixedActivity.Description,
                 EndTime = fixedActivity.End,
                 LabelSourceCollection = details.Labels,
-                Labels = fixedActivity.LabelCollection.Select(l => l.Name),
+                Labels = fixedActivity.Labels.Select(l => l.Name),
                 Name = fixedActivity.Name,
                 Priority = fixedActivity.Priority,
                 StartTime = fixedActivity.Start.GetValueOrDefault(),
@@ -77,7 +71,7 @@ namespace Dama.Web.Manager
             return fixedActivityViewModel;
         }
 
-        public async Task<UnfixedActivityManageViewModel> AssembleUnfixedActivityViewModelAsync(EditDetails details)
+        public UnfixedActivityManageViewModel AssembleUnfixedActivityViewModel(EditDetails details)
         {
             UnfixedActivity unfixedActivity;
             bool? optional = null;
@@ -99,13 +93,9 @@ namespace Dama.Web.Manager
                 }
                 else
                 {
-                    unfixedActivity = (await _contentRepository.UnfixedActivitySqlRepository.FindByExpressionAsync(t => t
-                                                                        .Include(a => a.Category)
-                                                                        .Include(a => a.LabelCollection)
-                                                                        .ToListAsync()))
-                                                                            .FirstOrDefault(a =>
-                                                                                    a.Id == details.ActivityId &&
-                                                                                    a.CreationType == CreationType.ManuallyCreated);
+                    unfixedActivity = _unitOfWork.UnfixedActivityRepository.Get(includeProperties: "Category,Labels")
+                                                                           .FirstOrDefault(a => a.Id == details.ActivityId &&
+                                                                                                a.CreationType == CreationType.ManuallyCreated);
                 }
             }
 
@@ -118,7 +108,7 @@ namespace Dama.Web.Manager
                 ColorSourceCollection = details.Colors,
                 Description = unfixedActivity.Description,
                 LabelSourceCollection = details.Labels,
-                Labels = unfixedActivity.LabelCollection.Select(x => x.Name),
+                Labels = unfixedActivity.Labels.Select(x => x.Name),
                 Name = unfixedActivity.Name,
                 Priority = unfixedActivity.Priority,
                 Timespan = unfixedActivity.TimeSpan,
@@ -132,7 +122,7 @@ namespace Dama.Web.Manager
             return unfixedActivityViewModel;
         }
 
-        public async Task<UndefinedActivityManageViewModel> AssembleUndefinedActivityViewModelAsync(EditDetails details)
+        public UndefinedActivityManageViewModel AssembleUndefinedActivityViewModel(EditDetails details)
         {
             UndefinedActivity undefinedActivity;
 
@@ -143,11 +133,9 @@ namespace Dama.Web.Manager
                                                         .FirstOrDefault(a => a.Id == details.ActivityId &&
                                                                              a.ActivityType == ActivityType.UndefinedActivity) as UndefinedActivity;
                 else
-                    undefinedActivity = (await _contentRepository.UndefinedActivitySqlRepository.FindByExpressionAsync(t => t
-                                                                .Include(a => a.Category)
-                                                                .Include(a => a.LabelCollection).ToListAsync()))
-                                                                    .FirstOrDefault(a => a.Id == details.ActivityId &&
-                                                                                         a.CreationType == CreationType.ManuallyCreated);
+                    undefinedActivity = _unitOfWork.UndefinedActivityRepository.Get(includeProperties: "Category,Labels")
+                                                                               .FirstOrDefault(a => a.Id == details.ActivityId &&
+                                                                                                    a.CreationType == CreationType.ManuallyCreated);
             }
 
             var undefinedActivityViewModel = new UndefinedActivityManageViewModel()
@@ -159,7 +147,7 @@ namespace Dama.Web.Manager
                 ColorSourceCollection = details.Colors,
                 Description = undefinedActivity.Description,
                 LabelSourceCollection = details.Labels,
-                Labels = undefinedActivity.LabelCollection.Select(x => x.Name),
+                Labels = undefinedActivity.Labels.Select(x => x.Name),
                 Name = undefinedActivity.Name,
                 CalledFromEditor = details.CalledFromEditor,
                 MaximumTime = undefinedActivity.MaximumTime,
@@ -169,7 +157,7 @@ namespace Dama.Web.Manager
             return undefinedActivityViewModel;
         }
 
-        public async Task<DeadlineActivityManageViewModel> AssembleDeadlineActivityViewModelAsync(EditDetails details)
+        public DeadlineActivityManageViewModel AssembleDeadlineActivityViewModel(EditDetails details)
         {
             DeadlineActivity deadlineActivity;
             var milestoneStringBuilder = new StringBuilder();
@@ -181,10 +169,9 @@ namespace Dama.Web.Manager
                                                     .FirstOrDefault(a => a.Id == details.ActivityId &&
                                                                          a.ActivityType == ActivityType.DeadlineActivity) as DeadlineActivity;
                 else
-                    deadlineActivity = (await _contentRepository.DeadlineActivitySqlRepository.FindByExpressionAsync(t => t
-                                                                    .Include(a => a.Milestones).ToListAsync()))
-                                                                        .FirstOrDefault(a => a.Id == details.ActivityId &&
-                                                                                             a.CreationType == CreationType.ManuallyCreated);
+                    deadlineActivity = _unitOfWork.DeadlineActivityRepository.Get(includeProperties: "Milestones")
+                                                                             .FirstOrDefault(a => a.Id == details.ActivityId &&
+                                                                                                  a.CreationType == CreationType.ManuallyCreated);
 
                 foreach (var milestone in deadlineActivity.Milestones)
                     milestoneStringBuilder.Append($"{milestone.Name};{milestone.Time}|");

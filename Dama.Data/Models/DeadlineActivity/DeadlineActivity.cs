@@ -55,7 +55,7 @@ namespace Dama.Data.Models
             first.Description = second.Description;
             first.End = second.End;
             first.CreationType = second.CreationType;
-            first.LabelCollection = second.LabelCollection;
+            first.Labels = second.Labels;
             first.Name = second.Name;
             first.ActivityType = second.ActivityType;
             first.Start = second.Start;

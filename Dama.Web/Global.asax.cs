@@ -1,9 +1,8 @@
 ﻿using Autofac;
 using Autofac.Integration.Mvc;
-using Dama.Data.Interfaces;
-using Dama.Data.Models;
 using Dama.Data.Sql.Interfaces;
 using Dama.Data.Sql.Repositories;
+using Dama.Data.Sql.SQL;
 using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
@@ -29,17 +28,8 @@ namespace Dama.Web
             builder.RegisterControllers(Assembly.GetExecutingAssembly());
             builder.RegisterSource(new ViewRegistrationSource());
 
-            builder.RegisterType<UserSqlRepository>().As<IUserRepository>();
-            builder.RegisterType<ContentRepository>().As<IContentRepository>();
-            builder.RegisterType<FixedActivitySqlRepository>().As<IRepository<FixedActivity>>();
-            builder.RegisterType<UnfixedActivitySqlRepository>().As<IRepository<UnfixedActivity>>();
-            builder.RegisterType<UndefinedActivitySqlRepository>().As<IRepository<UndefinedActivity>>();
-            builder.RegisterType<DeadlineActivitySqlRepository>().As<IRepository<DeadlineActivity>>();
-            builder.RegisterType<LabelSqlRepository>().As<IRepository<Label>>();
-            builder.RegisterType<CategorySqlRepository>().As<IRepository<Category>>();
-            builder.RegisterType<MilestoneSqlRepository>().As<IRepository<Milestone>>();
             builder.RegisterType<RepositorySettings>().As<IRepositorySettings>();
-            builder.RegisterType<RepositoryManager>().As<IRepositoryManager>();
+            builder.RegisterType<UnitOfWork>().As<IUnitOfWork>();
 
             var container = builder.Build();
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));

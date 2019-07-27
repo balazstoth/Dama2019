@@ -3,29 +3,29 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
-using Dama.Data.Models;
+using Dama.Data.Interfaces;
 using Dama.Data.Sql.Interfaces;
-using Dama.Data.Sql.SQL;
 
-namespace Dama.Data.Sql.Repositories
+namespace Dama.Data.Sql.SQL
 {
-    public class UserSqlRepository : IRepository<User>
+    public class GenericSqlRepository<T> : IRepository<T> 
+        where T : class, IEntity
     {
         internal DamaContext context;
-        internal DbSet<User> dbSet;
+        internal DbSet<T> dbSet;
 
-        public UserSqlRepository(DamaContext context)
+        public GenericSqlRepository(DamaContext context)
         {
             this.context = context;
-            dbSet = context.Set<User>();
+            dbSet = context.Set<T>();
         }
 
-        public virtual void Insert(User entity)
+        public virtual void Insert(T entity)
         {
             dbSet.Add(entity);
         }
 
-        public virtual void Update(User entityToUpdate)
+        public virtual void Update(T entityToUpdate)
         {
             dbSet.Attach(entityToUpdate);
             context.Entry(entityToUpdate).State = EntityState.Modified;
@@ -37,25 +37,25 @@ namespace Dama.Data.Sql.Repositories
             Delete(entity);
         }
 
-        public virtual void Delete(User entityToDelete)
+        public virtual void Delete(T entityToDelete)
         {
             if (context.Entry(entityToDelete).State == EntityState.Detached)
                 dbSet.Attach(entityToDelete);
-
+            
             dbSet.Remove(entityToDelete);
         }
 
-        public void DeleteRange(IEnumerable<User> itemsToRemove)
+        public void DeleteRange(IEnumerable<T> itemsToRemove)
         {
             foreach (var item in itemsToRemove)
                 Delete(item);
         }
 
-        public IEnumerable<User> Get(Expression<Func<User, bool>> filter = null,
-                                 Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null,
+        public IEnumerable<T> Get(Expression<Func<T, bool>> filter = null,
+                                 Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
                                  string includeProperties = "")
         {
-            IQueryable<User> query = dbSet;
+            IQueryable<T> query = dbSet;
 
             if (filter != null)
                 query = query.Where(filter);
@@ -71,7 +71,7 @@ namespace Dama.Data.Sql.Repositories
             return query.ToList();
         }
 
-        public virtual User GetByID(object id)
+        public virtual T GetByID(object id)
         {
             return dbSet.Find(id);
         }

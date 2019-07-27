@@ -20,8 +20,8 @@ using Error = Dama.Organizer.Resources.Error;
 using ActionNames = Dama.Organizer.Enums.ActionNames;
 using ControllerNames = Dama.Organizer.Enums.ControllerNames;
 using ViewNames = Dama.Organizer.Enums.ViewNames;
-using Dama.Data.Interfaces;
 using System.Data.Entity;
+using Dama.Data.Sql.Interfaces;
 
 namespace Dama.Web.Controllers
 {
@@ -34,11 +34,13 @@ namespace Dama.Web.Controllers
         private const string _undefinedActivityName = "UndefinedActivity";
         private const string _deadlineActivityName = "DeadlineActivity";
 
-        private readonly IContentRepository _repositories;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepositorySettings _repositorySettings;
 
-        public CalendarEditorController(IContentRepository contentRepository)
+        public CalendarEditorController(IUnitOfWork unitOfWork, IRepositorySettings repositorySettings)
         {
-            _repositories = contentRepository;
+            _unitOfWork = unitOfWork;
+            _repositorySettings = repositorySettings;
         }
 
         /// <summary>
@@ -46,7 +48,7 @@ namespace Dama.Web.Controllers
         /// </summary>
         public ActionResult Editor() 
         {
-            var viewModel = GetValidViewModelAsync();
+            var viewModel = GetValidViewModel();
             return View(viewModel);
         }
 
@@ -715,49 +717,16 @@ namespace Dama.Web.Controllers
             return RedirectToAction(ActionNames.Index.ToString(), ControllerNames.Home.ToString());
         }
 
-        private async Task FillCollectionsFromDatabase()
+        private void FillCollectionsFromDatabase()
         {
             using (var container = new ActivityContainer())
             {
-                container.FixedActivities.AddSortedRange(
-                    await (_repositories.FixedActivitySqlRepository
-                                    .FindByExpressionAsync(t => t
-                                        .Where(a => a.UserId == container.UserId && a.BaseActivity)
-                                        .Include(a => a.LabelCollection)
-                                        .Include(a => a.Category).ToListAsync())));
-
-                container.UnfixedActivities.AddSortedRange(
-                    await (_repositories.UnfixedActivitySqlRepository
-                                    .FindByExpressionAsync(t => t
-                                        .Where(a => a.UserId == container.UserId && a.BaseActivity)
-                                        .Include(a => a.LabelCollection)
-                                        .Include(a => a.Category).ToListAsync())));
-
-
-
-                container.UndefinedActivities.AddSortedRange(
-                    await (_repositories.UndefinedActivitySqlRepository
-                                    .FindByExpressionAsync(t => t
-                                        .Where(a => a.UserId == container.UserId && a.BaseActivity)
-                                        .Include(a => a.LabelCollection)
-                                        .Include(a => a.Category).ToListAsync())));
-
-
-                container.DeadlineActivities.AddSortedRange(
-                    await (_repositories.DeadlineActivitySqlRepository
-                                    .FindByExpressionAsync(t => t
-                                        .Where(a => a.UserId == container.UserId && a.BaseActivity)
-                                        .Include(a => a.LabelCollection)
-                                        .Include(a => a.Category)
-                                        .Include(a => a.Milestones).ToListAsync())));
-
-                container.Categories = await (_repositories.CategorySqlRepository
-                                                                .FindByExpressionAsync(t => t
-                                                                    .Where(a => a.UserId == container.UserId).ToListAsync()));
-
-                container.Labels = await (_repositories.LabelSqlRepository
-                                                            .FindByExpressionAsync(t => t
-                                                                .Where(a => a.UserId == container.UserId).ToListAsync()));
+                container.FixedActivities.AddSortedRange(_unitOfWork.FixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, includeProperties: "Labels,Category"));
+                container.UnfixedActivities.AddSortedRange(_unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, includeProperties: "Labels,Category"));
+                container.UndefinedActivities.AddSortedRange(_unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, includeProperties: "Labels,Category"));
+                container.DeadlineActivities.AddSortedRange(_unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, includeProperties: "Labels,Category,Milestones"));
+                container.Categories = _unitOfWork.CategoryRepository.Get(a => a.UserId == container.UserId).ToList();
+                container.Labels = _unitOfWork.LabelRepository.Get(a => a.UserId == container.UserId).ToList();
             }
         }
 
@@ -979,26 +948,26 @@ namespace Dama.Web.Controllers
                         var fixedActivity = activity as FixedActivity;
 
                         if (fixedActivity.Category != null)
-                           _repositories.RepositorySettings.ChangeCategoryEntryState(fixedActivity.Category, EntityState.Unchanged);
+                           _repositorySettings.ChangeCategoryEntryState(fixedActivity.Category, EntityState.Unchanged);
 
                         fixedActivity.BaseActivity = false;
-                         _repositories.FixedActivitySqlRepository.AddAsync(fixedActivity);
+                         _unitOfWork.FixedActivityRepository.Insert(fixedActivity);
                         break;
 
                     case ActivityType.UnfixedActivity:
                         var unfixedActivity = activity as UnfixedActivity;
 
                         if (unfixedActivity.Category != null)
-                            _repositories.RepositorySettings.ChangeCategoryEntryState(unfixedActivity.Category, EntityState.Unchanged);
+                            _repositorySettings.ChangeCategoryEntryState(unfixedActivity.Category, EntityState.Unchanged);
 
                         unfixedActivity.BaseActivity = false;
-                        _repositories.UnfixedActivitySqlRepository.AddAsync(unfixedActivity);
+                        _unitOfWork.UnfixedActivityRepository.Insert(unfixedActivity);
                         break;
 
                     case ActivityType.DeadlineActivity:
                         var deadlineActivity = activity as DeadlineActivity;
                         deadlineActivity.BaseActivity = false;
-                        _repositories.DeadlineActivitySqlRepository.AddAsync(deadlineActivity);
+                        _unitOfWork.DeadlineActivityRepository.Insert(deadlineActivity);
                         break;
                 }
             }
@@ -1008,7 +977,7 @@ namespace Dama.Web.Controllers
 
         }
 
-        private async Task<CalendarEditorViewModel> GetValidViewModelAsync()
+        private CalendarEditorViewModel GetValidViewModel()
         {
             CalendarEditorViewModel viewModel;
 
@@ -1021,7 +990,7 @@ namespace Dama.Web.Controllers
                 if (container.Reset)
                 {
                     ResetViewModel();
-                    await FillCollectionsFromDatabase();
+                    FillCollectionsFromDatabase();
                     container.CalendarEditorViewModel.ActivityCollectionForActivityTypes
                                                             .AddRange(container.FixedActivities
                                                                                 .OrderBy(a => a.Name)

@@ -57,7 +57,7 @@ namespace Dama.Data.Models
             first.Color = second.Color;
             first.Description = second.Description;
             first.CreationType = second.CreationType;
-            first.LabelCollection = second.LabelCollection;
+            first.Labels = second.Labels;
             first.Name = second.Name;
             first.ActivityType = second.ActivityType;
             first.MaximumTime = second.MaximumTime;

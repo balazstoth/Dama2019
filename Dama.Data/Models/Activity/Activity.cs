@@ -18,7 +18,7 @@ namespace Dama.Data.Models
 
         public CreationType CreationType { get; set; }
 
-        public IEnumerable<Label> LabelCollection { get; set; }
+        public IEnumerable<Label> Labels { get; set; }
 
         public Category Category { get; set; }
 
@@ -38,7 +38,7 @@ namespace Dama.Data.Models
             Description = description;
             Color = color;
             CreationType = creationType;
-            LabelCollection = labels ?? new List<Label>();
+            Labels = labels ?? new List<Label>();
             Category = category;
             UserId = userId;
             ActivityType = activityType;

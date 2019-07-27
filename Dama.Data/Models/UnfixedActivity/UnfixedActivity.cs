@@ -53,7 +53,7 @@ namespace Dama.Data.Models
             Description = fixedActivity.Description;
             Color = fixedActivity.Color;
             Category = fixedActivity.Category;
-            LabelCollection = fixedActivity.LabelCollection;
+            Labels = fixedActivity.Labels;
             Priority = fixedActivity.Priority;
             ActivityType = ActivityType.UnfixedActivity;
             CreationType = CreationType.ManuallyCreated;
@@ -75,7 +75,7 @@ namespace Dama.Data.Models
             first.Color = second.Color;
             first.Description = second.Description;
             first.CreationType = second.CreationType;
-            first.LabelCollection = second.LabelCollection;
+            first.Labels = second.Labels;
             first.Name = second.Name;
             first.ActivityType = second.ActivityType;
             first.Priority = second.Priority;
