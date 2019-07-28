@@ -498,8 +498,8 @@ namespace Dama.Web.Controllers
 
         public List<SelectListItem> AddLabelsToProcess(string userId)
         {
-            var labels = _unitOfWork.LabelRepository.Get(l => l.UserId == userId).Distinct();
-            var labelSelectItems = labels.Select(l => new SelectListItem() { Text = l.Name }).ToList();
+            var labels = _unitOfWork.LabelRepository.Get(l => l.UserId == userId).Select(l => l.Name).Distinct();
+            var labelSelectItems = labels.Select(l => new SelectListItem() { Text = l }).ToList();
 
             return labelSelectItems;
         }
