@@ -28,7 +28,7 @@
 
     @foreach (var item in Model.FixedActivityViewModel.FixedActivityCollection)
     {
-        string appendedLabels = string.Join(" | ", item.LabelCollection);
+        string appendedLabels = string.Join(" | ", item.Labels);
         string categoryString = item.Category == null ? String.Empty : item.Category.ToString();
         <tr>
             <td>
@@ -73,7 +73,7 @@
 
     @foreach (var item in Model.UnfixedActivityViewModel.UnfixedActivityCollection)
     {
-        string appendedLabels = string.Join(" | ", item.LabelCollection);
+        string appendedLabels = string.Join(" | ", item.Labels);
         string categoryString = item.Category == null ? String.Empty : item.Category.ToString();
         <tr>
             <td>
@@ -119,7 +119,7 @@
     @foreach (var item in Model.UndefinedActivityViewModel.UndefinedActivityCollection)
     {
         string categoryString = item.Category == null ? String.Empty : item.Category.ToString();
-        string appendedLabels = string.Join(" | ", item.LabelCollection);
+        string appendedLabels = string.Join(" | ", item.Labels);
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
@@ -158,7 +158,7 @@
     @foreach (var item in Model.DeadlineActivityViewModel.DeadlineActivityCollection)
     {
         string categoryString = item.Category == null ? String.Empty : item.Category.ToString();
-        string appendedLabels = string.Join(" | ", item.LabelCollection);
+        string appendedLabels = string.Join(" | ", item.Labels);
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)

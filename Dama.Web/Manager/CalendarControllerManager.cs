@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.Text;
 using Dama.Data.Sql.Interfaces;
+using System.Linq.Expressions;
 
 namespace Dama.Web.Manager
 {
@@ -41,7 +42,7 @@ namespace Dama.Web.Manager
                 }
                 else
                 {
-                    fixedActivity = _unitOfWork.FixedActivityRepository.Get(includeProperties: "Category,Labels")
+                    fixedActivity = _unitOfWork.FixedActivityRepository.Get(null, null, a => a.Category, a => a.Labels)
                                                                        .FirstOrDefault(a => a.Id == details.ActivityId &&
                                                                                             a.CreationType == CreationType.ManuallyCreated);
                 }
@@ -93,7 +94,7 @@ namespace Dama.Web.Manager
                 }
                 else
                 {
-                    unfixedActivity = _unitOfWork.UnfixedActivityRepository.Get(includeProperties: "Category,Labels")
+                    unfixedActivity = _unitOfWork.UnfixedActivityRepository.Get(null, null, a => a.Category, a => a.Labels)
                                                                            .FirstOrDefault(a => a.Id == details.ActivityId &&
                                                                                                 a.CreationType == CreationType.ManuallyCreated);
                 }
@@ -133,7 +134,7 @@ namespace Dama.Web.Manager
                                                         .FirstOrDefault(a => a.Id == details.ActivityId &&
                                                                              a.ActivityType == ActivityType.UndefinedActivity) as UndefinedActivity;
                 else
-                    undefinedActivity = _unitOfWork.UndefinedActivityRepository.Get(includeProperties: "Category,Labels")
+                    undefinedActivity = _unitOfWork.UndefinedActivityRepository.Get(null, null, a => a.Category, a => a.Labels)
                                                                                .FirstOrDefault(a => a.Id == details.ActivityId &&
                                                                                                     a.CreationType == CreationType.ManuallyCreated);
             }
@@ -169,7 +170,7 @@ namespace Dama.Web.Manager
                                                     .FirstOrDefault(a => a.Id == details.ActivityId &&
                                                                          a.ActivityType == ActivityType.DeadlineActivity) as DeadlineActivity;
                 else
-                    deadlineActivity = _unitOfWork.DeadlineActivityRepository.Get(includeProperties: "Milestones")
+                    deadlineActivity = _unitOfWork.DeadlineActivityRepository.Get(null, null, a => a.Milestones)
                                                                              .FirstOrDefault(a => a.Id == details.ActivityId &&
                                                                                                   a.CreationType == CreationType.ManuallyCreated);
 

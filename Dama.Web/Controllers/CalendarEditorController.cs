@@ -22,6 +22,7 @@ using ControllerNames = Dama.Organizer.Enums.ControllerNames;
 using ViewNames = Dama.Organizer.Enums.ViewNames;
 using System.Data.Entity;
 using Dama.Data.Sql.Interfaces;
+using System.Linq.Expressions;
 
 namespace Dama.Web.Controllers
 {
@@ -627,7 +628,7 @@ namespace Dama.Web.Controllers
             return PartialView(ViewNames.GetSelectedActivities.ToString(), viewModel);
         }
 
-        public async Task<ActionResult> GetDataForChange(string idAndType, string isAsc, string selectedDate, string nameFilter, string priorityFilter, string labelFilter, string categoryFilter)
+        public ActionResult GetDataForChange(string idAndType, string isAsc, string selectedDate, string nameFilter, string priorityFilter, string labelFilter, string categoryFilter)
         {
             if (idAndType == "null") //There's nothing selected
                 return null;
@@ -647,7 +648,7 @@ namespace Dama.Web.Controllers
 
             var controller = DependencyResolver.Current.GetService<CalendarController>();
             controller.ControllerContext = new ControllerContext(Request.RequestContext, controller);
-            return await controller.EditActivity(id, GetOriginalTypeFromString(type), true, optional);
+            return controller.EditActivity(id, GetOriginalTypeFromString(type), true, optional);
         }
 
         public ActionResult RequestStartTime(string value)
@@ -721,10 +722,10 @@ namespace Dama.Web.Controllers
         {
             using (var container = new ActivityContainer())
             {
-                container.FixedActivities.AddSortedRange(_unitOfWork.FixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, includeProperties: "Labels,Category"));
-                container.UnfixedActivities.AddSortedRange(_unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, includeProperties: "Labels,Category"));
-                container.UndefinedActivities.AddSortedRange(_unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, includeProperties: "Labels,Category"));
-                container.DeadlineActivities.AddSortedRange(_unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, includeProperties: "Labels,Category,Milestones"));
+                container.FixedActivities.AddSortedRange(_unitOfWork.FixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
+                container.UnfixedActivities.AddSortedRange(_unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
+                container.UndefinedActivities.AddSortedRange(_unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
+                container.DeadlineActivities.AddSortedRange(_unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Milestones, a => a.Category, a => a.Labels));
                 container.Categories = _unitOfWork.CategoryRepository.Get(a => a.UserId == container.UserId).ToList();
                 container.Labels = _unitOfWork.LabelRepository.Get(a => a.UserId == container.UserId).ToList();
             }
@@ -952,6 +953,7 @@ namespace Dama.Web.Controllers
 
                         fixedActivity.BaseActivity = false;
                          _unitOfWork.FixedActivityRepository.Insert(fixedActivity);
+                        _unitOfWork.Save();
                         break;
 
                     case ActivityType.UnfixedActivity:
@@ -962,12 +964,14 @@ namespace Dama.Web.Controllers
 
                         unfixedActivity.BaseActivity = false;
                         _unitOfWork.UnfixedActivityRepository.Insert(unfixedActivity);
+                        _unitOfWork.Save();
                         break;
 
                     case ActivityType.DeadlineActivity:
                         var deadlineActivity = activity as DeadlineActivity;
                         deadlineActivity.BaseActivity = false;
                         _unitOfWork.DeadlineActivityRepository.Insert(deadlineActivity);
+                        _unitOfWork.Save();
                         break;
                 }
             }

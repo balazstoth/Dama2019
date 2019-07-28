@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web.Mvc;
 using Dama.Web.Manager;
 using ActionNames = Dama.Organizer.Enums.ActionNames;
@@ -26,6 +25,7 @@ using ViewNames = Dama.Organizer.Enums.ViewNames;
 using Repeat = Dama.Data.Models.Repeat;
 using Milestone = Dama.Data.Models.Milestone;
 using Dama.Data.Sql.Interfaces;
+using System.Linq.Expressions;
 
 namespace Dama.Web.Controllers
 {
@@ -90,6 +90,7 @@ namespace Dama.Web.Controllers
             {
                 RemoveCategoryFromTables(selectedCategory.Id);
                 _unitOfWork.CategoryRepository.Delete(selectedCategory);
+                _unitOfWork.Save();
                 ViewBag.CategoryRemovedSuccessFully = Success.CategoryRemovedSuccessfully;
             }
 
@@ -119,6 +120,7 @@ namespace Dama.Web.Controllers
                 else
                 {
                     _unitOfWork.CategoryRepository.Insert(newCategory);
+                    _unitOfWork.Save();
                     ViewBag.CategoryCreatedSuccessFully = Success.CategoryCreatedSuccessfully;
                 }
             }
@@ -176,6 +178,7 @@ namespace Dama.Web.Controllers
                 currentCategory.Color = (Color)Enum.Parse(typeof(Color), viewModel.SelectedColor);
 
                 _unitOfWork.CategoryRepository.Update(currentCategory);
+                _unitOfWork.Save();
                 ViewBag.CategoryChangedSuccessfully = Success.CategoryChangesSuccessfully;
             }
 
@@ -185,19 +188,19 @@ namespace Dama.Web.Controllers
 
         private void RemoveCategoryFromTables(int categoryId)
         {
-            foreach (var record in _unitOfWork.FixedActivityRepository.Get(includeProperties:"Category"))
+            foreach (var record in _unitOfWork.FixedActivityRepository.Get(includeProperties: a => a.Category))
                 if (record.Category != null && record.Category.Id.Equals(categoryId))
                     record.Category = null;
 
-            foreach (var record in _unitOfWork.UnfixedActivityRepository.Get(includeProperties: "Category"))
+            foreach (var record in _unitOfWork.UnfixedActivityRepository.Get(includeProperties: a => a.Category))
                 if (record.Category != null && record.Category.Id.Equals(categoryId))
                     record.Category = null;
 
-            foreach (var record in _unitOfWork.UndefinedActivityRepository.Get(includeProperties: "Category"))
+            foreach (var record in _unitOfWork.UndefinedActivityRepository.Get(includeProperties: a => a.Category))
                 if (record.Category != null && record.Category.Id.Equals(categoryId))
                     record.Category = null;
 
-            foreach (var record in _unitOfWork.DeadlineActivityRepository.Get(includeProperties: "Category"))
+            foreach (var record in _unitOfWork.DeadlineActivityRepository.Get(includeProperties: a => a.Category))
                 if (record.Category != null && record.Category.Id.Equals(categoryId))
                     record.Category = null;
         }
@@ -236,6 +239,7 @@ namespace Dama.Web.Controllers
                 foreach (var item in itemsToRemove)
                     _unitOfWork.LabelRepository.Delete(item);
 
+                _unitOfWork.Save();
                 ViewBag.LabelRemovedSuccessFully = Success.LabelRemovedSuccessfully;
             }
 
@@ -261,6 +265,7 @@ namespace Dama.Web.Controllers
                 }
 
                 _unitOfWork.LabelRepository.Insert(newLabel);
+                _unitOfWork.Save();
 
                 ViewBag.LabelCreatedSuccessFully = Success.LabelCreatedSuccessfully;
             }
@@ -288,10 +293,10 @@ namespace Dama.Web.Controllers
                                  a.CreationType == CreationType.ManuallyCreated;
             }
 
-            var fixedActivities = _unitOfWork.FixedActivityRepository.Get(a => predicate(a), a => a.OrderBy(aa => aa.Name), "Labels,Category");
-            var unfixedActivities = _unitOfWork.UnfixedActivityRepository.Get(a => predicate(a), a => a.OrderBy(aa => aa.Name), "Labels,Category");
-            var undefinedActivities = _unitOfWork.UndefinedActivityRepository.Get(a => predicate(a), a => a.OrderBy(aa => aa.Name), "Labels,Category");
-            var deadlineActivities = _unitOfWork.DeadlineActivityRepository.Get(a => predicate(a), a => a.OrderBy(aa => aa.Name), "Labels,Category,Milestones");
+            var fixedActivities = _unitOfWork.FixedActivityRepository.Get(a => predicate(a), a => a.OrderBy(aa => aa.Name), a => a.Labels, a => a.Category);
+            var unfixedActivities = _unitOfWork.UnfixedActivityRepository.Get(a => predicate(a), a => a.OrderBy(aa => aa.Name), a => a.Labels, a => a.Category);
+            var undefinedActivities = _unitOfWork.UndefinedActivityRepository.Get(a => predicate(a), a => a.OrderBy(aa => aa.Name), a => a.Labels, a => a.Category);
+            var deadlineActivities = _unitOfWork.DeadlineActivityRepository.Get(a => predicate(a), a => a.OrderBy(aa => aa.Name), a => a.Labels, a => a.Category, a => a.Milestones);
 
             var container = new ViewModelContainer()
             {
@@ -314,22 +319,22 @@ namespace Dama.Web.Controllers
             switch (activityType)
             {
                 case ActivityType.FixedActivity:
-                    var fixedActivities = _unitOfWork.FixedActivityRepository.Get(a => a.Id == id, includeProperties: "Labels,Category");
+                    var fixedActivities = _unitOfWork.FixedActivityRepository.Get(a => a.Id == id, null, a => a.Category, a => a.Labels);
                     var fixedActivityModel = new FixedActivityViewModel() { FixedActivityCollection = fixedActivities.ToList() };
                     return View(ViewNames.FixedActivityDetails.ToString(), fixedActivityModel);
 
                 case ActivityType.UnfixedActivity:
-                    var unfixedActivities = _unitOfWork.UnfixedActivityRepository.Get(a => a.Id == id, includeProperties: "Labels,Category");
+                    var unfixedActivities = _unitOfWork.UnfixedActivityRepository.Get(a => a.Id == id, null, a => a.Category, a => a.Labels);
                     var unfixedActivityModel = new UnfixedActivityViewModel() { UnfixedActivityCollection = unfixedActivities.ToList() };
                     return View(ViewNames.UnfixedActivityDetails.ToString(), unfixedActivityModel);
 
                 case ActivityType.UndefinedActivity:
-                    var undefinedActivities = _unitOfWork.UndefinedActivityRepository.Get(a => a.Id == id, includeProperties: "Labels,Category");
+                    var undefinedActivities = _unitOfWork.UndefinedActivityRepository.Get(a => a.Id == id, null, a => a.Category, a => a.Labels);
                     var undefinedActivityModel = new UndefinedActivityViewModel() { UndefinedActivityCollection = undefinedActivities.ToList() };
                     return View(ViewNames.UndefinedActivityDetails.ToString(), undefinedActivityModel);
 
                 case ActivityType.DeadlineActivity:
-                    var deadlineActivities = _unitOfWork.DeadlineActivityRepository.Get(a => a.Id == id, includeProperties: "Labels,Category,Milestones");
+                    var deadlineActivities = _unitOfWork.DeadlineActivityRepository.Get(a => a.Id == id, null, a => a.Category, a => a.Labels, a => a.Milestones);
                     var deadlineActivityModel = new DeadlineActivityViewModel() { DeadlineActivityCollection = deadlineActivities.ToList() };
                     return View(ViewNames.DeadlineActivityDetails.ToString(), deadlineActivityModel);
 
@@ -345,7 +350,7 @@ namespace Dama.Web.Controllers
             switch (activityType)
             {
                 case ActivityType.FixedActivity:
-                    var fixedActivity = _unitOfWork.FixedActivityRepository.Get(a => a.Id == id, includeProperties: "Labels,Category").FirstOrDefault();
+                    var fixedActivity = _unitOfWork.FixedActivityRepository.Get(a => a.Id == id, null, a => a.Category, a => a.Labels).FirstOrDefault();
 
                     if (fixedActivity != null)
                     {
@@ -354,12 +359,13 @@ namespace Dama.Web.Controllers
 
                         fixedActivity.Category = null;
                         _unitOfWork.FixedActivityRepository.Delete(fixedActivity);
+                        _unitOfWork.Save();
                         ViewBag.ActivityRemovedSuccessfully = Success.ActivityRemovedSuccessfully;
                     }
                     break;
 
                 case ActivityType.UnfixedActivity:
-                    var unfixedActivity = _unitOfWork.UnfixedActivityRepository.Get(a => a.Id == id, includeProperties: "Labels,Category").FirstOrDefault();
+                    var unfixedActivity = _unitOfWork.UnfixedActivityRepository.Get(a => a.Id == id, null, a => a.Category, a => a.Labels).FirstOrDefault();
 
                     if (unfixedActivity != null)
                     {
@@ -369,13 +375,14 @@ namespace Dama.Web.Controllers
                         unfixedActivity.Category = null;
 
                         _unitOfWork.UnfixedActivityRepository.Delete(unfixedActivity);
+                        _unitOfWork.Save();
                         ViewBag.ActivityRemovedSuccessfully = Success.ActivityRemovedSuccessfully;
                     }
                     break;
 
 
                 case ActivityType.UndefinedActivity:
-                    var undefinedActivity = _unitOfWork.UndefinedActivityRepository.Get(a => a.Id == id, includeProperties: "Labels,Category").FirstOrDefault();
+                    var undefinedActivity = _unitOfWork.UndefinedActivityRepository.Get(a => a.Id == id, null, a => a.Category, a => a.Labels).FirstOrDefault();
 
                     if (undefinedActivity != null)
                     {
@@ -384,12 +391,13 @@ namespace Dama.Web.Controllers
 
                         undefinedActivity.Category = null;
                         _unitOfWork.UndefinedActivityRepository.Delete(undefinedActivity);
+                        _unitOfWork.Save();
                         ViewBag.ActivityRemovedSuccessfully = Success.ActivityRemovedSuccessfully;
                     }
                     break;
 
                 case ActivityType.DeadlineActivity:
-                    var deadlineActivity = _unitOfWork.DeadlineActivityRepository.Get(a => a.Id == id, includeProperties: "Labels,Category,Milestones").FirstOrDefault();
+                    var deadlineActivity = _unitOfWork.DeadlineActivityRepository.Get(a => a.Id == id, null, a => a.Category, a => a.Labels, a => a.Milestones).FirstOrDefault();
 
                     if (deadlineActivity != null)
                     {
@@ -402,6 +410,7 @@ namespace Dama.Web.Controllers
                             _unitOfWork.MilestoneRepository.DeleteRange(deadlineActivity.Milestones);
 
                         _unitOfWork.DeadlineActivityRepository.Delete(deadlineActivity);
+                        _unitOfWork.Save();
                         ViewBag.ActivityRemovedSuccessFully = Success.ActivityRemovedSuccessfully;
                     }
                     break;
@@ -495,7 +504,7 @@ namespace Dama.Web.Controllers
             return labelSelectItems;
         }
 
-        public async Task<ActionResult> EditActivity(string id, ActivityType? activityType, bool calledFromEditor = false, bool optional = false)
+        public ActionResult EditActivity(string id, ActivityType? activityType, bool calledFromEditor = false, bool optional = false)
         {
             var details = new EditDetails()
             {
@@ -561,7 +570,7 @@ namespace Dama.Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult AddNewActivity(ViewModelManagerContainer container)
         {
-            return CreateNewActivityFromTuple(container);
+            return CreateNewActivityFromContainer(container);
         }
 
         [HttpPost]
@@ -599,7 +608,7 @@ namespace Dama.Web.Controllers
                 }
                 else
                 {
-                    var activity = _unitOfWork.FixedActivityRepository.Get(a => a.Id == activityId, includeProperties: "Labels,Category").FirstOrDefault();
+                    var activity = _unitOfWork.FixedActivityRepository.Get(a => a.Id == activityId, null, a => a.Category, a => a.Labels).FirstOrDefault();
 
                     if (activity != null)
                     {
@@ -608,11 +617,12 @@ namespace Dama.Web.Controllers
 
                         activity.Category = null;
                         _unitOfWork.FixedActivityRepository.Delete(activity);
+                        _unitOfWork.Save();
                     }
                 }
 
                 var viewModelContainer = new ViewModelManagerContainer() { FixedActivityManageViewModel = viewModel };
-                CreateNewActivityFromTuple(viewModelContainer);
+                CreateNewActivityFromContainer(viewModelContainer);
             }
             else
             {
@@ -662,7 +672,7 @@ namespace Dama.Web.Controllers
                 }
                 else
                 {
-                    var activity = _unitOfWork.UnfixedActivityRepository.Get(a => a.Id == activityId, includeProperties: "Labels,Category").FirstOrDefault();
+                    var activity = _unitOfWork.UnfixedActivityRepository.Get(a => a.Id == activityId, null, a => a.Category, a => a.Labels).FirstOrDefault();
 
                     if (activity != null)
                     {
@@ -671,11 +681,12 @@ namespace Dama.Web.Controllers
 
                         activity.Category = null;
                         _unitOfWork.UnfixedActivityRepository.Delete(activity);
+                        _unitOfWork.Save();
                     }
                 }
 
                 var viewModelContainer = new ViewModelManagerContainer() { UnfixedActivityManageViewModel = viewModel };
-                CreateNewActivityFromTuple(viewModelContainer);
+                CreateNewActivityFromContainer(viewModelContainer);
             }
             else
             {
@@ -714,7 +725,7 @@ namespace Dama.Web.Controllers
                 }
                 else
                 {
-                    var activity = _unitOfWork.UndefinedActivityRepository.Get(a => a.Id == activityId, includeProperties: "Labels,Category").FirstOrDefault();
+                    var activity = _unitOfWork.UndefinedActivityRepository.Get(a => a.Id == activityId, null, a => a.Category, a => a.Labels).FirstOrDefault();
 
                     if (activity != null)
                     {
@@ -723,12 +734,13 @@ namespace Dama.Web.Controllers
 
                         activity.Category = null;
                         _unitOfWork.UndefinedActivityRepository.Delete(activity);
+                        _unitOfWork.Save();
                     }
                 }
 
                 var viewModelContainer = new ViewModelManagerContainer() { UndefinedActivityManageViewModel = viewModel };
 
-                CreateNewActivityFromTuple(viewModelContainer);
+                CreateNewActivityFromContainer(viewModelContainer);
             }
             else
             {
@@ -766,7 +778,7 @@ namespace Dama.Web.Controllers
                 }
                 else
                 {
-                    var activity = _unitOfWork.DeadlineActivityRepository.Get(a => a.Id == activityId, includeProperties: "Labels,Category,Milestone").FirstOrDefault();
+                    var activity = _unitOfWork.DeadlineActivityRepository.Get(a => a.Id == activityId, null, a => a.Labels, a => a.Category, a => a.Milestones).FirstOrDefault();
 
                     if (activity != null)
                     {
@@ -779,12 +791,13 @@ namespace Dama.Web.Controllers
                             _unitOfWork.MilestoneRepository.DeleteRange(activity.Milestones);
 
                         _unitOfWork.DeadlineActivityRepository.Delete(activity);
+                        _unitOfWork.Save();
                         ViewBag.ActivityRemovedSuccessFully = Success.ActivityRemovedSuccessfully;
                     }
                 }
 
                 var viewModelContainer = new ViewModelManagerContainer() { DeadlineActivityManageViewModel = viewModel };
-                CreateNewActivityFromTuple(viewModelContainer);
+                CreateNewActivityFromContainer(viewModelContainer);
             }
             else
             {
@@ -795,7 +808,7 @@ namespace Dama.Web.Controllers
             return RedirectToAction(ActionNames.ManageActivities.ToString());
         }
 
-        private ActionResult CreateNewActivityFromTuple(ViewModelManagerContainer modelManagerContainer)
+        private ActionResult CreateNewActivityFromContainer(ViewModelManagerContainer modelManagerContainer)
         {
             if (modelManagerContainer.FixedActivityManageViewModel != null)
             {
@@ -809,6 +822,7 @@ namespace Dama.Web.Controllers
                         _repositorySettings.ChangeCategoryEntryState(fixedActivity.Category, EntityState.Unchanged);
 
                     _unitOfWork.FixedActivityRepository.Insert(fixedActivity);
+                    _unitOfWork.Save();
 
                     return RedirectToAction(ActionNames.ManageActivities.ToString());
                 }
@@ -835,6 +849,7 @@ namespace Dama.Web.Controllers
                         _repositorySettings.ChangeCategoryEntryState(unfixedActivity.Category, EntityState.Unchanged);
 
                     _unitOfWork.UnfixedActivityRepository.Insert(unfixedActivity);
+                    _unitOfWork.Save();
 
                     return RedirectToAction(ActionNames.ManageActivities.ToString());
                 }
@@ -861,6 +876,8 @@ namespace Dama.Web.Controllers
                         _repositorySettings.ChangeCategoryEntryState(undefinedActivity.Category, EntityState.Unchanged);
 
                     _unitOfWork.UndefinedActivityRepository.Insert(undefinedActivity);
+                    _unitOfWork.Save();
+
                     return RedirectToAction(ActionNames.ManageActivities.ToString());
                 }
                 else
@@ -882,6 +899,8 @@ namespace Dama.Web.Controllers
                 {
                     var deadlineActivity = CreateNewDeadlineActivityMethod(deadlineActivityViewModel, true);
                     _unitOfWork.DeadlineActivityRepository.Insert(deadlineActivity);
+                    _unitOfWork.Save();
+
                     return RedirectToAction(ActionNames.ManageActivities.ToString());
                 }
                 else
@@ -903,7 +922,7 @@ namespace Dama.Web.Controllers
             var start = DateTime.Today + viewModel.StartTime.TimeOfDay;
             var end = DateTime.Today + viewModel.EndTime.TimeOfDay;
             var category = _unitOfWork.CategoryRepository.Get(c => c.Name == viewModel.Category).FirstOrDefault();
-            var labels = viewModel.Labels?.Select(l => new Label(l, UserId)).ToList();
+            var labels = viewModel.Labels?.Select(l => new Label(l, UserId)).ToList() ?? new List<Label>();
 
             if (viewModel.Priority == 0)
                 finalPriority = category == null ? 1 : category.Priority;
@@ -935,7 +954,7 @@ namespace Dama.Web.Controllers
             Repeat repeat = null;
 
             var category = _unitOfWork.CategoryRepository.Get(c => c.Name == viewModel.Category).FirstOrDefault();
-            var labels = viewModel.Labels?.Select(l => new Label(l, UserId));
+            var labels = viewModel.Labels?.Select(l => new Label(l, UserId)) ?? new List<Label>();
 
             if (viewModel.Priority == 0)
                 finalPriority = category == null ? 1 : category.Priority;
@@ -962,7 +981,7 @@ namespace Dama.Web.Controllers
         private UndefinedActivity CreateNewUndefinedActivityMethod(UndefinedActivityManageViewModel viewModel, bool isBaseActivity)
         {
             var category = _unitOfWork.CategoryRepository.Get(c => c.Name == viewModel.Category).FirstOrDefault();
-            var labels = viewModel.Labels?.Select(l => new Label(l, UserId));
+            var labels = viewModel.Labels?.Select(l => new Label(l, UserId)) ?? new List<Label>();
 
             var builder = new UndefinedActivityBuilder();
             var result = builder.CreateActivity(viewModel.Name)

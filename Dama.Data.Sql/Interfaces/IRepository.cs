@@ -9,7 +9,7 @@ namespace Dama.Data.Sql.Interfaces
     {
         IEnumerable<T> Get(Expression<Func<T, bool>> filter,
                            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
-                           string includeProperties);
+                           params Expression<Func<T, object>>[] includeProperties);
 
         T GetByID(object id);
 

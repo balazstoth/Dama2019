@@ -2,6 +2,8 @@
 using Dama.Data.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace Dama.Data.Models
 {
@@ -18,7 +20,7 @@ namespace Dama.Data.Models
 
         public CreationType CreationType { get; set; }
 
-        public IEnumerable<Label> Labels { get; set; }
+        public List<Label> Labels { get; set; }
 
         public Category Category { get; set; }
 
@@ -38,7 +40,7 @@ namespace Dama.Data.Models
             Description = description;
             Color = color;
             CreationType = creationType;
-            Labels = labels ?? new List<Label>();
+            Labels = labels == null ? new List<Label>() : labels.ToList();
             Category = category;
             UserId = userId;
             ActivityType = activityType;

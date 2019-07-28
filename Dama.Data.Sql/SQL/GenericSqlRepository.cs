@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Dama.Data.Interfaces;
 using Dama.Data.Sql.Interfaces;
+using LinqKit;
 
 namespace Dama.Data.Sql.SQL
 {
@@ -53,26 +54,33 @@ namespace Dama.Data.Sql.SQL
 
         public IEnumerable<T> Get(Expression<Func<T, bool>> filter = null,
                                  Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-                                 string includeProperties = "")
+                                 params Expression<Func<T, object>>[] includeProperties)
         {
             IQueryable<T> query = dbSet;
 
+            if (includeProperties != null)
+                foreach (var prop in includeProperties)
+                    query = query.Include(prop);
+
             if (filter != null)
-                query = query.Where(filter);
-
-            var properties = includeProperties.Split(',');
-
-            foreach (var includeProperty in properties)
-                query = query.Include(includeProperty);
+            {
+                var func = filter.Compile();
+                query = query.AsExpandable().Where(func).AsQueryable();
+            }
 
             if (orderBy != null)
-                return orderBy(query).ToList();
+                query = orderBy(query);
 
             return query.ToList();
         }
 
         public virtual T GetByID(object id)
         {
+            int parsedId;
+
+            if(int.TryParse(id.ToString(), out parsedId))
+                return dbSet.Find(parsedId);
+
             return dbSet.Find(id);
         }
     }

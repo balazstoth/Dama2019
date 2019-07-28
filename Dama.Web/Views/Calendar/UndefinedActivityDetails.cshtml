@@ -36,7 +36,7 @@
     @foreach (var item in Model.UndefinedActivityCollection)
     {
         string categoryString = item.Category == null ? string.Empty : item.Category.ToString();
-        string appendedLabels = string.Join(" | ", item.LabelCollection);
+        string appendedLabels = string.Join(" | ", item.Labels);
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)

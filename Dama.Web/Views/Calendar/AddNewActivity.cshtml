@@ -1,7 +1,5 @@
 ﻿@model ViewModelManagerContainer
 
-@using Dama.Web.Controllers
-@using Dama.Web.Models
 @using Dama.Web.Models.ViewModels
 @using Dama.Data.Enums
 
@@ -92,8 +90,8 @@ else
     <select id="selectActivity">
         <option>FixedActivity</option>
         <option>UnfixedActivity</option>
-        <option>DeadlineActivity</option>
         <option>UndefinedActivity</option>
+        <option>DeadlineActivity</option>
     </select>
 </div>
 
@@ -327,7 +325,7 @@ else
             }
         }
     </div>
-    <div class="Undefined">
+    <div class="UndefinedActivity">
         @using (Html.BeginForm("AddNewActivity", "Calendar", FormMethod.Post, new { @class = "form-horizontal", role = "form", type = ActivityType.UndefinedActivity }))
         {
             if (Model.UndefinedActivityManageViewModel != null)

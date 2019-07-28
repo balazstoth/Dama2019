@@ -16,7 +16,7 @@ namespace Dama.Data.Interfaces
 
         CreationType CreationType { get; set; }
 
-        IEnumerable<Label> Labels { get; set; }
+        List<Label> Labels { get; set; }
 
         Category Category { get; set; }
 

@@ -53,17 +53,16 @@ namespace Dama.Data.Sql.Repositories
 
         public IEnumerable<User> Get(Expression<Func<User, bool>> filter = null,
                                  Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null,
-                                 string includeProperties = "")
+                                 params Expression<Func<User, object>>[] includeProperties)
         {
             IQueryable<User> query = dbSet;
 
             if (filter != null)
                 query = query.Where(filter);
 
-            var properties = includeProperties.Split(',');
-
-            foreach (var includeProperty in properties)
-                query = query.Include(includeProperty);
+            if (includeProperties != null)
+                foreach (var prop in includeProperties)
+                    query = query.Include(prop);
 
             if (orderBy != null)
                 return orderBy(query).ToList();
