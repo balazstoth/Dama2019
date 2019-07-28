@@ -62,11 +62,15 @@ namespace Dama.Data.Sql.SQL
                 foreach (var prop in includeProperties)
                     query = query.Include(prop);
 
+            var a = query.ToList();
+
             if (filter != null)
             {
                 var func = filter.Compile();
                 query = query.AsExpandable().Where(func).AsQueryable();
             }
+
+            var b = query.ToList();
 
             if (orderBy != null)
                 query = orderBy(query);

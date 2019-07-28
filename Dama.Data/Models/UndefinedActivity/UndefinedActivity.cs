@@ -33,13 +33,13 @@ namespace Dama.Data.Models
                                                   ActivityType.UndefinedActivity,
                                                   baseActivity)
         {
-            if (MinimumTime < 0)
+            if (minTime < 0)
                 throw new ArgumentOutOfRangeException("minimumTime");
 
-            if (MaximumTime < 0)
+            if (maxTime < 0)
                 throw new ArgumentOutOfRangeException("MaximumTime");
 
-            if (MinimumTime >= MaximumTime)
+            if (minTime >= maxTime)
                 throw new ArgumentException("MinimumTime, MaximumTime");
 
             MinimumTime = minTime;

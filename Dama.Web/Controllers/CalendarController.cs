@@ -285,7 +285,7 @@ namespace Dama.Web.Controllers
             {
                 predicate = a => a.UserId == UserId &&
                                  a.CreationType == CreationType.ManuallyCreated &&
-                                 a.Category.Id == categoryId;
+                                 a.Category?.Id == categoryId;
             }
             else
             {
@@ -1013,7 +1013,6 @@ namespace Dama.Web.Controllers
             var builder = new DeadlineActivityBuilder();
             var result = builder.CreateActivity(viewModel.Name)
                                          .WithDescription(viewModel.Description)
-                                         .WithColor((Color)Enum.Parse(typeof(Color), viewModel.Color))
                                          .WithCreationType(CreationType.ManuallyCreated)
                                          .WithUserId(UserId)
                                          .WithStart(viewModel.StartDate + viewModel.StartTime.TimeOfDay)

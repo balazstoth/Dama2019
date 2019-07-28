@@ -68,7 +68,7 @@ namespace Dama.Web.Attributes
             DateTime deadlineEnd = endDate.Date + endTime.TimeOfDay;
 
             string valueString = value.ToString();
-            List<string> milestones = valueString.Split('|').ToList();
+            var milestones = valueString.Split('|').ToList();
 
             foreach (string milestone in milestones)
             {
@@ -77,10 +77,10 @@ namespace Dama.Web.Attributes
                     string name = milestone.Substring(0, milestone.IndexOf(';'));
                     string date = milestone.Substring(milestone.IndexOf(';') + 1);
 
-                    if (IsNameValid(name))
+                    if (!IsNameValid(name))
                         return new ValidationResult(_incorrectMilestoneMessage);
 
-                    if (IsDateValid(date))
+                    if (!IsDateValid(date))
                         return new ValidationResult(_emptyMilestoneMessage);
 
                     DateTime milestoneDate = DateTime.Parse(date);
