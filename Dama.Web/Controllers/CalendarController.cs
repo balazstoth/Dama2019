@@ -504,11 +504,11 @@ namespace Dama.Web.Controllers
             return labelSelectItems;
         }
 
-        public ActionResult EditActivity(string id, ActivityType? activityType, bool calledFromEditor = false, bool optional = false)
+        public ActionResult EditActivity(string activityId, ActivityType? activityType, bool calledFromEditor = false, bool optional = false)
         {
             var details = new EditDetails()
             {
-                ActivityId = int.Parse(id),
+                ActivityId = int.Parse(activityId),
                 ActivityType = activityType,
                 CalledFromEditor = calledFromEditor,
                 IsOptional = optional,

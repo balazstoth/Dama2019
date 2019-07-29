@@ -60,8 +60,8 @@
                 @Html.DisplayFor(modelItem => item.TimeSpan)
             </td>
             <td>
-                @Html.ActionLink("Edit", "EditActivity", new { id = item.Id, type = ActivityType.UnfixedActivity })|
-                @Html.ActionLink("Delete", "DeleteActivity", new { id = item.Id, type = ActivityType.UnfixedActivity })
+                @Html.ActionLink("Edit", "EditActivity", new { activityId = item.Id, activityType = ActivityType.UnfixedActivity })|
+                @Html.ActionLink("Delete", "DeleteActivity", new { activityId = item.Id, activityType = ActivityType.UnfixedActivity })
             </td>
         </tr>
     }

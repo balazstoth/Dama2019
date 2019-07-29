@@ -46,9 +46,9 @@
                 @Html.DisplayFor(modelItem => categoryString)
             </td>
             <td>
-                @Html.ActionLink("Edit", "EditActivity", new { id = item.Id, activityType = ActivityType.FixedActivity }) |
-                @Html.ActionLink("Details", "ActivityDetails", new { id = item.Id, activityType = ActivityType.FixedActivity }) |
-                @Html.ActionLink("Delete", "DeleteActivity", new { id = item.Id, activityType = ActivityType.FixedActivity })
+                @Html.ActionLink("Edit", "EditActivity", new { activityId = item.Id, activityType = ActivityType.FixedActivity }) |
+                @Html.ActionLink("Details", "ActivityDetails", new { activityId = item.Id, activityType = ActivityType.FixedActivity }) |
+                @Html.ActionLink("Delete", "DeleteActivity", new { activityId = item.Id, activityType = ActivityType.FixedActivity })
             </td>
         </tr>
     }
@@ -91,9 +91,9 @@
                 @Html.DisplayFor(modelItem => categoryString)
             </td>
             <td>
-                @Html.ActionLink("Edit", "EditActivity", new { id = item.Id, activityType = ActivityType.UnfixedActivity }) |
-                @Html.ActionLink("Details", "ActivityDetails", new { id = item.Id, activityType = ActivityType.UnfixedActivity }) |
-                @Html.ActionLink("Delete", "DeleteActivity", new { id = item.Id, activityType = ActivityType.UnfixedActivity })
+                @Html.ActionLink("Edit", "EditActivity", new { activityId = item.Id, activityType = ActivityType.UnfixedActivity }) |
+                @Html.ActionLink("Details", "ActivityDetails", new { activityId = item.Id, activityType = ActivityType.UnfixedActivity }) |
+                @Html.ActionLink("Delete", "DeleteActivity", new { activityId = item.Id, activityType = ActivityType.UnfixedActivity })
             </td>
         </tr>
     }
@@ -136,9 +136,9 @@
                 @Html.DisplayFor(modelItem => categoryString)
             </td>
             <td>
-                @Html.ActionLink("Edit", "EditActivity", new { id = item.Id, activityType = ActivityType.UndefinedActivity }) |
-                @Html.ActionLink("Details", "ActivityDetails", new { id = item.Id, activityType = ActivityType.UndefinedActivity }) |
-                @Html.ActionLink("Delete", "DeleteActivity", new { id = item.Id, activityType = ActivityType.UndefinedActivity })
+                @Html.ActionLink("Edit", "EditActivity", new { activityId = item.Id, activityType = ActivityType.UndefinedActivity }) |
+                @Html.ActionLink("Details", "ActivityDetails", new { activityId = item.Id, activityType = ActivityType.UndefinedActivity }) |
+                @Html.ActionLink("Delete", "DeleteActivity", new { activityId = item.Id, activityType = ActivityType.UndefinedActivity })
             </td>
         </tr>
     }
@@ -167,9 +167,9 @@
                 @Html.DisplayFor(modelItem => item.Description)
             </td>
             <td>
-                @Html.ActionLink("Edit", "EditActivity", new { id = item.Id, activityType = ActivityType.DeadlineActivity }) |
-                @Html.ActionLink("Details", "ActivityDetails", new { id = item.Id, activityType = ActivityType.DeadlineActivity }) |
-                @Html.ActionLink("Delete", "DeleteActivity", new { id = item.Id, activityType = ActivityType.DeadlineActivity })
+                @Html.ActionLink("Edit", "EditActivity", new { activityId = item.Id, activityType = ActivityType.DeadlineActivity }) |
+                @Html.ActionLink("Details", "ActivityDetails", new { activityId = item.Id, activityType = ActivityType.DeadlineActivity }) |
+                @Html.ActionLink("Delete", "DeleteActivity", new { activityId = item.Id, activityType = ActivityType.DeadlineActivity })
             </td>
         </tr>
     }

@@ -67,8 +67,8 @@
                 @Html.DisplayFor(modelItem => item.End)
             </td>
             <td>
-                @Html.ActionLink("Edit", "EditActivity", new { id = item.Id, type = ActivityType.FixedActivity }) |
-                @Html.ActionLink("Delete", "DeleteActivity", new { id = item.Id, type = ActivityType.FixedActivity })
+                @Html.ActionLink("Edit", "EditActivity", new { activityId = item.Id, activityType = ActivityType.FixedActivity }) |
+                @Html.ActionLink("Delete", "DeleteActivity", new { activityId = item.Id, activityType = ActivityType.FixedActivity })
             </td>
         </tr>
     }

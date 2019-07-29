@@ -60,8 +60,8 @@
                 @Html.DisplayFor(modelItem => item.MaximumTime)
             </td>
             <td>
-                @Html.ActionLink("Edit", "EditActivity", new { id = item.Id, type = ActivityType.UndefinedActivity }) |
-                @Html.ActionLink("Delete", "DeleteActivity", new { id = item.Id, type = ActivityType.UndefinedActivity })
+                @Html.ActionLink("Edit", "EditActivity", new { activityId = item.Id, activityType = ActivityType.UndefinedActivity }) |
+                @Html.ActionLink("Delete", "DeleteActivity", new { activityId = item.Id, activityType = ActivityType.UndefinedActivity })
             </td>
         </tr>
     }

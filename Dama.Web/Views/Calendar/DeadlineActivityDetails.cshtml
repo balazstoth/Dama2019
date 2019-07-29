@@ -47,8 +47,8 @@
                 @Html.DisplayFor(modelItem => appendedMileStones)
             </td>
             <td>
-                @Html.ActionLink("Edit", "EditActivity", new { id = item.Id, type = ActivityType.DeadlineActivity }) |
-                @Html.ActionLink("Delete", "DeleteActivity", new { id = item.Id, type = ActivityType.DeadlineActivity })
+                @Html.ActionLink("Edit", "EditActivity", new { activityId = item.Id, activityType = ActivityType.DeadlineActivity }) |
+                @Html.ActionLink("Delete", "DeleteActivity", new { activityId = item.Id, activityType = ActivityType.DeadlineActivity })
             </td>
         </tr>
     }
