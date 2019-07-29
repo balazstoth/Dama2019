@@ -106,7 +106,7 @@ namespace Dama.Web.Controllers
 
             try
             {
-                user = await UserValidation(id, false);
+                user = await UserValidation(id, true);
             }
             catch (InvalidIdException)
             {
@@ -131,7 +131,7 @@ namespace Dama.Web.Controllers
 
             try
             {
-                user = await UserValidation(id, false);
+                user = await UserValidation(id, true);
             }
             catch (InvalidIdException)
             {
