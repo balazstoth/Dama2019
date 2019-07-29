@@ -26,8 +26,8 @@
 <p class="text-danger">@ViewBag.AddActIsNotValid</p>
 
 <div class="form-group">
-    @Html.LabelFor(m => m.ActivitiesSelectedByUser, new { @class = "col-md-2 control-label" })
+    @Html.LabelFor(m => m.MandatoryActivitiesSelectedByUser, new { @class = "col-md-2 control-label" })
     <div class="col-md-10">
-        @Html.ListBoxFor(m => m.ActivitiesSelectedToReplaceByUser, Model.ActivitiesSelectedByUser, new { @class = "form-control", @style = "height: 300px", id = "finalActLsb" })
+        @Html.ListBoxFor(m => m.ActivitiesSelectedToReplaceByUser, Model.MandatoryActivitiesSelectedByUser, new { @class = "form-control", @style = "height: 300px", id = "finalActLsb" })
     </div>
 </div>
