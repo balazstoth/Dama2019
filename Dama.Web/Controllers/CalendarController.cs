@@ -422,7 +422,7 @@ namespace Dama.Web.Controllers
         public ActionResult AddNewActivity()
         {
             var colors = new List<SelectListItem>(_colors);
-            var categories = AddCategoriesToProcessAsyc(UserId);
+            var categories = AddCategoriesToProcess(UserId);
             var labels = AddLabelsToProcess(UserId);
             var repeatTypeList = AddRepeatTypeToProcess();
 
@@ -479,7 +479,7 @@ namespace Dama.Web.Controllers
                     .ToList();
         }
 
-        public List<SelectListItem> AddCategoriesToProcessAsyc(string userId)
+        public List<SelectListItem> AddCategoriesToProcess(string userId)
         {
             var categorySelectItemList = new List<SelectListItem>()
             {
@@ -512,7 +512,7 @@ namespace Dama.Web.Controllers
                 ActivityType = activityType,
                 CalledFromEditor = calledFromEditor,
                 IsOptional = optional,
-                Categories = new List<SelectListItem>(_colors),
+                Categories = AddCategoriesToProcess(UserId),
                 Colors = new List<SelectListItem>(_colors),
                 Labels = AddLabelsToProcess(UserId),
                 RepeatTypes = AddRepeatTypeToProcess(),
@@ -627,7 +627,7 @@ namespace Dama.Web.Controllers
             else
             {
                 viewModel.LabelSourceCollection = AddLabelsToProcess(UserId);
-                viewModel.CategorySourceCollection = AddCategoriesToProcessAsyc(UserId);
+                viewModel.CategorySourceCollection = AddCategoriesToProcess(UserId);
                 viewModel.RepeatTypeSourceCollection = AddRepeatTypeToProcess();
                 viewModel.ColorSourceCollection = _colors;
 
@@ -691,7 +691,7 @@ namespace Dama.Web.Controllers
             else
             {
                 viewModel.LabelSourceCollection = AddLabelsToProcess(UserId);
-                viewModel.CategorySourceCollection = AddCategoriesToProcessAsyc(UserId);
+                viewModel.CategorySourceCollection = AddCategoriesToProcess(UserId);
                 viewModel.RepeatTypeSourceCollection = AddRepeatTypeToProcess();
                 viewModel.ColorSourceCollection = _colors;
 
@@ -745,7 +745,7 @@ namespace Dama.Web.Controllers
             else
             {
                 viewModel.LabelSourceCollection = AddLabelsToProcess(UserId);
-                viewModel.CategorySourceCollection = AddCategoriesToProcessAsyc(UserId);
+                viewModel.CategorySourceCollection = AddCategoriesToProcess(UserId);
                 viewModel.ColorSourceCollection = _colors;
 
                 return View(viewModel);
@@ -829,7 +829,7 @@ namespace Dama.Web.Controllers
                 else
                 {
                     fixedActivityViewModel.LabelSourceCollection = AddLabelsToProcess(UserId);
-                    fixedActivityViewModel.CategorySourceCollection = AddCategoriesToProcessAsyc(UserId);
+                    fixedActivityViewModel.CategorySourceCollection = AddCategoriesToProcess(UserId);
                     fixedActivityViewModel.ColorSourceCollection = _colors;
                     var viewModelContainer = new ViewModelManagerContainer() { FixedActivityManageViewModel = fixedActivityViewModel };
 
@@ -856,7 +856,7 @@ namespace Dama.Web.Controllers
                 else
                 {
                     unfixedActivityViewModel.LabelSourceCollection = AddLabelsToProcess(UserId);
-                    unfixedActivityViewModel.CategorySourceCollection = AddCategoriesToProcessAsyc(UserId);
+                    unfixedActivityViewModel.CategorySourceCollection = AddCategoriesToProcess(UserId);
                     unfixedActivityViewModel.ColorSourceCollection = _colors;
                     var viewModelContainer = new ViewModelManagerContainer() { UnfixedActivityManageViewModel = unfixedActivityViewModel };
 
@@ -883,7 +883,7 @@ namespace Dama.Web.Controllers
                 else
                 {
                     undefinedActivityViewModel.LabelSourceCollection = AddLabelsToProcess(UserId);
-                    undefinedActivityViewModel.CategorySourceCollection = AddCategoriesToProcessAsyc(UserId);
+                    undefinedActivityViewModel.CategorySourceCollection = AddCategoriesToProcess(UserId);
                     undefinedActivityViewModel.ColorSourceCollection = _colors;
                     var viewModelContainer = new ViewModelManagerContainer() { UndefinedActivityManageViewModel = undefinedActivityViewModel };
 
