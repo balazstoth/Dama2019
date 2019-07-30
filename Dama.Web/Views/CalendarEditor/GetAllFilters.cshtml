@@ -1,11 +1,11 @@
-﻿@model Dama.Models.CalendarEditorViewModel
+﻿@model Dama.Web.Models.ViewModels.Editor.CalendarEditorViewModel
 
 <script type="text/javascript">
     $(document).ready(function () {
         $("#tbxName").on("change", function(){
             $.ajax(
                 {
-                    url: "/dama/CalendarEditor/GetFilteredActivities?type=" + $("#activityDDL").val() + "&name=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                    url: "/CalendarEditor/GetFilteredActivities?type=" + $("#activityDDL").val() + "&name=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
                     type: 'GET',
                     data: "",
                     success: function (data) {
@@ -19,7 +19,7 @@
         $("#ddlCategory").on("change", function () {
             $.ajax(
                 {
-                    url: "/dama/CalendarEditor/GetFilteredActivities?type=" + $("#activityDDL").val() + "&name=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                    url: "/CalendarEditor/GetFilteredActivities?type=" + $("#activityDDL").val() + "&name=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
                     type: 'GET',
                     data: "",
                     success: function (data) {
@@ -33,7 +33,7 @@
         $("#ddlLabel").on("change", function () {
             $.ajax(
                 {
-                    url: "/dama/CalendarEditor/GetFilteredActivities?type=" + $("#activityDDL").val() + "&name=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                    url: "/CalendarEditor/GetFilteredActivities?type=" + $("#activityDDL").val() + "&name=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
                     type: 'GET',
                     data: "",
                     success: function (data) {
@@ -47,7 +47,7 @@
         $("#tbxPriority").on("change", function () {
             $.ajax(
                 {
-                    url: "/dama/CalendarEditor/GetFilteredActivities?type=" + $("#activityDDL").val() + "&name=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                    url: "/CalendarEditor/GetFilteredActivities?type=" + $("#activityDDL").val() + "&name=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
                     type: 'GET',
                     data: "",
                     success: function (data) {
@@ -61,7 +61,7 @@
         $("#activityOrder").on("change", function () {
             $.ajax(
                 {
-                    url: "/dama/CalendarEditor/GetFilteredActivities?type=" + $("#activityDDL").val() + "&name=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                    url: "/CalendarEditor/GetFilteredActivities?type=" + $("#activityDDL").val() + "&name=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
                     type: 'GET',
                     data: "",
                     success: function (data) {
@@ -86,14 +86,14 @@
 <div class="form-group">
     @Html.LabelFor(m => m.SelectedCategory, new { @class = "col-md-2 control-label" })
     <div class="col-md-10">
-        @Html.DropDownListFor(m => m.SelectedCategory, Model.CategoryFilter, new { @class = "form-control", id = "ddlCategory" })
+        @Html.DropDownListFor(m => m.SelectedCategory, Model.CategoryFilterSourceCollection, new { @class = "form-control", id = "ddlCategory" })
     </div>
 </div>
 
 <div class="form-group">
     @Html.LabelFor(m => m.SelectedLabel, new { @class = "col-md-2 control-label" })
     <div class="col-md-10">
-        @Html.DropDownListFor(m => m.SelectedLabel, Model.LabelFilter, new { @class = "form-control", id = "ddlLabel" })
+        @Html.DropDownListFor(m => m.SelectedLabel, Model.LabelFilterSourceCollection, new { @class = "form-control", id = "ddlLabel" })
     </div>
 </div>
 

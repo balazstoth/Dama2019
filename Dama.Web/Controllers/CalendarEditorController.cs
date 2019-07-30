@@ -8,7 +8,6 @@ using Dama.Web.Models.ViewModels.Editor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web.Mvc;
 using Dama.Web.Models.ViewModels;
 using Dama.Generate;
@@ -22,7 +21,6 @@ using ControllerNames = Dama.Organizer.Enums.ControllerNames;
 using ViewNames = Dama.Organizer.Enums.ViewNames;
 using System.Data.Entity;
 using Dama.Data.Sql.Interfaces;
-using System.Linq.Expressions;
 
 namespace Dama.Web.Controllers
 {
@@ -37,6 +35,8 @@ namespace Dama.Web.Controllers
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepositorySettings _repositorySettings;
+
+        public string UserId => User.Identity.GetUserId();
 
         public CalendarEditorController(IUnitOfWork unitOfWork, IRepositorySettings repositorySettings)
         {
@@ -208,80 +208,17 @@ namespace Dama.Web.Controllers
         public PartialViewResult GetAvailableFilters(string activityTypeName)
         {
             CalendarEditorViewModel viewModel = null;
-            var message = "Not active";
 
             switch (activityTypeName)
             {
                 case _fixedActivityName:
                 case _unfixedActivityName:
-                {
-                    using (var container = new ActivityContainer())
-                    {
-                        container.CalendarEditorViewModel
-                                 .CategoryFilterSourceCollection = new List<SelectListItem>(
-                                        container.Categories
-                                                    .Select(c => new SelectListItem() { Text = c.Name, Value = c.Name }));
-
-                        container.CalendarEditorViewModel
-                                 .CategoryFilterSourceCollection
-                                                    .Add(new SelectListItem() { Text = message, Value = string.Empty, Selected = true });
-
-                        container.CalendarEditorViewModel
-                                 .LabelFilterSourceCollection = 
-                                                    (from l in container.Labels
-                                                        group l by l.Name 
-                                                        into grpdLabel
-                                                        select new SelectListItem()
-                                                        {
-                                                            Text = grpdLabel.Key,
-                                                            Value = grpdLabel
-                                                                        .Select(x => x.Name)
-                                                                        .First()
-                                                        }).ToList();
-
-                        container.CalendarEditorViewModel
-                                 .LabelFilterSourceCollection
-                                    .Add(new SelectListItem() { Text = message, Value = string.Empty, Selected = true });
-
-                        viewModel = container.CalendarEditorViewModel;
-                    }
-                           
+                    viewModel = FillViewModelForFilters();
                     return PartialView(ViewNames.GetAllFilters.ToString(), viewModel);
-                }
 
                 case _undefinedActivityName:
-                {
-                    using (var container = new ActivityContainer())
-                    {
-                        container.CalendarEditorViewModel
-                                 .CategoryFilterSourceCollection = new List<SelectListItem>(
-                                     container.Categories
-                                                .Select(c => new SelectListItem() { Text = c.Name, Value = c.Name }));
-
-                        container.CalendarEditorViewModel
-                                 .CategoryFilterSourceCollection
-                                 .Add(new SelectListItem() { Text = message, Value = string.Empty, Selected = true });
-
-                        container.CalendarEditorViewModel
-                                 .LabelFilterSourceCollection = 
-                                        (from l in container.Labels
-                                        group l by l.Name 
-                                        into grpdLabel
-                                        select new SelectListItem()
-                                        {
-                                            Text = grpdLabel.Key,
-                                            Value = grpdLabel.Select(x => x.Name).First()
-                                        }).ToList();
-
-                        container.CalendarEditorViewModel
-                                 .LabelFilterSourceCollection
-                                 .Add(new SelectListItem() { Text = message, Value = string.Empty, Selected = true });
-
-                        viewModel = container.CalendarEditorViewModel;
-                    }
-                
+                    viewModel = FillViewModelForFilters();
                     return PartialView(ViewNames.GetReducedFilters.ToString(), viewModel);
-                }
 
                 default:
                     return null;
@@ -718,17 +655,15 @@ namespace Dama.Web.Controllers
             return RedirectToAction(ActionNames.Index.ToString(), ControllerNames.Home.ToString());
         }
 
-        private void FillCollectionsFromDatabase()
+        private void FillCollectionsFromDatabase(ActivityContainer container)
         {
-            using (var container = new ActivityContainer())
-            {
-                container.FixedActivities.AddSortedRange(_unitOfWork.FixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
-                container.UnfixedActivities.AddSortedRange(_unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
-                container.UndefinedActivities.AddSortedRange(_unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
-                container.DeadlineActivities.AddSortedRange(_unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Milestones, a => a.Category, a => a.Labels));
-                container.Categories = _unitOfWork.CategoryRepository.Get(a => a.UserId == container.UserId).ToList();
-                container.Labels = _unitOfWork.LabelRepository.Get(a => a.UserId == container.UserId).ToList();
-            }
+            var asd = _unitOfWork.FixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels);
+            container.FixedActivities.AddSortedRange(_unitOfWork.FixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
+            container.UnfixedActivities.AddSortedRange(_unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
+            container.UndefinedActivities.AddSortedRange(_unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
+            container.DeadlineActivities.AddSortedRange(_unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Milestones, a => a.Category, a => a.Labels));
+            container.Categories = _unitOfWork.CategoryRepository.Get(a => a.UserId == container.UserId).ToList();
+            container.Labels = _unitOfWork.LabelRepository.Get(a => a.UserId == container.UserId).ToList();
         }
 
         public PartialViewResult RefreshActivityListbox()
@@ -990,11 +925,12 @@ namespace Dama.Web.Controllers
                 var tmpDate = container.SelectedDate == null ? DateTime.Today : container.SelectedDate.GetValueOrDefault();
                 var tmpIsAsc = container.IsAsc;
                 var filter = container.Filter;
+                container.UserId = UserId;
 
                 if (container.Reset)
                 {
                     ResetViewModel();
-                    FillCollectionsFromDatabase();
+                    FillCollectionsFromDatabase(container);
                     container.CalendarEditorViewModel.ActivityCollectionForActivityTypes
                                                             .AddRange(container.FixedActivities
                                                                                 .OrderBy(a => a.Name)
@@ -1008,6 +944,43 @@ namespace Dama.Web.Controllers
                 container.CalendarEditorViewModel.SelectedPriorityFilter = filter.Priority;
                 container.CalendarEditorViewModel.Name = filter.Name;
                 container.Reset = true;
+                viewModel = container.CalendarEditorViewModel;
+            }
+
+            return viewModel;
+        }
+
+        private CalendarEditorViewModel FillViewModelForFilters()
+        {
+            var message = "Not active";
+            CalendarEditorViewModel viewModel;
+
+            using (var container = new ActivityContainer())
+            {
+                var categories = container?.Categories?.Select(c => new SelectListItem() { Text = c.Name, Value = c.Name });
+                container.CalendarEditorViewModel.CategoryFilterSourceCollection = categories == null ? new List<SelectListItem>() : new List<SelectListItem>(categories);
+                container.CalendarEditorViewModel.CategoryFilterSourceCollection
+                                                 .Add(new SelectListItem() { Text = message, Value = string.Empty, Selected = true });
+
+                List<SelectListItem> labels = null;
+
+                if(container.Labels != null)
+                {
+                    labels = (from l in container?.Labels
+                              group l by l.Name
+                             into grpdLabel
+                              select new SelectListItem()
+                              {
+                                  Text = grpdLabel.Key,
+                                  Value = grpdLabel
+                                             .Select(x => x.Name)
+                                             .First()
+                              }).ToList();
+                }
+               
+
+                container.CalendarEditorViewModel.LabelFilterSourceCollection = labels == null ? new List<SelectListItem>() : new List<SelectListItem>(labels);
+                container.CalendarEditorViewModel.LabelFilterSourceCollection.Add(new SelectListItem() { Text = message, Value = string.Empty, Selected = true });
                 viewModel = container.CalendarEditorViewModel;
             }
 

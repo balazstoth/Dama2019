@@ -6,7 +6,7 @@
         $("#finalActLsb").on("change", function () {
            $.ajax(
                 {
-                    url: "/dama/CalendarEditor/GetActivityDetails?activityTypeName=null" + "&activityId=" + $(this).val(),
+                    url: "/CalendarEditor/GetActivityDetails?activityTypeName=null" + "&activityId=" + $(this).val(),
                     type: 'GET',
                     data: "",
                     success: function (data)

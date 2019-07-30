@@ -5,7 +5,7 @@
     {
          return $.ajax(
                 {
-                    url: "/dama/CalendarEditor/GetActivityDetails?activityTypeName=" + '@Model.SelectedType' + "&activityId=" + $(v).val(),
+                    url: "/CalendarEditor/GetActivityDetails?activityTypeName=" + '@Model.SelectedType' + "&activityId=" + $(v).val(),
                     type: 'GET',
                     data: "",
                     success: function (data)

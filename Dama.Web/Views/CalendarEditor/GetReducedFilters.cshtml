@@ -5,7 +5,7 @@
         $("#tbxName").on("change", function(){
             $.ajax(
             {
-                url: "/dama/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                url: "/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
                 type: 'GET',
                 data: "",
                 success: function (data) {
@@ -19,7 +19,7 @@
         $("#ddlCategory").on("change", function () {
             $.ajax(
             {
-                    url: "/dama/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                    url: "/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
                 type: 'GET',
                 data: "",
                 success: function (data) {
@@ -33,7 +33,7 @@
         $("#ddlLabel").on("change", function () {
             $.ajax(
             {
-                url: "/dama/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                url: "/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
                 type: 'GET',
                 data: "",
                 success: function (data) {
@@ -47,7 +47,7 @@
         $("#activityOrder").on("change", function () {
             $.ajax(
                 {
-                    url: "/dama/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                    url: "/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
                     type: 'GET',
                     data: "",
                     success: function (data) {

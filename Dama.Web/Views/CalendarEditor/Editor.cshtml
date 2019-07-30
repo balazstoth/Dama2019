@@ -34,21 +34,21 @@
         function GetDefaultFiltersAjax() {
             return $.ajax(
                 {
-                    url: "/dama/CalendarEditor/GetAvailableFilters?activityTypeName=" + $("#activityDDL").val(),
+                    url: "/CalendarEditor/GetAvailableFilters?activityTypeName=" + $("#activityDDL").val(),
                     type: 'GET',
                     data: "",
                     success: function (data) {
                         $("#activityFilter").html(data);
                     },
                     error: function (jqxhr, status, exception) {
-                        alert('Exception:' + exception);
+                        alert('GetDefaultFiltersAjax:' + exception);
                     }
                 });
         }
         function GetSelectedActivitiesAjax(optional) {
             return $.ajax(
                 {
-                    url: "/dama/CalendarEditor/GetSelectedActivities?activityType=" + $("#activityDDL").val() + "&idCollection=" + $("#activityListBox").val() + "&forOptional=" + optional,
+                    url: "/CalendarEditor/GetSelectedActivities?activityType=" + $("#activityDDL").val() + "&idCollection=" + $("#activityListBox").val() + "&forOptional=" + optional,
                     type: 'GET',
                     data: "",
                     success: function (data) {
@@ -58,56 +58,56 @@
                             $("#ActivitySelectedByUser").html(data);
                     },
                     error: function (jqxhr, status, exception) {
-                        alert('Exception:' + exception);
+                        alert('GetSelectedActivitiesAjax:' + exception);
                     }
                 });
         }
         function RefreshActivityListboxAjax() {
             return $.ajax(
                 {
-                    url: "/dama/CalendarEditor/RefreshActivityListbox",
+                    url: "/CalendarEditor/RefreshActivityListbox",
                     type: 'GET',
                     data: "",
                     success: function (data) {
                         $("#ActivityListPartial").html(data);
                     },
                     error: function (jqxhr, status, exception) {
-                        alert('Exception:' + exception);
+                        alert('RefreshActivityListboxAjax:' + exception);
                     }
                 });
         }
         function GetActivityDataAjax(itemID) {
             return $.ajax(
                 {
-                    url: "/dama/CalendarEditor/GetActivityData?activityTypeName=" + $(itemID).val(),
+                    url: "/CalendarEditor/GetActivityData?activityTypeName=" + $(itemID).val(),
                     type: 'GET',
                     data: "",
                     success: function (data) {
                         $("#ActivityListPartial").html(data);
                     },
                     error: function (jqxhr, status, exception) {
-                        alert('Exception:' + exception);
+                        alert('GetActivityDataAjax:' + exception);
                     }
                 });
         }
         function GetAvailableFiltersAjax(itemID) {
             return $.ajax(
                 {
-                    url: "/dama/CalendarEditor/GetAvailableFilters?activityTypeName=" + $(itemID).val(),
+                    url: "/CalendarEditor/GetAvailableFilters?activityTypeName=" + $(itemID).val(),
                     type: 'GET',
                     data: "",
                     success: function (data) {
                         $("#activityFilter").html(data);
                     },
                     error: function (jqxhr, status, exception) {
-                        alert('Exception:' + exception);
+                        alert('GetAvailableFiltersAjax:' + exception);
                     }
                 });
         }
         function MoveBackAjax(itemID, optional) {
             return $.ajax(
                 {
-                    url: "/dama/CalendarEditor/MoveBack?idAndTypeCollection=" + $(itemID).val() + "&fromOptional=" + optional,
+                    url: "/CalendarEditor/MoveBack?idAndTypeCollection=" + $(itemID).val() + "&fromOptional=" + optional,
                     type: 'GET',
                     data: "",
                     success: function (data) {
@@ -117,28 +117,28 @@
                             $("#ActivitySelectedByUser").html(data);
                     },
                     error: function (jqxhr, status, exception) {
-                        alert('Exception:' + exception);
+                        alert('MoveBackAjax:' + exception);
                     }
                 });
         }
         function ReOrderList() {
             return $.ajax(
                 {
-                    url: "/dama/CalendarEditor/ReOrderLists?checkBoxValue=" + $("#rdBtnAsc").is(':checked') + "&orderBy=name" + "&activityType=" + $("#activityDDL").val(),
+                    url: "/CalendarEditor/ReOrderLists?checkBoxValue=" + $("#rdBtnAsc").is(':checked') + "&orderBy=name" + "&activityType=" + $("#activityDDL").val(),
                     type: 'GET',
                     data: "",
                     success: function (data) {
                        $("#ActivityListPartial").html(data);
                     },
                     error: function (jqxhr, status, exception) {
-                        alert('Exception:' + exception);
+                        alert('ReOrderList:' + exception);
                     }
                 });
         }
         function GetDataForChange(value, optional) {
             return $.ajax(
                 {
-                    url: "/dama/CalendarEditor/GetDataForChange?idAndType=" + value + "|" + optional + "&isAsc=" + $("#rdBtnAsc").is(':checked') + "&selectedDate=" + $("#DatePickerField").val() + "&nameFilter=" + $("#tbxName").val() + "&priorityFilter=" + $("#tbxPriority").val() + "&labelFilter=" + $("#ddlLabel").val() + "&categoryFilter=" + $("#ddlCategory").val(),
+                    url: "/CalendarEditor/GetDataForChange?idAndType=" + value + "|" + optional + "&isAsc=" + $("#rdBtnAsc").is(':checked') + "&selectedDate=" + $("#DatePickerField").val() + "&nameFilter=" + $("#tbxName").val() + "&priorityFilter=" + $("#tbxPriority").val() + "&labelFilter=" + $("#ddlLabel").val() + "&categoryFilter=" + $("#ddlCategory").val(),
                     type: 'GET',
                     data: "",
                     success: function (data) {
@@ -146,43 +146,44 @@
                         $("#changePopUpBody").html(data);
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
-                        alert(xhr.status);
-                        alert(thrownError);
+                        //alert(xhr.status);
+                        //alert(thrownError);
+                        alert('GetDataForChange:' + exception)
                     }
                 });
         }
         function ReFreshFixListOnLoad() {
             return $.ajax(
                 {
-                    url: "/dama/CalendarEditor/RefreshFixList",
+                    url: "/CalendarEditor/RefreshFixList",
                     type: 'GET',
                     data: "",
                     success: function (data) {
                             $("#ActivitySelectedByUser").html(data);
                     },
                     error: function (jqxhr, status, exception) {
-                        alert('Exception:' + exception);
+                        alert('ReFreshFixListOnLoad:' + exception);
                     }
                 });
         }
         function ReFreshOptionalListOnLoad() {
             return $.ajax(
                 {
-                    url: "/dama/CalendarEditor/RefreshOptionalList",
+                    url: "/CalendarEditor/RefreshOptionalList",
                     type: 'GET',
                     data: "",
                     success: function (data) {
                         $("#OptionalActivitySelectedByUser").html(data);
                     },
                     error: function (jqxhr, status, exception) {
-                        alert('Exception:' + exception);
+                        alert('ReFreshOptionalListOnLoad:' + exception);
                     }
                 });
         }
         function RequestStartTime(value) {
             return $.ajax(
                 {
-                    url: "/dama/CalendarEditor/RequestStartTime?value=" + value,
+                    url: "/CalendarEditor/RequestStartTime?value=" + value,
                     type: 'GET',
                     data: "",
                     success: function (data) {
@@ -190,22 +191,23 @@
                         $("#changePopUpBody").html(data);
                     },
                     error: function (xhr, thrownError) {
-                        alert(xhr.status);
-                        alert(thrownError);
+                        //alert(xhr.status);
+                        //alert(thrownError);
+                        alert('RequestStartTime:' + exception)
                     }
                 });
         }
         function OnFilterChanged() {
             return $.ajax(
                     {
-                        url: "/dama/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                        url: "/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
                         type: 'GET',
                         data: "",
                         success: function (data) {
                             $("#ActivityListPartial").html(data);
                         },
                         error: function (jqxhr, status, exception) {
-                            alert(exception);
+                            alert("OnFilterChanged:" + exception);
                         }
                     });
         }
@@ -256,7 +258,7 @@
                 var value = $("#finalActLsb").val();
                 if (value.toString().toLowerCase().indexOf('deadline') >= 0)
                 {
-                    window.location.href = "/dama/CalendarEditor/GetDataForChange?idAndType=" + value + "|false&isAsc=" + $("#rdBtnAsc").is(':checked') + "&selectedDate=" + $("#DatePickerField").val();
+                    window.location.href = "/CalendarEditor/GetDataForChange?idAndType=" + value + "|false&isAsc=" + $("#rdBtnAsc").is(':checked') + "&selectedDate=" + $("#DatePickerField").val();
                 }
                 else
                 {
