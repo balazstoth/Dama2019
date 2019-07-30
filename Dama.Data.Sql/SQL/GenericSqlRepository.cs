@@ -48,8 +48,12 @@ namespace Dama.Data.Sql.SQL
 
         public void DeleteRange(IEnumerable<T> itemsToRemove)
         {
-            foreach (var item in itemsToRemove)
-                Delete(item);
+            var list = itemsToRemove.ToList();
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                Delete(list[i]);
+            }
         }
 
         public IEnumerable<T> Get(Expression<Func<T, bool>> filter = null,
