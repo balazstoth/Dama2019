@@ -49,22 +49,26 @@ else
     string appendedLabels = string.Empty;
     string appendedMileStones = string.Empty;
     string categoryString = string.Empty;
+    string stringColor = string.Empty;
 
     if (Model.FixedActivity != null)
     {
         appendedLabels = string.Join(" | ", Model.FixedActivity.Labels);
+        stringColor = Model.FixedActivity.Color.ToString();
         categoryString = Model.FixedActivity.Category == null ? string.Empty : Model.FixedActivity.Category.ToString();
     }
 
     if (Model.UnfixedActivity != null)
     {
         appendedLabels = string.Join(" | ", Model.UnfixedActivity.Labels);
+        stringColor = Model.UnfixedActivity.Color.ToString();
         categoryString = Model.UnfixedActivity.Category == null ? string.Empty : Model.UnfixedActivity.Category.ToString();
     }
 
     if (Model.UndefinedActivity != null)
     {
         appendedLabels = string.Join(" | ", Model.UndefinedActivity.Labels);
+        stringColor = Model.UndefinedActivity.Color.ToString();
         categoryString = Model.UndefinedActivity.Category == null ? string.Empty : Model.UndefinedActivity.Category.ToString();
     }
 
@@ -74,7 +78,7 @@ else
     }
 }
 <p><b style="font-size:medium">Activity details:</b></p>
-<div class="Fixed">
+<div class="FixedActivity">
     <div class="form-group">
         @Html.LabelFor(m => m.FixedActivity.Name, new { @class = "col-md-2 control-label" })
         @Html.EditorFor(m => m.FixedActivity.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
@@ -85,7 +89,7 @@ else
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.FixedActivity.Color, new { @class = "col-md-2 control-label" })
-        @Html.EditorFor(m => m.FixedActivity.Color, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+        @Html.EditorFor(m => stringColor, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.FixedActivity.Labels, new { @class = "col-md-2 control-label" })
@@ -108,7 +112,7 @@ else
         @Html.EditorFor(m => m.GetFixedActEndValue, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
     </div>
 </div>
-<div class="Unfixed">
+<div class="UnfixedActivity">
     <div class="form-group">
         @Html.LabelFor(m => m.UnfixedActivity.Name, new { @class = "col-md-2 control-label" })
         @Html.EditorFor(m => m.UnfixedActivity.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
@@ -119,7 +123,7 @@ else
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.UnfixedActivity.Color, new { @class = "col-md-2 control-label" })
-        @Html.EditorFor(m => m.UnfixedActivity.Color, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+        @Html.EditorFor(m => stringColor, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.UnfixedActivity.Labels, new { @class = "col-md-2 control-label" })
@@ -138,7 +142,7 @@ else
         @Html.EditorFor(m => m.UnfixedActivity.TimeSpan, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
     </div>
 </div>
-<div class="Undefined">
+<div class="UndefinedActivity">
     <div class="form-group">
         @Html.LabelFor(m => m.UndefinedActivity.Name, new { @class = "col-md-2 control-label" })
         @Html.EditorFor(m => m.UndefinedActivity.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
@@ -149,7 +153,7 @@ else
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.UndefinedActivity.Color, new { @class = "col-md-2 control-label" })
-        @Html.EditorFor(m => m.UndefinedActivity.Color, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+        @Html.EditorFor(m => stringColor, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.UndefinedActivity.Labels, new { @class = "col-md-2 control-label" })
@@ -168,7 +172,7 @@ else
         @Html.EditorFor(m => m.UndefinedActivity.MaximumTime, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
     </div>
 </div>
-<div class="Deadline">
+<div class="DeadlineActivity">
     <div class="form-group">
         @Html.LabelFor(m => m.DeadlineActivity.Name, new { @class = "col-md-2 control-label" })
         @Html.EditorFor(m => m.DeadlineActivity.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })

@@ -1,7 +1,7 @@
 ﻿@model Dama.Web.Models.ViewModels.Editor.CalendarEditorViewModel
 
 <script type="text/javascript">
-    function GetActivityData(v)
+    function GetActivityDetails(v)
     {
          return $.ajax(
                 {
@@ -22,12 +22,12 @@
 
     $(document).ready(function () {
         $("#activityListBox").on("change", function () {
-            GetActivityData("#activityListBox");
+            GetActivityDetails("#activityListBox");
         });
     });
 </script>
 <div class="form-group">
-    @Html.LabelFor(m => m.SelectedActivityCollection, new { @class = "col-md-2 control-label" })
+    @Html.LabelFor(m => m.ActivityCollectionForActivityTypes, new { @class = "col-md-2 control-label" })
     <div class="col-md-10">
         @Html.ListBoxFor(m => m.SelectedActivityCollection, Model.ActivityCollectionForActivityTypes, new { @class = "form-control", @style = "height: 300px", id = "activityListBox" })
     </div>

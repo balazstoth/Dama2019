@@ -118,7 +118,6 @@ namespace Dama.Web.Controllers
             switch (activityTypeName)
             {
                 case _fixedActivityName:
-                {
                     var fixedActivity = container.FixedActivities
                                                         .Where(a => a.Id.ToString() == activityId && a.ActivityType == ActivityType.FixedActivity)
                                                         .FirstOrDefault();
@@ -134,10 +133,8 @@ namespace Dama.Web.Controllers
 
                     viewModel.FixedActivity = fixedActivity;
                     break;
-                }
 
                 case _unfixedActivityName:
-                {
                     var unfixedActivity = container.UnfixedActivities
                                                         .Where(a => a.Id.ToString() == activityId && a.ActivityType == ActivityType.UnfixedActivity)
                                                         .FirstOrDefault();
@@ -154,10 +151,8 @@ namespace Dama.Web.Controllers
 
                     viewModel.UnfixedActivity = unfixedActivity;
                     break;
-                }
 
                 case _undefinedActivityName:
-                {
                     var undefinedActivity = container.UndefinedActivities
                                                 .Where(a => a.Id.ToString() == activityId && a.ActivityType == ActivityType.UndefinedActivity)
                                                 .FirstOrDefault();
@@ -172,10 +167,8 @@ namespace Dama.Web.Controllers
 
                     viewModel.UndefinedActivity = undefinedActivity;
                     break;
-                }
 
                 case _deadlineActivityName:
-                {
                     var deadlineActivity = container.DeadlineActivities
                                                 .Where(a => a.Id.ToString() == activityId && a.ActivityType == ActivityType.DeadlineActivity)
                                                 .FirstOrDefault();
@@ -191,15 +184,12 @@ namespace Dama.Web.Controllers
 
                     viewModel.DeadlineActivity = deadlineActivity;
                     break;
-                }
 
                 default:
-                {
                     //DropDownList onchange has never run yet, the default is "FixedaActivity"
                     var fixedAct = container.FixedActivities.Where(a => a.Id.ToString() == activityId).FirstOrDefault();
                     viewModel.FixedActivity = fixedAct;
                     break;
-                }
             }
             
             return PartialView(ViewNames.GetActivityDetails.ToString(), viewModel);
@@ -774,28 +764,25 @@ namespace Dama.Web.Controllers
             return true;
         }
 
-        private void ResetViewModel()
+        private void ResetViewModel(ActivityContainer container)
         {
-            using (var container = new ActivityContainer())
-            {
-                container.FixedActivitiesSLI.Clear();
-                container.UnfixedActivitiesSLI.Clear();
-                container.UndefinedActivitiesSLI.Clear();
-                container.DeadlineActivitiesSLI.Clear();
+            container.FixedActivitiesSLI.Clear();
+            container.UnfixedActivitiesSLI.Clear();
+            container.UndefinedActivitiesSLI.Clear();
+            container.DeadlineActivitiesSLI.Clear();
 
-                container.ActivitySelectedByUserForOptional.Clear();
-                container.ActivitySelectedByUserForSure.Clear();
+            container.ActivitySelectedByUserForOptional.Clear();
+            container.ActivitySelectedByUserForSure.Clear();
 
-                container.FixedActivities.Clear();
-                container.UndefinedActivities.Clear();
-                container.UnfixedActivities.Clear();
-                container.DeadlineActivities.Clear();
-                container.CalendarEditorViewModel = new CalendarEditorViewModel();
-                container.UserId = User.Identity.GetUserId();
-                container.SelectedDate = null;
-                container.IsAsc = true;
-                container.Filter.ResetValues();
-            }
+            container.FixedActivities.Clear();
+            container.UndefinedActivities.Clear();
+            container.UnfixedActivities.Clear();
+            container.DeadlineActivities.Clear();
+            container.CalendarEditorViewModel = new CalendarEditorViewModel();
+            container.UserId = User.Identity.GetUserId();
+            container.SelectedDate = null;
+            container.IsAsc = true;
+            container.Filter.ResetValues();
         }
 
         private ActivityType? GetOriginalTypeFromString(string activityType)
@@ -929,7 +916,7 @@ namespace Dama.Web.Controllers
 
                 if (container.Reset)
                 {
-                    ResetViewModel();
+                    ResetViewModel(container);
                     FillCollectionsFromDatabase(container);
                     container.CalendarEditorViewModel.ActivityCollectionForActivityTypes
                                                             .AddRange(container.FixedActivities
@@ -939,6 +926,7 @@ namespace Dama.Web.Controllers
 
                 container.CalendarEditorViewModel.SelectedDate = tmpDate;
                 container.CalendarEditorViewModel.IsAscendant = tmpIsAsc;
+                container.CalendarEditorViewModel.SelectedType = container.CalendarEditorViewModel.SelectedType ?? ActivityType.FixedActivity.ToString();
                 container.CalendarEditorViewModel.SelectedCategory = filter.Category;
                 container.CalendarEditorViewModel.SelectedLabel = filter.Label;
                 container.CalendarEditorViewModel.SelectedPriorityFilter = filter.Priority;
