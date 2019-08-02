@@ -198,7 +198,6 @@
                 });
         }
         function OnFilterChanged() {
-            alert('asd');
             return $.ajax(
                     {
                         url: "/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),

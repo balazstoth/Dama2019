@@ -655,7 +655,6 @@ namespace Dama.Web.Controllers
 
         private void FillCollectionsFromDatabase(ActivityContainer container)
         {
-            var asd = _unitOfWork.FixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels);
             container.FixedActivities.AddSortedRange(_unitOfWork.FixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
             container.UnfixedActivities.AddSortedRange(_unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
             container.UndefinedActivities.AddSortedRange(_unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
@@ -764,11 +763,15 @@ namespace Dama.Web.Controllers
         private bool IsValidForFixedOrOptional(string activityType, string optional)
         {
             if (optional == "true")
+            {
                 if (activityType == _deadlineActivityName)
                     return false;
+            }
             else
+            {
                 if (activityType == _undefinedActivityName)
                     return false;
+            }
 
             return true;
         }
