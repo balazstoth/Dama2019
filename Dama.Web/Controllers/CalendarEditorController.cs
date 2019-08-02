@@ -284,6 +284,14 @@ namespace Dama.Web.Controllers
                                     .AddRange(filteredUndefined.Select(a => new SelectListItem() { Text = a.Name, Value = a.Id.ToString() }));
                         break;
 
+                    case _deadlineActivityName:
+                        var filteredDeadline = container.DeadlineActivities.ToList();
+
+                        container.CalendarEditorViewModel
+                                 .ActivityCollectionForActivityTypes
+                                    .AddRange(filteredDeadline.Select(a => new SelectListItem() { Text = a.Name, Value = a.Id.ToString() }));
+                        break;
+
                     default:
                         return null;
                 }
@@ -749,7 +757,8 @@ namespace Dama.Web.Controllers
                 }
             }
 
-            return GetActivityData(activityType);
+            var result = GetActivityData(activityType);
+            return result;
         }
 
         private bool IsValidForFixedOrOptional(string activityType, string optional)

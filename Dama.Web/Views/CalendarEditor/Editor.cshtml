@@ -198,6 +198,7 @@
                 });
         }
         function OnFilterChanged() {
+            alert('asd');
             return $.ajax(
                     {
                         url: "/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
@@ -215,9 +216,11 @@
         $(document).ready(function () {
             GetDefaultFiltersAjax();
             $("#rdBtnAsc").on("change", function () {
-                $.when(ReOrderList()).done(function () {
-                    RefreshActivityListboxAjax();
-                })
+                //$.when(ReOrderList()).done(function () {
+                //    RefreshActivityListboxAjax();
+                //})
+
+                ReOrderList();
             });
             $("#selectOneBtn").on("click", function () {
                 var value = $("#activityListBox").val();

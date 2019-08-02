@@ -2,7 +2,7 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        $("#tbxName").on("change", function(){
+        $("#tbxName").on("change", function () {
             $.ajax(
             {
                 url: "/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
@@ -19,7 +19,7 @@
         $("#ddlCategory").on("change", function () {
             $.ajax(
             {
-                    url: "/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                url: "/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
                 type: 'GET',
                 data: "",
                 success: function (data) {
