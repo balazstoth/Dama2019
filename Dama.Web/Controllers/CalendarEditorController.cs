@@ -958,7 +958,16 @@ namespace Dama.Web.Controllers
             using (var container = new ActivityContainer())
             {
                 var categories = container?.Categories?.Select(c => new SelectListItem() { Text = c.Name, Value = c.Name });
-                container.CalendarEditorViewModel.CategoryFilterSourceCollection = categories == null ? new List<SelectListItem>() : new List<SelectListItem>(categories);
+
+                if(categories == null)
+                {
+                    container.CalendarEditorViewModel.CategoryFilterSourceCollection = new List<SelectListItem>(_unitOfWork.CategoryRepository.Get(c => c.UserId == UserId).Select(c => new SelectListItem() { Text = c.Name }));
+                }
+                else
+                {
+                    container.CalendarEditorViewModel.CategoryFilterSourceCollection = new List<SelectListItem>(categories);
+                }
+
                 container.CalendarEditorViewModel.CategoryFilterSourceCollection
                                                  .Add(new SelectListItem() { Text = message, Value = string.Empty, Selected = true });
 
@@ -968,7 +977,7 @@ namespace Dama.Web.Controllers
                 {
                     labels = (from l in container?.Labels
                               group l by l.Name
-                             into grpdLabel
+                              into grpdLabel
                               select new SelectListItem()
                               {
                                   Text = grpdLabel.Key,
@@ -977,9 +986,21 @@ namespace Dama.Web.Controllers
                                              .First()
                               }).ToList();
                 }
-               
+                else
+                {
+                    labels = (from l in _unitOfWork.LabelRepository.Get(l => l.UserId == UserId)
+                              group l by l.Name
+                              into grpdLabel
+                              select new SelectListItem()
+                              {
+                                  Text = grpdLabel.Key,
+                                  Value = grpdLabel
+                                             .Select(x => x.Name)
+                                             .First()
+                              }).ToList();
+                }
 
-                container.CalendarEditorViewModel.LabelFilterSourceCollection = labels == null ? new List<SelectListItem>() : new List<SelectListItem>(labels);
+                container.CalendarEditorViewModel.LabelFilterSourceCollection = new List<SelectListItem>(labels);
                 container.CalendarEditorViewModel.LabelFilterSourceCollection.Add(new SelectListItem() { Text = message, Value = string.Empty, Selected = true });
                 viewModel = container.CalendarEditorViewModel;
             }
