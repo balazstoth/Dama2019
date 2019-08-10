@@ -11,6 +11,10 @@ namespace Dama.Web.Models.ViewModels
 
         public int ActivityId { get; set; }
 
+        public RequestTimeViewModel()
+        {
+        }
+
         public RequestTimeViewModel(int activityId)
         {
             ActivityId = activityId;
