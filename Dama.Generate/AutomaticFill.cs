@@ -35,7 +35,7 @@ namespace Dama.Generate
             TimeFrameStart = start;
             TimeFrameEnd = end;
             Break = timeSpan;
-            SortedFixedActivities = SortFixedActivities(fixedActivities);
+            SortedFixedActivities = SortFixedActivities(SetCommonDateForActivities(start.Date, fixedActivities.ToList()));
             Start();
         }
 
@@ -183,6 +183,17 @@ namespace Dama.Generate
 
             return freeTimeList;
         } 
+
+        private List<FixedActivity> SetCommonDateForActivities(DateTime correct, List<FixedActivity> fixedActivities)
+        {
+            for (int i = 0; i < fixedActivities.Count; i++)
+            {
+                fixedActivities[i].Start = correct.Date + fixedActivities[i].Start.Value.TimeOfDay;
+                fixedActivities[i].End = correct.Date + fixedActivities[i].End.TimeOfDay;
+            }
+
+            return fixedActivities;
+        }
         #endregion
     }
 }
