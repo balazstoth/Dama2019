@@ -48,7 +48,7 @@ namespace Dama.Generate
 
         private List<FixedActivity> SortFixedActivities(IEnumerable<FixedActivity> fixedActivities)
         {
-            List<FixedActivity> resultList = new List<FixedActivity>();
+            var resultList = new List<FixedActivity>();
             fixedActivities = fixedActivities.OrderBy(x => x.Start).ToList();
 
             foreach (var fixedActivity in fixedActivities)
@@ -74,7 +74,7 @@ namespace Dama.Generate
 
         private List<FixedActivity> MergeItems(List<FixedActivity> resultList)
         {
-            List<FixedActivity> mergedList = new List<FixedActivity>();
+            var mergedList = new List<FixedActivity>();
 
             foreach (var currentActivity in resultList)
             {
@@ -126,7 +126,7 @@ namespace Dama.Generate
 
             if (latest != null && latest.End > fixedActivity.End)
             {
-                FixedActivity back = GetLongestIntersection(latest, list);
+                var back = GetLongestIntersection(latest, list);
                 if (back == null)
                     return latest;
 
@@ -162,14 +162,14 @@ namespace Dama.Generate
             List<FreeSlot> freeTimeList = new List<FreeSlot>();
             DateTime currentTime;
 
-            if (SortedFixedActivities.First().Start > TimeFrameStart)
+            if (SortedFixedActivities.First().Start.Value > TimeFrameStart)
                 currentTime = TimeFrameStart;
             else
                 currentTime = SortedFixedActivities.First().End + Break;
 
-            foreach (FixedActivity fixedActivity in SortedFixedActivities)
+            foreach (var fixedActivity in SortedFixedActivities)
             {
-                if ((fixedActivity.Start - Break) > currentTime)
+                if ((fixedActivity.Start.Value - Break) > currentTime)
                     freeTimeList.Add(new FreeSlot(currentTime, fixedActivity.Start.GetValueOrDefault() - Break, Break));
 
                 currentTime = fixedActivity.End + Break;

@@ -178,7 +178,7 @@ namespace Dama.Generate
 
             bestResultList = bestResultList.OrderBy(x => x.Start).ToList();
 
-            List<FreeSlot> freeTimeList = new List<FreeSlot>();
+            var freeTimeList = new List<FreeSlot>();
             DateTime currentTime;
 
             if (bestResultList.First().Start > baseFreeSlot.Start)
@@ -235,7 +235,7 @@ namespace Dama.Generate
             if (greatestPriority == -1)
                 return;
 
-            foreach (FreeSlot freeSlot in FreeSlotList) //Iterate through all the freeTimes, starting with the largest one
+            foreach (var freeSlot in FreeSlotList) //Iterate through all the freeTimes, starting with the largest one
             {
                 Tree<FreeSlot> result = SearchFirst(greatestPriority, freeSlot);
                 SaveBestResults(result);
@@ -249,10 +249,11 @@ namespace Dama.Generate
                 FreeSlotsForUndefined.AddRange(DivideFreeSlot(freeSlot, GetAllBestResults(result), false));
             }
         }
+
         private Tree<FreeSlot> SearchFirst(int priority, FreeSlot freeSlot) //Seach the best option for a freeTime section
         {
             List<IDefinedActivity> selectedActivities;
-            Tree<FreeSlot> tree = new Tree<FreeSlot>(priority, freeSlot);
+            var tree = new Tree<FreeSlot>(priority, freeSlot);
 
             for (int i = 0; i < (tree.Count); i++)
             {
@@ -264,7 +265,7 @@ namespace Dama.Generate
                 if (priority == -1)
                     break;
 
-                List<FreeSlot> dividedFreeTimeList = DivideFreeSlot(tree[i].Value, tree[i].Value.BestResultFirst.ResultList.ToList());
+                var dividedFreeTimeList = DivideFreeSlot(tree[i].Value, tree[i].Value.BestResultFirst.ResultList.ToList());
                 tree[i].Leaves.AddRange(dividedFreeTimeList.Select(x => new Leaf<FreeSlot>(priority, x)));
             }
 
@@ -286,8 +287,8 @@ namespace Dama.Generate
                     
                     if (isFixed)
                     {
-                        List<FreeSlot> dividedTimes = DivideFreeSlotsIntoTwoParts(freeSlot, freeSlot.tmpActivitiesFirst);
-                        BestResultFirst tmpBestResult = new BestResultFirst(new List<IDefinedActivity>(), Break);
+                        var dividedTimes = DivideFreeSlotsIntoTwoParts(freeSlot, freeSlot.tmpActivitiesFirst);
+                        var tmpBestResult = new BestResultFirst(new List<IDefinedActivity>(), Break);
                         tmpBestResult.ResultList.AddRange(freeSlot.tmpActivitiesFirst);
 
                         foreach (var time in dividedTimes)
@@ -303,7 +304,7 @@ namespace Dama.Generate
                     }
                     else
                     {
-                        List<IDefinedActivity> saved = freeSlot.tmpActivitiesFirst;
+                        var saved = freeSlot.tmpActivitiesFirst;
 
                         if (FirstRecursion(GetRemainingItems(sourceActivities, freeSlot.tmpActivitiesFirst).ToList(), freeSlot, false))
                             return true;
@@ -328,9 +329,9 @@ namespace Dama.Generate
         #region FinalSelection
         private List<FinalItem> CreateFinalListFromResults()
         {
-            List<FinalItem> finalList = new List<FinalItem>();
+            var finalList = new List<FinalItem>();
 
-            foreach (BestResultFirst result in BestResultsForFirst)
+            foreach (var result in BestResultsForFirst)
             {
                 foreach (var activity in result.ResultList)
                 {
@@ -339,9 +340,9 @@ namespace Dama.Generate
                 }
             }
 
-            foreach (BestResultLast result in BestResultsForLast)
+            foreach (var result in BestResultsForLast)
             {
-                foreach (FlexibleItem flexibleItem in result.ResultList)
+                foreach (var flexibleItem in result.ResultList)
                 {
                     finalList.Add(new FinalItem(flexibleItem.UndefinedActivity, flexibleItem.Start, flexibleItem.TimeSpan));
                 }
