@@ -174,7 +174,7 @@ namespace Dama.Generate
         private List<FreeSlot> DivideFreeSlot(FreeSlot baseFreeSlot, List<IDefinedActivity> bestResultList, bool first = true)
         {
             if (bestResultList.Count == 0)
-                return new List<FreeSlot>() { new FreeSlot(baseFreeSlot.Start, baseFreeSlot.End, Break) };
+                return new List<FreeSlot>() { new FreeSlot(baseFreeSlot.Start, baseFreeSlot.End, Break, first) };
 
             bestResultList = bestResultList.OrderBy(x => x.Start).ToList();
 
