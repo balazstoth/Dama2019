@@ -285,12 +285,14 @@ namespace Dama.Web.Controllers
             {
                 predicate = a => a.UserId == UserId &&
                                  a.CreationType == CreationType.ManuallyCreated &&
-                                 a.Category?.Id == categoryId;
+                                 a.Category?.Id == categoryId &&
+                                 a.BaseActivity;
             }
             else
             {
                 predicate = a => a.UserId == UserId &&
-                                 a.CreationType == CreationType.ManuallyCreated;
+                                 a.CreationType == CreationType.ManuallyCreated
+                                 && a.BaseActivity;
             }
 
             var fixedActivities = _unitOfWork.FixedActivityRepository.Get(a => predicate(a), a => a.OrderBy(aa => aa.Name), a => a.Labels, a => a.Category);
@@ -945,6 +947,7 @@ namespace Dama.Web.Controllers
                                             .WithStart(start)
                                             .WithEnd(end)
                                             .IsBaseActivity(isBaseActivity);
+            result.Repeat = repeat;
             return result;
         }
 
@@ -965,17 +968,17 @@ namespace Dama.Web.Controllers
                 repeat = new Repeat((RepeatPeriod)Enum.Parse(typeof(RepeatPeriod), viewModel.RepeatType), viewModel.RepeatEndDate);
 
             var builder = new UnfixedActivityBuilder();
-            var result = builder.CreateActivity(viewModel.Name)
-                                 .WithDescription(viewModel.Description)
-                                 .WithColor((Color)Enum.Parse(typeof(Color), viewModel.Color))
-                                 .WithCreationType(CreationType.ManuallyCreated)
-                                 .WithCategory(category)
-                                 .WithLabels(labels)
-                                 .WithUserId(UserId)
-                                 .WithPriority(finalPriority)
-                                 .WithTimeSpan(viewModel.Timespan)
-                                 .IsBaseActivity(isBaseActivity);
-
+            UnfixedActivity result = builder.CreateActivity(viewModel.Name)
+                                     .WithDescription(viewModel.Description)
+                                     .WithColor((Color)Enum.Parse(typeof(Color), viewModel.Color))
+                                     .WithCreationType(CreationType.ManuallyCreated)
+                                     .WithCategory(category)
+                                     .WithLabels(labels)
+                                     .WithUserId(UserId)
+                                     .WithPriority(finalPriority)
+                                     .WithTimeSpan(viewModel.Timespan)
+                                     .IsBaseActivity(isBaseActivity);
+            result.Repeat = repeat;
             return result;
         }
 

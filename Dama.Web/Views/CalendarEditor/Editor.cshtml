@@ -299,8 +299,12 @@
                     @Html.LabelFor(m => m.SelectedDate, new { @class = "col-md-2 control-label" })
                     <div class="col-md-10">
                         @Html.TextBoxFor(m => m.SelectedDate, new { type = "date", @class = "form-control", id = "DatePickerField", @Value = Model.SelectedDate.ToString("yyyy-MM-dd") })
+                        <hr>
+                        <input type="button" id="CleanCurrentDay" value="Remove previous items from selected day">
+                        <hr>
                     </div>
                 </div>
+
                 <div class="form-group">
                     @Html.LabelFor(m => m.SelectedType, new { @class = "col-md-2 control-label" })
                     <div class="col-md-10">
@@ -371,6 +375,8 @@
                 <input type="submit" class="btn btn-default" value="Save plan" />
             </div>
         </div>
+
+       
 
         @Html.ActionLink("Back", "Index", "Calendar");
     }
