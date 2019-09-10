@@ -8,6 +8,7 @@ namespace Dama.Data.Models
     {
         public int MinimumTime { get; set; }
         public int MaximumTime { get; set; }
+        public DateTime? Start { get; set; }
 
         public UndefinedActivity()
         {

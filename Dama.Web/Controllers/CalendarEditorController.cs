@@ -36,6 +36,10 @@ namespace Dama.Web.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepositorySettings _repositorySettings;
 
+        private readonly DateTime dayStart = new DateTime(DateTime.Now.Year, DateTime.Today.Month, DateTime.Today.Day, 8, 0, 0);
+        private readonly DateTime dayEnd = new DateTime(DateTime.Now.Year, DateTime.Today.Month, DateTime.Today.Day, 20, 0, 0);
+        private readonly TimeSpan breakTime = new TimeSpan(0, 5, 0);
+
         public string UserId => User.Identity.GetUserId();
 
         public CalendarEditorController(IUnitOfWork unitOfWork, IRepositorySettings repositorySettings)
@@ -634,16 +638,19 @@ namespace Dama.Web.Controllers
         {
             if (ModelState.Values.First().Errors.Count == 0)
             {
-                SaveCurrentDayToDatabase(viewModel);
                 using (var container = new ActivityContainer())
                 {
                     var fixedActivityCollection = container.ActivitySelectedByUserForSure.Where(a => a.ActivityType == ActivityType.FixedActivity).Select(x => x as FixedActivity).ToList();
-                    var autoFillFeature = new AutoFill(fixedActivityCollection,
+                    var autoFillResult = new AutoFill(fixedActivityCollection,
                                                         container.ActivitySelectedByUserForOptional,
-                                                        new DateTime(DateTime.Now.Year, DateTime.Today.Month, DateTime.Today.Day, 8, 0, 0),
-                                                        new DateTime(DateTime.Now.Year, DateTime.Today.Month, DateTime.Today.Day, 20, 0, 0),
-                                                        new TimeSpan(0, 5, 0));
+                                                        dayStart,
+                                                        dayEnd,
+                                                        breakTime);
+
+                    //Place result to container
                 }
+
+                SaveDayToDatabase(viewModel);
             }
             else
             {
@@ -846,7 +853,7 @@ namespace Dama.Web.Controllers
             }
         }
 
-        private void SaveCurrentDayToDatabase(CalendarEditorViewModel viewModel)
+        private void SaveDayToDatabase(CalendarEditorViewModel viewModel)
         {
             var container = new ActivityContainer();
             var fixCollection = container.ActivitySelectedByUserForSure.ToList();
@@ -859,28 +866,11 @@ namespace Dama.Web.Controllers
                 {
                     case ActivityType.FixedActivity:
                         var fixedActivity = activity as FixedActivity;
+                        fixedActivity.Start = container.SelectedDate.Value.Date + fixedActivity.Start.Value.TimeOfDay;
+                        fixedActivity.End = container.SelectedDate.Value.Date + fixedActivity.End.TimeOfDay;
 
                         if (fixedActivity.Repeat == null)
                             fixedActivity.Repeat = repeat;
-
-                        break;
-
-                    case ActivityType.UnfixedActivity:
-                        var unfixedActivity = activity as UnfixedActivity;
-
-                        if (unfixedActivity.Repeat == null)
-                            unfixedActivity.Repeat = repeat;
-
-                        break;
-                }
-            }
-            
-            foreach (var activity in fixCollection)
-            {
-                switch (activity.ActivityType)
-                {
-                    case ActivityType.FixedActivity:
-                        var fixedActivity = activity as FixedActivity;
 
                         if (fixedActivity.Category != null)
                            _repositorySettings.ChangeCategoryEntryState(fixedActivity.Category, EntityState.Unchanged);
@@ -890,8 +880,39 @@ namespace Dama.Web.Controllers
                         _unitOfWork.Save();
                         break;
 
+                    case ActivityType.DeadlineActivity:
+                        var deadlineActivity = activity as DeadlineActivity;
+
+                        deadlineActivity.BaseActivity = false;
+                        _unitOfWork.DeadlineActivityRepository.Insert(deadlineActivity);
+                        _unitOfWork.Save();
+                        break;
+                }
+            }
+
+            foreach (var activity in optionalCollection)
+            {
+                switch (activity.ActivityType)
+                {
+                    case ActivityType.FixedActivity:
+                        var fixedActivity = activity as FixedActivity;
+                        fixedActivity.Start = container.SelectedDate.Value.Date + fixedActivity.Start.Value.TimeOfDay;
+                        fixedActivity.End = container.SelectedDate.Value.Date + fixedActivity.End.TimeOfDay;
+
+                        if (fixedActivity.Repeat == null)
+                            fixedActivity.Repeat = repeat;
+
+                        if (fixedActivity.Category != null)
+                            _repositorySettings.ChangeCategoryEntryState(fixedActivity.Category, EntityState.Unchanged);
+
+                        fixedActivity.BaseActivity = false;
+                        _unitOfWork.FixedActivityRepository.Insert(fixedActivity);
+                        _unitOfWork.Save();
+                        break;
+
                     case ActivityType.UnfixedActivity:
                         var unfixedActivity = activity as UnfixedActivity;
+                        unfixedActivity.Start = container.SelectedDate;
 
                         if (unfixedActivity.Category != null)
                             _repositorySettings.ChangeCategoryEntryState(unfixedActivity.Category, EntityState.Unchanged);
@@ -901,18 +922,17 @@ namespace Dama.Web.Controllers
                         _unitOfWork.Save();
                         break;
 
-                    case ActivityType.DeadlineActivity:
-                        var deadlineActivity = activity as DeadlineActivity;
-                        deadlineActivity.BaseActivity = false;
-                        _unitOfWork.DeadlineActivityRepository.Insert(deadlineActivity);
+                    case ActivityType.UndefinedActivity:
+                        var undefinedActivity = activity as UndefinedActivity;
+                        undefinedActivity.Start = container.SelectedDate;
+
+                        undefinedActivity.BaseActivity = false;
+                        _unitOfWork.UndefinedActivityRepository.Insert(undefinedActivity);
                         _unitOfWork.Save();
                         break;
                 }
             }
-
-            //foreach (var activity in fixCollection)
-            //    db.Calendar.Add(new CalendarSystem(viewModel.SelectedDate, activity));
-
+            
         }
 
         private CalendarEditorViewModel GetValidViewModel()
