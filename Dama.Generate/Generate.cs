@@ -22,6 +22,8 @@ namespace Dama.Generate
 
         public TimeSpan Break { get; set; }
 
+        public List<FinalItem> FinalResult { get; set; }
+
         //Constructor
         public Generate(IEnumerable<FreeSlot> freeTimeList, IEnumerable<Activity> activities, TimeSpan breakValue)
         {
@@ -35,7 +37,7 @@ namespace Dama.Generate
             BestResultsForLast = new List<BestResultLast>();
             FreeSlotsForUndefined = new List<FreeSlot>();
             Break = breakValue;
-            Start();
+            FinalResult = Start();
         }
 
         private List<FinalItem> Start()
@@ -249,7 +251,6 @@ namespace Dama.Generate
                 FreeSlotsForUndefined.AddRange(DivideFreeSlot(freeSlot, GetAllBestResults(result), false));
             }
         }
-
         private Tree<FreeSlot> SearchFirst(int priority, FreeSlot freeSlot) //Seach the best option for a freeTime section
         {
             List<IDefinedActivity> selectedActivities;

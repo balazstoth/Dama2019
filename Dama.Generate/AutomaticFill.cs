@@ -20,7 +20,9 @@ namespace Dama.Generate
 
         public TimeSpan Break { get; set; }
 
-        public List<FreeSlot> FreeTimeList { get; set; } 
+        public List<FreeSlot> FreeTimeList { get; set; }
+
+        public List<FinalItem> FinalResult { get { return _generate.FinalResult; } }
         #endregion
 
         public AutoFill(IEnumerable<FixedActivity> fixedActivities, IEnumerable<Activity> optionalActivities, DateTime start, DateTime end, TimeSpan timeSpan)
@@ -44,6 +46,8 @@ namespace Dama.Generate
         {
             FreeTimeList = GetFreeTimeList();
             _generate = new Generate(FreeTimeList, OptionalActivities, Break);
+            _generate.FinalResult = SetValidStartTimeForItems();
+            SetStartAndEndValues();
         }
 
         private List<FixedActivity> SortFixedActivities(IEnumerable<FixedActivity> fixedActivities)
@@ -193,6 +197,54 @@ namespace Dama.Generate
             }
 
             return fixedActivities;
+        }
+
+        private List<FinalItem> SetValidStartTimeForItems()
+        {
+            var unfixedActivities = FinalResult.Where(a => a.Activity.ActivityType == Data.Enums.ActivityType.UnfixedActivity).ToList();
+            var dictionary = new Dictionary<DateTime, List<FinalItem>>();
+
+            foreach (var item in unfixedActivities)
+            {
+                if(!dictionary.ContainsKey(item.Start))
+                    dictionary[item.Start] = new List<FinalItem>();
+
+                dictionary[item.Start].Add(item);
+            }
+
+            var activities = FinalResult.Where(a => a.Activity.ActivityType != Data.Enums.ActivityType.UnfixedActivity).ToList();
+
+            foreach (var key in dictionary.Keys)
+            {
+                var time = key;
+                foreach (var activity in dictionary[key])
+                {
+                    activity.Start = time;
+                    activities.Add(activity);
+                    time = time + activity.TimeSpan + Break;
+                }
+            }
+
+            return activities.OrderBy(a => a.Start).ToList();
+        }
+
+        private void SetStartAndEndValues()
+        {
+            foreach (var item in FinalResult)
+            {
+                switch (item.Activity.ActivityType)
+                {
+                    case Data.Enums.ActivityType.UnfixedActivity:
+                        (item.Activity as UnfixedActivity).Start = item.Start;
+                        (item.Activity as UnfixedActivity).End = item.Start + item.TimeSpan;
+                        break;
+
+                    case Data.Enums.ActivityType.UndefinedActivity:
+                        (item.Activity as UndefinedActivity).Start = item.Start;
+                        (item.Activity as UndefinedActivity).End = item.Start + item.TimeSpan;
+                        break;
+                }
+            }
         }
         #endregion
     }
