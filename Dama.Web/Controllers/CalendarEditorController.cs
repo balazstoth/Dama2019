@@ -855,6 +855,8 @@ namespace Dama.Web.Controllers
 
         private void SaveDayToDatabase(CalendarEditorViewModel viewModel)
         {
+            RemoveItemsFromSelectedDay(viewModel.SelectedDate.ToString());
+
             var container = new ActivityContainer();
             var fixCollection = container.ActivitySelectedByUserForSure.ToList();
             var optionalCollection = container.ActivitySelectedByUserForOptional.ToList();
@@ -933,6 +935,32 @@ namespace Dama.Web.Controllers
                 }
             }
             
+        }
+
+        public void RemoveItemsFromSelectedDay(string dateValue)
+        {
+            var date = DateTime.Parse(dateValue);
+
+            var fixedToRemove = _unitOfWork.FixedActivityRepository.Get(a => a.UserId == UserId &&
+                                                                             !a.BaseActivity &&
+                                                                             a.Start.Value.Date == date.Date);
+
+            var unfixedToRemove = _unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == UserId &&
+                                                                                 !a.BaseActivity &&
+                                                                                 a.Start.Value.Date == date.Date);
+
+            var undefinedToRemove = _unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == UserId &&
+                                                                                    !a.BaseActivity &&
+                                                                                    a.Start.Value.Date == date.Date);
+
+            var deadlineToRemove = _unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == UserId &&
+                                                                                    !a.BaseActivity &&
+                                                                                    a.Start.Date == date.Date);
+
+            _unitOfWork.FixedActivityRepository.DeleteRange(fixedToRemove);
+            _unitOfWork.UnfixedActivityRepository.DeleteRange(unfixedToRemove);
+            _unitOfWork.UndefinedActivityRepository.DeleteRange(undefinedToRemove);
+            _unitOfWork.DeadlineActivityRepository.DeleteRange(deadlineToRemove);
         }
 
         private CalendarEditorViewModel GetValidViewModel()

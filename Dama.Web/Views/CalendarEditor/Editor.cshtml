@@ -206,6 +206,20 @@
                         }
                     });
         }
+        function RemoveItemsFromDay(date) {
+             return $.ajax(
+                    {
+                        url: "/CalendarEditor/RemoveItemsFromSelectedDay?dateValue=" + date,
+                        type: 'GET',
+                        data: "",
+                        success: function (data) {
+                            alert("All items are successfully removed from selected day!")
+                        },
+                        error: function (jqxhr, status, exception) {
+                            alert("RemoveItemsFromDay:" + exception);
+                        }
+                    });
+        }
 
         $(document).ready(function () {
             GetDefaultFiltersAjax();
@@ -270,6 +284,11 @@
                 var value = $("#finalOptActLsb").val();
                 if (value != null)
                     GetDataForChange(value, true);
+            });
+            $("#CleanCurrentDay").on("click", function () {
+                var date = $("#DatePickerField").val();
+                if (date != null)
+                    RemoveItemsFromDay(date);
             });
             ReFreshFixListOnLoad();
             ReFreshOptionalListOnLoad();
