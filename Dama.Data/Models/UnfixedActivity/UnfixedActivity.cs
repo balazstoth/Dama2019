@@ -10,6 +10,7 @@ namespace Dama.Data.Models
         public int Priority { get; set; }
         public TimeSpan TimeSpan { get; set; }
         public DateTime? Start { get; set; }
+        public DateTime? End { get; set; }
         public Repeat Repeat { get; set; }
 
         #region Constructors

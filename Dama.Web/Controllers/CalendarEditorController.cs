@@ -641,13 +641,15 @@ namespace Dama.Web.Controllers
                 using (var container = new ActivityContainer())
                 {
                     var fixedActivityCollection = container.ActivitySelectedByUserForSure.Where(a => a.ActivityType == ActivityType.FixedActivity).Select(x => x as FixedActivity).ToList();
-                    var autoFillResult = new AutoFill(fixedActivityCollection,
+                    var autoFillObject = new AutoFill(fixedActivityCollection,
                                                         container.ActivitySelectedByUserForOptional,
                                                         dayStart,
                                                         dayEnd,
                                                         breakTime);
+                    var result = autoFillObject.FinalResult;
 
-                    //Place result to container
+                    container.ActivitySelectedByUserForOptional.Clear();
+                    container.ActivitySelectedByUserForOptional.AddSortedRange(result.Select(a => a.Activity));
                 }
 
                 SaveDayToDatabase(viewModel);
@@ -855,6 +857,8 @@ namespace Dama.Web.Controllers
 
         private void SaveDayToDatabase(CalendarEditorViewModel viewModel)
         {
+            RemoveItemsFromSelectedDay(viewModel.SelectedDate.ToString());
+
             var container = new ActivityContainer();
             var fixCollection = container.ActivitySelectedByUserForSure.ToList();
             var optionalCollection = container.ActivitySelectedByUserForOptional.ToList();
@@ -866,8 +870,8 @@ namespace Dama.Web.Controllers
                 {
                     case ActivityType.FixedActivity:
                         var fixedActivity = activity as FixedActivity;
-                        fixedActivity.Start = container.SelectedDate.Value.Date + fixedActivity.Start.Value.TimeOfDay;
-                        fixedActivity.End = container.SelectedDate.Value.Date + fixedActivity.End.TimeOfDay;
+                        fixedActivity.Start = viewModel.SelectedDate.Date + fixedActivity.Start.Value.TimeOfDay;
+                        fixedActivity.End = viewModel.SelectedDate.Date + fixedActivity.End.TimeOfDay;
 
                         if (fixedActivity.Repeat == null)
                             fixedActivity.Repeat = repeat;
@@ -896,8 +900,8 @@ namespace Dama.Web.Controllers
                 {
                     case ActivityType.FixedActivity:
                         var fixedActivity = activity as FixedActivity;
-                        fixedActivity.Start = container.SelectedDate.Value.Date + fixedActivity.Start.Value.TimeOfDay;
-                        fixedActivity.End = container.SelectedDate.Value.Date + fixedActivity.End.TimeOfDay;
+                        fixedActivity.Start = viewModel.SelectedDate.Date + fixedActivity.Start.Value.TimeOfDay;
+                        fixedActivity.End = viewModel.SelectedDate.Date + fixedActivity.End.TimeOfDay;
 
                         if (fixedActivity.Repeat == null)
                             fixedActivity.Repeat = repeat;
@@ -912,7 +916,8 @@ namespace Dama.Web.Controllers
 
                     case ActivityType.UnfixedActivity:
                         var unfixedActivity = activity as UnfixedActivity;
-                        unfixedActivity.Start = container.SelectedDate;
+                        unfixedActivity.Start = viewModel.SelectedDate.Date + unfixedActivity.Start.Value.TimeOfDay;
+                        unfixedActivity.End = viewModel.SelectedDate.Date + unfixedActivity.End.Value.TimeOfDay;
 
                         if (unfixedActivity.Category != null)
                             _repositorySettings.ChangeCategoryEntryState(unfixedActivity.Category, EntityState.Unchanged);
@@ -924,7 +929,8 @@ namespace Dama.Web.Controllers
 
                     case ActivityType.UndefinedActivity:
                         var undefinedActivity = activity as UndefinedActivity;
-                        undefinedActivity.Start = container.SelectedDate;
+                        undefinedActivity.Start = viewModel.SelectedDate.Date + undefinedActivity.Start.Value.TimeOfDay;
+                        undefinedActivity.End = viewModel.SelectedDate.Date + undefinedActivity.End.Value.TimeOfDay;
 
                         undefinedActivity.BaseActivity = false;
                         _unitOfWork.UndefinedActivityRepository.Insert(undefinedActivity);
@@ -933,6 +939,32 @@ namespace Dama.Web.Controllers
                 }
             }
             
+        }
+
+        public void RemoveItemsFromSelectedDay(string dateValue)
+        {
+            var date = DateTime.Parse(dateValue);
+
+            var fixedToRemove = _unitOfWork.FixedActivityRepository.Get(a => a.UserId == UserId &&
+                                                                             !a.BaseActivity &&
+                                                                             a.Start.Value.Date == date.Date);
+
+            var unfixedToRemove = _unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == UserId &&
+                                                                                 !a.BaseActivity &&
+                                                                                 a.Start.Value.Date == date.Date);
+
+            var undefinedToRemove = _unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == UserId &&
+                                                                                    !a.BaseActivity &&
+                                                                                    a.Start.Value.Date == date.Date);
+
+            var deadlineToRemove = _unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == UserId &&
+                                                                                    !a.BaseActivity &&
+                                                                                    a.Start.Date == date.Date);
+
+            _unitOfWork.FixedActivityRepository.DeleteRange(fixedToRemove);
+            _unitOfWork.UnfixedActivityRepository.DeleteRange(unfixedToRemove);
+            _unitOfWork.UndefinedActivityRepository.DeleteRange(undefinedToRemove);
+            _unitOfWork.DeadlineActivityRepository.DeleteRange(deadlineToRemove);
         }
 
         private CalendarEditorViewModel GetValidViewModel()
