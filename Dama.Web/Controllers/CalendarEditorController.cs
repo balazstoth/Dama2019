@@ -968,6 +968,7 @@ namespace Dama.Web.Controllers
             _unitOfWork.UnfixedActivityRepository.DeleteRange(unfixedToRemove);
             _unitOfWork.UndefinedActivityRepository.DeleteRange(undefinedToRemove);
             _unitOfWork.DeadlineActivityRepository.DeleteRange(deadlineToRemove);
+            _unitOfWork.Save();
         }
 
         private CalendarEditorViewModel GetValidViewModel()

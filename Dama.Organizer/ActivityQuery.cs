@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Dama.Organizer
 {
-    class ActivityQuery
+    public class ActivityQuery
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly string _userId;
@@ -36,12 +36,12 @@ namespace Dama.Organizer
 
                 switch (item.ActivityType)
                 {
-                    case Data.Enums.ActivityType.FixedActivity:
-                    case Data.Enums.ActivityType.UnfixedActivity:
-                        ManageSharingWithDefinedActivities(item, finalList);
+                    case ActivityType.FixedActivity:
+                    case ActivityType.UnfixedActivity:
+                        ManageSharingWithDefinedActivities(item as IDefinedActivity, finalList);
                         break;
 
-                    case Data.Enums.ActivityType.DeadlineActivity:
+                    case ActivityType.DeadlineActivity:
                         ManageSharingWithDeadlineActivities(item as DeadlineActivity, finalList);
                         break;
                 }
@@ -54,10 +54,16 @@ namespace Dama.Organizer
         {
             var activities = new List<Activity>();
 
-            activities.AddRange(_unitOfWork.FixedActivityRepository.Get(a => a.UserId == _userId && !a.BaseActivity && IsActivityInRange(a.Start.Value)));
-            activities.AddRange(_unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == _userId && !a.BaseActivity && IsActivityInRange(a.Start.Value)));
+            activities.AddRange(_unitOfWork.FixedActivityRepository.Get(a => a.UserId == _userId && 
+                                                                            !a.BaseActivity && 
+                                                                            IsActivityInRange(a.Start.Value), null,
+                                                                            a => a.Category, a => a.Labels, a => a.Repeat));
+
+            activities.AddRange(_unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == _userId && !a.BaseActivity && IsActivityInRange(a.Start.Value), null,
+                                                                               a => a.Category, a => a.Labels, a => a.Repeat));
+
             activities.AddRange(_unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == _userId && !a.BaseActivity && IsActivityInRange(a.Start.Value)));
-            activities.AddRange(_unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == _userId && !a.BaseActivity && !IsDeadLineInRange(a)));
+            activities.AddRange(_unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == _userId && !a.BaseActivity && !IsDeadLineInRange(a), null, a => a.Milestones));
 
             return activities;
         }
@@ -74,32 +80,44 @@ namespace Dama.Organizer
 
         private void ManageSharingWithDefinedActivities(IDefinedActivity activity, List<Activity> activities)
         {
-            if (activity.Repeat.RepeatPeriod == RepeatPeriod.Single)
+            if (activity.Repeat == null || activity.Repeat.RepeatPeriod == RepeatPeriod.Single)
                 return;
 
-            var day = activity.Start.Value.Date;
+            var days = (int)activity.Repeat.RepeatPeriod;
+            var currentDay = activity.Start.Value.Date.AddDays(days);
 
             if(activity is FixedActivity)
             {
                 var fixedActivity = activity as FixedActivity;
-
-                while (day.AddDays((int)fixedActivity.Repeat.RepeatPeriod) <= _rangeEnd)
+                
+                while (currentDay <= _rangeEnd)
                 {
-                    //Create new fixed and increase day
+                    var item = new FixedActivity(fixedActivity.Name, fixedActivity.Description, fixedActivity.Color, CreationType.ManuallyCreated, fixedActivity.Labels,
+                                                fixedActivity.Category, fixedActivity.UserId, fixedActivity.Priority, currentDay + fixedActivity.Start.Value.TimeOfDay, currentDay + fixedActivity.End.TimeOfDay, false);
+                    currentDay = currentDay.AddDays(days);
+                    activities.Add(item);
                 }
             }
             else
             {
                 var unfixedActivity = activity as UnfixedActivity;
 
+                while (currentDay <= _rangeEnd)
+                {
+                    var item = new FixedActivity(unfixedActivity.Name, unfixedActivity.Description, unfixedActivity.Color, CreationType.ManuallyCreated, unfixedActivity.Labels,
+                                                unfixedActivity.Category, unfixedActivity.UserId, unfixedActivity.Priority, currentDay + unfixedActivity.Start.Value.TimeOfDay, currentDay + unfixedActivity.End.Value.TimeOfDay, false);
+                    currentDay = currentDay.AddDays(days);
+                    activities.Add(item);
+                }
             }
         }
 
         private void ManageSharingWithDeadlineActivities(DeadlineActivity activity, List<Activity> activities)
         {
-            var itemStart = new FixedActivity(activity.Name, activity.Description, Data.Enums.Color.Red, Data.Enums.CreationType.ManuallyCreated, null,
+            var itemStart = new FixedActivity(activity.Name, activity.Description, Color.Red, CreationType.ManuallyCreated, null,
                                                 null, activity.UserId, 0, activity.Start, activity.Start.AddHours(1), false);
-            var itemEnd = new FixedActivity(activity.Name, activity.Description, Data.Enums.Color.Red, Data.Enums.CreationType.ManuallyCreated, null,
+
+            var itemEnd = new FixedActivity(activity.Name, activity.Description, Color.Red, CreationType.ManuallyCreated, null,
                                                 null, activity.UserId, 0, activity.End, activity.End.AddHours(1), false);
 
             activities.Add(itemStart);
@@ -107,7 +125,7 @@ namespace Dama.Organizer
 
             foreach (var milestone in activity.Milestones)
             {
-                activities.Add(new FixedActivity(milestone.Name, "", Data.Enums.Color.Red, Data.Enums.CreationType.ManuallyCreated, null,
+                activities.Add(new FixedActivity(milestone.Name, "", Color.Red, CreationType.ManuallyCreated, null,
                                                 null, activity.UserId, 0, milestone.Time, milestone.Time.AddHours(1), false));
             }
         }

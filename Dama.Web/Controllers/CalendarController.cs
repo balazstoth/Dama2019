@@ -26,6 +26,7 @@ using Repeat = Dama.Data.Models.Repeat;
 using Milestone = Dama.Data.Models.Milestone;
 using Dama.Data.Sql.Interfaces;
 using System.Linq.Expressions;
+using Dama.Organizer;
 
 namespace Dama.Web.Controllers
 {
@@ -39,6 +40,7 @@ namespace Dama.Web.Controllers
         private readonly string[] _availableColors;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepositorySettings _repositorySettings;
+        private ActivityQuery _activityQuery;
 
         public CalendarController(IUnitOfWork unitOfWork, IRepositorySettings repositorySettings)
         {
@@ -60,8 +62,9 @@ namespace Dama.Web.Controllers
 
         public JsonResult GetActivitiesToDisplayInCalendar()
         {
-            var fixedActivities = _unitOfWork.FixedActivityRepository.Get(x => x.UserId == UserId).ToList();
-            JsonResult jsonResult = new JsonResult { Data = fixedActivities, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            _activityQuery = new ActivityQuery(_unitOfWork, User.Identity.GetUserId());
+            var itemsToDisplay = _activityQuery.GetActivities();
+            var jsonResult = new JsonResult { Data = itemsToDisplay, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             return jsonResult;
         }
 
