@@ -58,7 +58,7 @@ namespace Dama.Web.Controllers
             return View();
         }
 
-        public JsonResult GetActivities() //TODO: implement correctly
+        public JsonResult GetActivitiesToDisplayInCalendar()
         {
             var fixedActivities = _unitOfWork.FixedActivityRepository.Get(x => x.UserId == UserId).ToList();
             JsonResult jsonResult = new JsonResult { Data = fixedActivities, JsonRequestBehavior = JsonRequestBehavior.AllowGet };

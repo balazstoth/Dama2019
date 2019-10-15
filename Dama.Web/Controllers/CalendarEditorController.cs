@@ -947,14 +947,17 @@ namespace Dama.Web.Controllers
 
             var fixedToRemove = _unitOfWork.FixedActivityRepository.Get(a => a.UserId == UserId &&
                                                                              !a.BaseActivity &&
+                                                                             a.Start.HasValue &&
                                                                              a.Start.Value.Date == date.Date);
 
             var unfixedToRemove = _unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == UserId &&
                                                                                  !a.BaseActivity &&
+                                                                                 a.Start.HasValue &&
                                                                                  a.Start.Value.Date == date.Date);
 
             var undefinedToRemove = _unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == UserId &&
                                                                                     !a.BaseActivity &&
+                                                                                    a.Start.HasValue &&
                                                                                     a.Start.Value.Date == date.Date);
 
             var deadlineToRemove = _unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == UserId &&

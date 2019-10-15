@@ -18,7 +18,7 @@
             var events = [];
             $.ajax({
                 type: "GET",
-                url: "Calendar/GetActivities",
+                url: "Calendar/GetActivitiesToDisplayInCalendar",
                 success: function (data) {
                     $.each(data, function (i, v) {
                         events.push({
