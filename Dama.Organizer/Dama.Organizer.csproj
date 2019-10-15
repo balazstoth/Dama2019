@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActivityQuery.cs" />
     <Compile Include="Comparers\LabelComparer.cs" />
     <Compile Include="Enums\AccountMessage.cs" />
     <Compile Include="Enums\ComparableEnums.cs" />
@@ -84,6 +85,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Dama.Data.Sql\Dama.Data.Sql.csproj">
+      <Project>{C7BB833B-9227-4799-B69C-1D8278C01089}</Project>
+      <Name>Dama.Data.Sql</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Dama.Data\Dama.Data.csproj">
       <Project>{0F30BC0D-4D81-4AE3-8CA5-547EE4752C25}</Project>
       <Name>Dama.Data</Name>
