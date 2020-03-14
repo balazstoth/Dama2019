@@ -25,6 +25,10 @@
         }
     </style>
 
+
+    <script src="~/Content/vendor/jquery/jquery.min.js"></script>
+
+
     <script type="text/javascript">
         function GetDefaultFiltersAjax() {
             return $.ajax(
@@ -123,7 +127,7 @@
                     type: 'GET',
                     data: "",
                     success: function (data) {
-                       $("#ActivityListPartial").html(data);
+                        $("#ActivityListPartial").html(data);
                     },
                     error: function (jqxhr, status, exception) {
                         alert('ReOrderList:' + exception);
@@ -154,7 +158,7 @@
                     type: 'GET',
                     data: "",
                     success: function (data) {
-                            $("#ActivitySelectedByUser").html(data);
+                        $("#ActivitySelectedByUser").html(data);
                     },
                     error: function (jqxhr, status, exception) {
                         alert('ReFreshFixListOnLoad:' + exception);
@@ -194,31 +198,31 @@
         }
         function OnFilterChanged() {
             return $.ajax(
-                    {
-                        url: "/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
-                        type: 'GET',
-                        data: "",
-                        success: function (data) {
-                            $("#ActivityListPartial").html(data);
-                        },
-                        error: function (jqxhr, status, exception) {
-                            alert("OnFilterChanged:" + exception);
-                        }
-                    });
+                {
+                    url: "/CalendarEditor/GetFilteredActivities?activityType=" + $("#activityDDL").val() + "&activityName=" + $("#tbxName").val() + "&category=" + $("#ddlCategory").val() + "&label=" + $("#ddlLabel").val() + "&priority=" + $("#tbxPriority").val() + "&order=" + $('#rdBtnAsc').prop('checked'),
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        $("#ActivityListPartial").html(data);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert("OnFilterChanged:" + exception);
+                    }
+                });
         }
         function RemoveItemsFromDay(date) {
-             return $.ajax(
-                    {
-                        url: "/CalendarEditor/RemoveItemsFromSelectedDay?dateValue=" + date,
-                        type: 'GET',
-                        data: "",
-                        success: function (data) {
-                            alert("All items are successfully removed from selected day!")
-                        },
-                        error: function (jqxhr, status, exception) {
-                            alert("RemoveItemsFromDay:" + exception);
-                        }
-                    });
+            return $.ajax(
+                {
+                    url: "/CalendarEditor/RemoveItemsFromSelectedDay?dateValue=" + date,
+                    type: 'GET',
+                    data: "",
+                    success: function (data) {
+                        alert("All items are successfully removed from selected day!")
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert("RemoveItemsFromDay:" + exception);
+                    }
+                });
         }
 
         $(document).ready(function () {
@@ -267,12 +271,10 @@
             });
             $("#EditActivityBtn").on("click", function () {
                 var value = $("#finalActLsb").val();
-                if (value.toString().toLowerCase().indexOf('deadline') >= 0)
-                {
+                if (value.toString().toLowerCase().indexOf('deadline') >= 0) {
                     window.location.href = "/CalendarEditor/GetDataForChange?idAndType=" + value + "|false&isAsc=" + $("#rdBtnAsc").is(':checked') + "&selectedDate=" + $("#DatePickerField").val();
                 }
-                else
-                {
+                else {
                     $("#closeButton").show();
                     if (value != null) {
                         GetDataForChange(value, false);
@@ -395,7 +397,6 @@
             </div>
         </div>
 
-       
 
         @Html.ActionLink("Back", "Index", "Calendar");
     }
