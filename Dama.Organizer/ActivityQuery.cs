@@ -55,15 +55,21 @@ namespace Dama.Organizer
             var activities = new List<Activity>();
 
             activities.AddRange(_unitOfWork.FixedActivityRepository.Get(a => a.UserId == _userId && 
-                                                                            !a.BaseActivity && 
-                                                                            IsActivityInRange(a.Start.Value), null,
-                                                                            a => a.Category, a => a.Labels, a => a.Repeat));
+                                                                             !a.BaseActivity && 
+                                                                             IsActivityInRange(a.Start.Value), null,
+                                                                             a => a.Category, a => a.Labels, a => a.Repeat));
 
-            activities.AddRange(_unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == _userId && !a.BaseActivity && IsActivityInRange(a.Start.Value), null,
-                                                                               a => a.Category, a => a.Labels, a => a.Repeat));
+            activities.AddRange(_unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == _userId &&
+                                                                               !a.BaseActivity && IsActivityInRange(a.Start.Value), null,
+                                                                                a => a.Category, a => a.Labels, a => a.Repeat));
 
-            activities.AddRange(_unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == _userId && !a.BaseActivity && IsActivityInRange(a.Start.Value)));
-            activities.AddRange(_unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == _userId && !a.BaseActivity && !IsDeadLineInRange(a), null, a => a.Milestones));
+            activities.AddRange(_unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == _userId && 
+                                                                                 !a.BaseActivity && 
+                                                                                 IsActivityInRange(a.Start.Value)));
+
+            activities.AddRange(_unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == _userId && !
+                                                                                a.BaseActivity && 
+                                                                                !IsDeadLineInRange(a), null, a => a.Milestones));
 
             return activities;
         }
@@ -90,7 +96,7 @@ namespace Dama.Organizer
             {
                 var fixedActivity = activity as FixedActivity;
                 
-                while (currentDay <= _rangeEnd)
+                while (currentDay <= fixedActivity.Repeat.EndDate && currentDay <= _rangeEnd)
                 {
                     var item = new FixedActivity(fixedActivity.Name, fixedActivity.Description, fixedActivity.Color, CreationType.ManuallyCreated, fixedActivity.Labels,
                                                 fixedActivity.Category, fixedActivity.UserId, fixedActivity.Priority, currentDay + fixedActivity.Start.Value.TimeOfDay, currentDay + fixedActivity.End.TimeOfDay, false);
@@ -102,7 +108,7 @@ namespace Dama.Organizer
             {
                 var unfixedActivity = activity as UnfixedActivity;
 
-                while (currentDay <= _rangeEnd)
+                while (currentDay <= unfixedActivity.Repeat.EndDate && currentDay <= _rangeEnd)
                 {
                     var item = new FixedActivity(unfixedActivity.Name, unfixedActivity.Description, unfixedActivity.Color, CreationType.ManuallyCreated, unfixedActivity.Labels,
                                                 unfixedActivity.Category, unfixedActivity.UserId, unfixedActivity.Priority, currentDay + unfixedActivity.Start.Value.TimeOfDay, currentDay + unfixedActivity.End.Value.TimeOfDay, false);

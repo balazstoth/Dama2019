@@ -25,10 +25,7 @@
         }
     </style>
 
-
     <script src="~/Content/vendor/jquery/jquery.min.js"></script>
-
-
     <script type="text/javascript">
         function GetDefaultFiltersAjax() {
             return $.ajax(
@@ -350,7 +347,6 @@
             <rightside>
                 <p style="font-size:,medium"><b>Order by:</b></p>
                 <div id="activityOrder">
-                    @*@Html.CheckBox("Asc", new { id = "rdBtnAsc", @checked = "true" }) Name - Asc*@
                     @Html.CheckBoxFor(m => m.IsAscendant, new { id = "rdBtnAsc" }) Name - ASC
                 </div>
             </rightside>

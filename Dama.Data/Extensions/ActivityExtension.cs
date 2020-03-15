@@ -11,7 +11,6 @@ namespace Dama.Data
             if (string.IsNullOrEmpty(label))
                 throw new ArgumentNullException("label");
 
-            var a = activity.Labels.Any(l => l.Name == label);
             return activity.Labels.Any(l => l.Name == label);
         }
     }

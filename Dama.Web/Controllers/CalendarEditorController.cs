@@ -948,21 +948,21 @@ namespace Dama.Web.Controllers
             var fixedToRemove = _unitOfWork.FixedActivityRepository.Get(a => a.UserId == UserId &&
                                                                              !a.BaseActivity &&
                                                                              a.Start.HasValue &&
-                                                                             a.Start.Value.Date == date.Date);
+                                                                             a.Start.Value.Date == date.Date, null, a => a.Labels, a => a.Category);
 
             var unfixedToRemove = _unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == UserId &&
                                                                                  !a.BaseActivity &&
                                                                                  a.Start.HasValue &&
-                                                                                 a.Start.Value.Date == date.Date);
+                                                                                 a.Start.Value.Date == date.Date, null, a => a.Labels, a => a.Category);
 
             var undefinedToRemove = _unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == UserId &&
                                                                                     !a.BaseActivity &&
                                                                                     a.Start.HasValue &&
-                                                                                    a.Start.Value.Date == date.Date);
+                                                                                    a.Start.Value.Date == date.Date, null, a => a.Labels, a => a.Category);
 
             var deadlineToRemove = _unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == UserId &&
                                                                                     !a.BaseActivity &&
-                                                                                    a.Start.Date == date.Date);
+                                                                                    a.Start.Date == date.Date, null, a => a.Labels, a => a.Category, a => a.Milestones);
 
             _unitOfWork.FixedActivityRepository.DeleteRange(fixedToRemove);
             _unitOfWork.UnfixedActivityRepository.DeleteRange(unfixedToRemove);
