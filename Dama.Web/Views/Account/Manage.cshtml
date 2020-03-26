@@ -36,11 +36,11 @@
         </div>
     </div>
 
-    @Html.ActionLink("Delete my account", "DeleteOwnAccount");
-
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
             <input type="submit" value="Change password" class="btn btn-primary" />
+            @Html.ActionLink("Delete my account", "DeleteOwnAccount", null, new { @class = "btn btn-danger" })
+
         </div>
     </div>
 }

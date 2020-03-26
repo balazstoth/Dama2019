@@ -11,7 +11,7 @@
 <p class="text-danger">@ViewBag.CategoryNotFoundError</p>
 
 <p>
-    @Html.ActionLink("Create new category", "AddNewCategory")
+    @Html.ActionLink("Create new category", "AddNewCategory",null, new {@class="btn btn-success" })
 </p>
 <table class="table" style="table-layout:fixed">
     <tr>
@@ -55,4 +55,4 @@
 
 </table>
 
-@Html.ActionLink("Back", "Index")
+@Html.ActionLink("Back", "Index",null, new {@class="btn btn-warning" })

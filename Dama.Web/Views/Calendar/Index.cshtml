@@ -28,8 +28,7 @@
                             events.push({
                                 title: v.Name,
                                 description: v.Description,
-                                labels: v.labels,
-                                category: v.category,
+                                category: v.Category == null ? "" : v.Category.Name,
                                 start: moment(v.Start),
                                 end: v.End != null ? moment(v.End) : null,
                                 color: v.Color
@@ -100,18 +99,18 @@
         </div>
     </div>
 
-    <table>
+    <table width="80%" align="center">
         <tr>
-            <th>@Html.ActionLink("Manage Labels", "ManageLabels", "Calendar")</th>
+            <th>@Html.ActionLink("Manage Labels", "ManageLabels", "Calendar", null, new { @class = "btn btn-outline-primary btn-sm btn-block" })</th>
         </tr>
         <tr>
-            <th>@Html.ActionLink("Manage Categories", "ManageCategories", "Calendar")</th>
+            <th>@Html.ActionLink("Manage Categories", "ManageCategories", "Calendar", null, new { @class = "btn btn-outline-primary btn-sm btn-block" })</th>
         </tr>
         <tr>
-            <th>@Html.ActionLink("Manage Activities", "ManageActivities", "Calendar")</th>
+            <th>@Html.ActionLink("Manage Activities", "ManageActivities", "Calendar", null, new { @class = "btn btn-outline-warning btn-sm btn-block" })</th>
         </tr>
         <tr>
-            <th>@Html.ActionLink("Edit Calendar", "Editor", "CalendarEditor")</th>
+            <th>@Html.ActionLink("Edit Calendar", "Editor", "CalendarEditor", null, new { @class = "btn btn-outline-danger btn-sm btn-block" })</th>
         </tr>
     </table>
 </body>

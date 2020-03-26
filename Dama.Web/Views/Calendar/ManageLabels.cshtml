@@ -10,9 +10,8 @@
 <p class="text-success">@ViewBag.LabelRemovedSuccessFully</p>
 <p class="text-danger">@ViewBag.LabelNotFoundError</p>
 
-<p>
-    @Html.ActionLink("Create new label", "AddNewLabel")
-</p>
+<p>@Html.ActionLink("Create new label", "AddNewLabel",null, new { @class="btn btn-success" })</p>
+
 <table class="table">
     <tr>
         <th>
@@ -28,10 +27,10 @@
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
-                @Html.ActionLink("Delete", "DeleteLabel", new { labelId = item.Id })
+                @Html.ActionLink("Delete", "DeleteLabel", new { labelId = item.Id }, new {@class="btn-outline-danger" })
             </td>
         </tr>
     }
 </table>
 
-@Html.ActionLink("Back", "Index")
+@Html.ActionLink("Back", "Index",null, new {@class="btn btn-warning" })
