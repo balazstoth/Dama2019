@@ -99,18 +99,11 @@
         </div>
     </div>
 
-    <table width="80%" align="center">
+    <table width="90%" align="center">
         <tr>
-            <th>@Html.ActionLink("Manage Labels", "ManageLabels", "Calendar", null, new { @class = "btn btn-outline-primary btn-sm btn-block" })</th>
-        </tr>
-        <tr>
-            <th>@Html.ActionLink("Manage Categories", "ManageCategories", "Calendar", null, new { @class = "btn btn-outline-primary btn-sm btn-block" })</th>
-        </tr>
-        <tr>
-            <th>@Html.ActionLink("Manage Activities", "ManageActivities", "Calendar", null, new { @class = "btn btn-outline-warning btn-sm btn-block" })</th>
-        </tr>
-        <tr>
-            <th>@Html.ActionLink("Edit Calendar", "Editor", "CalendarEditor", null, new { @class = "btn btn-outline-danger btn-sm btn-block" })</th>
-        </tr>
+            <th>@Html.ActionLink("Manage Labels", "ManageLabels", "Calendar", null, new { @class = "btn btn-primary btn-sm btn-block" })</th>
+            <th>@Html.ActionLink("Manage Categories", "ManageCategories", "Calendar", null, new { @class = "btn btn-primary btn-sm btn-block" })</th>
+            <th>@Html.ActionLink("Manage Activities", "ManageActivities", "Calendar", null, new { @class = "btn btn-warning btn-sm btn-block" })</th>
+            <th>@Html.ActionLink("Edit Calendar", "Editor", "CalendarEditor", null, new { @class = "btn btn-danger btn-sm btn-block" })</th>
     </table>
 </body>

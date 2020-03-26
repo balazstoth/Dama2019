@@ -318,7 +318,7 @@
                     <div class="col-md-10">
                         @Html.TextBoxFor(m => m.SelectedDate, new { type = "date", @class = "form-control", id = "DatePickerField", @Value = Model.SelectedDate.ToString("yyyy-MM-dd") })
                         <hr>
-                        <input type="button" id="CleanCurrentDay" value="Remove previous items from selected day">
+                        <input type="button" id="CleanCurrentDay" value="Remove previous items from selected day" class="btn btn-outline-danger">
                         <hr>
                     </div>
                 </div>
@@ -355,17 +355,17 @@
         <hr>
         <section>
             <leftside>
-                <input type="button" id="selectOneBtn" value="Move to fix">
-                <input type="button" id="selectOneBackBtn" value="Move back">
-                <input type="button" id="EditActivityBtn" value="Change">
+                <input type="button" id="selectOneBtn" value="Move to fix" class="btn btn-primary">
+                <input type="button" id="selectOneBackBtn" value="Move back" class="btn btn-primary">
+                <input type="button" id="EditActivityBtn" value="Change" class="btn btn-primary">
                 <div id="ActivitySelectedByUser">
                     @Html.Partial("GetSelectedActivities")
                 </div>
             </leftside>
             <rightside>
-                <input type="button" id="selectOneOptionalBtn" value="Move to optional">
-                <input type="button" id="selectOneOptionalBackBtn" value="Move back">
-                <input type="button" id="EditOptionalActivityBtn" value="Change">
+                <input type="button" id="selectOneOptionalBtn" value="Move to optional" class="btn btn-warning">
+                <input type="button" id="selectOneOptionalBackBtn" value="Move back" class="btn btn-warning">
+                <input type="button" id="EditOptionalActivityBtn" value="Change" class="btn btn-warning">
                 <div id="OptionalActivitySelectedByUser">
                     @Html.Partial("GetSelectedOptionalActivities")
                 </div>
@@ -380,7 +380,7 @@
                         <div id="changePopUpBody" class="modal-body">
                         </div>
                         <div id="closeButton" class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
