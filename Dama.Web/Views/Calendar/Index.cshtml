@@ -28,10 +28,11 @@
                             events.push({
                                 title: v.Name,
                                 description: v.Description,
+                                labels: v.labels,
+                                category: v.category,
                                 start: moment(v.Start),
                                 end: v.End != null ? moment(v.End) : null,
-                                color: v.Color,
-                                allDay: v.IsFullDay
+                                color: v.Color
                             });
                         })
                         GenerateCalendar(events);
@@ -62,7 +63,14 @@
                         slotLabelFormat: 'HH:mm',
 
                         eventClick: function (event, jsEvent, view) {
+                            var description = (event.description == null || event.description == "") ? "-" : event.description;
+                            var category = (event.category == null || event.category == "") ? "-" : event.category;
+
                             $('#modalTitle').html(event.title);
+                            $('#modalBodyDescription').html("Description: " + description);
+                            $('#modalBodyCategory').html("Category: " + category);
+                            $('#modalBodyStart').html("Start: " + event.start.format("YYYY-MM-DD - HH:mm"));
+                            $('#modalBodyEnd').html("End: " + event.end.format("YYYY-MM-DD - HH:mm"));
                             $('#calendarModal').modal();
                         }
                     })
@@ -79,7 +87,12 @@
                 <div class="modal-header">
                     <h3 id="modalTitle" class="modal-title"></h3>
                 </div>
-                <div id="modalBody" class="modal-body"></div>
+                <div id="modalBody" class="modal-body">
+                    <p id="modalBodyDescription"></p>
+                    <p id="modalBodyCategory"></p>
+                    <p id="modalBodyStart"></p>
+                    <p id="modalBodyEnd"></p>
+                </div>
                 <div id="closeButton" class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
                 </div>
