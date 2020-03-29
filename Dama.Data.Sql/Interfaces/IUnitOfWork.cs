@@ -6,21 +6,14 @@ namespace Dama.Data.Sql.Interfaces
 {
     public interface IUnitOfWork
     {
-        GenericSqlRepository<FixedActivity> FixedActivityRepository { get; }
-
-        GenericSqlRepository<UnfixedActivity> UnfixedActivityRepository { get; }
-
-        GenericSqlRepository<UndefinedActivity> UndefinedActivityRepository { get; }
-
-        GenericSqlRepository<DeadlineActivity> DeadlineActivityRepository { get; }
-
-        GenericSqlRepository<Category> CategoryRepository { get; }
-
-        GenericSqlRepository<Label> LabelRepository { get; }
-
-        GenericSqlRepository<Milestone> MilestoneRepository { get; }
-
-        UserSqlRepository UserRepository { get; }
+        IRepository<FixedActivity> FixedActivityRepository { get; set; }
+        IRepository<UnfixedActivity> UnfixedActivityRepository { get; set; }
+        IRepository<UndefinedActivity> UndefinedActivityRepository { get; set; }
+        IRepository<DeadlineActivity> DeadlineActivityRepository { get; set; }
+        IRepository<Category> CategoryRepository { get; set; }
+        IRepository<Label> LabelRepository { get; set; }
+        IRepository<Milestone> MilestoneRepository { get; set; }
+        IRepository<User> UserRepository { get; set; }
 
         void Save();
 

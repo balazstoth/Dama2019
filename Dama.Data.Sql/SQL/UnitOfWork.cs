@@ -8,105 +8,49 @@ namespace Dama.Data.Sql.SQL
     public class UnitOfWork : IDisposable, IUnitOfWork
     {
         private bool _disposed = false;
-        private DamaContext _context = new DamaContext();
-        private GenericSqlRepository<FixedActivity> _fixedActivityRepository;
-        private GenericSqlRepository<UnfixedActivity> _unfixedActivityRepository;
-        private GenericSqlRepository<UndefinedActivity> _undefinedActivityRepository;
-        private GenericSqlRepository<DeadlineActivity> _deadlineActivityRepository;
-        private GenericSqlRepository<Category> _categoryRepository;
-        private GenericSqlRepository<Label> _labelRepository;
-        private GenericSqlRepository<Milestone> _milestoneRepository;
-        private UserSqlRepository _userRepository;
+        private DamaContext _context;
+      
+        public IRepository<FixedActivity> FixedActivityRepository { get; set; }
+        public IRepository<UnfixedActivity> UnfixedActivityRepository { get; set; }
+        public IRepository<UndefinedActivity> UndefinedActivityRepository { get; set; }
+        public IRepository<DeadlineActivity> DeadlineActivityRepository { get; set; }
+        public IRepository<Category> CategoryRepository { get; set; }
+        public IRepository<Label> LabelRepository { get; set; }
+        public IRepository<Milestone> MilestoneRepository { get; set; }
+        public IRepository<User> UserRepository { get; set; }
 
-        #region Properties
-        public GenericSqlRepository<FixedActivity> FixedActivityRepository
+        public UnitOfWork()
         {
-            get
-            {
-                if (_fixedActivityRepository == null)
-                    _fixedActivityRepository = new GenericSqlRepository<FixedActivity>(_context);
+            _context = new DamaContext();
 
-                return _fixedActivityRepository;
-            }
+            FixedActivityRepository = new GenericSqlRepository<FixedActivity>(_context);
+            UnfixedActivityRepository = new GenericSqlRepository<UnfixedActivity>(_context);
+            UndefinedActivityRepository = new GenericSqlRepository<UndefinedActivity>(_context);
+            DeadlineActivityRepository = new GenericSqlRepository<DeadlineActivity>(_context);
+            CategoryRepository = new GenericSqlRepository<Category>(_context);
+            LabelRepository = new GenericSqlRepository<Label>(_context);
+            MilestoneRepository = new GenericSqlRepository<Milestone>(_context);
+            UserRepository = new UserSqlRepository(_context);
         }
 
-        public GenericSqlRepository<UnfixedActivity> UnfixedActivityRepository
+        public UnitOfWork(IRepository<FixedActivity> fixedActivityRepository = null, 
+                            IRepository<UnfixedActivity> unfixedActivityRepository = null, 
+                            IRepository<UndefinedActivity> undefinedActivityRepository = null, 
+                            IRepository<DeadlineActivity> deadlineActivityRepository = null, 
+                            IRepository<Category> categoryRepository = null, 
+                            IRepository<Label> labelRepository = null, 
+                            IRepository<Milestone> milestoneRepository = null, 
+                            IRepository<User> userRepository = null)
         {
-            get
-            {
-                if (_unfixedActivityRepository == null)
-                    _unfixedActivityRepository = new GenericSqlRepository<UnfixedActivity>(_context);
-
-                return _unfixedActivityRepository;
-            }
+            FixedActivityRepository = fixedActivityRepository;
+            UnfixedActivityRepository = unfixedActivityRepository;
+            UndefinedActivityRepository = undefinedActivityRepository;
+            DeadlineActivityRepository = deadlineActivityRepository;
+            CategoryRepository = categoryRepository;
+            LabelRepository = labelRepository;
+            MilestoneRepository = milestoneRepository;
+            UserRepository = userRepository;
         }
-
-        public GenericSqlRepository<UndefinedActivity> UndefinedActivityRepository
-        {
-            get
-            {
-                if (_undefinedActivityRepository == null)
-                    _undefinedActivityRepository = new GenericSqlRepository<UndefinedActivity>(_context);
-
-                return _undefinedActivityRepository;
-            }
-        }
-
-        public GenericSqlRepository<DeadlineActivity> DeadlineActivityRepository
-        {
-            get
-            {
-                if (_deadlineActivityRepository == null)
-                    _deadlineActivityRepository = new GenericSqlRepository<DeadlineActivity>(_context);
-
-                return _deadlineActivityRepository;
-            }
-        }
-
-        public GenericSqlRepository<Category> CategoryRepository
-        {
-            get
-            {
-                if (_categoryRepository == null)
-                    _categoryRepository = new GenericSqlRepository<Category>(_context);
-
-                return _categoryRepository;
-            }
-        }
-
-        public GenericSqlRepository<Label> LabelRepository
-        {
-            get
-            {
-                if (_labelRepository == null)
-                    _labelRepository = new GenericSqlRepository<Label>(_context);
-
-                return _labelRepository;
-            }
-        }
-
-        public GenericSqlRepository<Milestone> MilestoneRepository
-        {
-            get
-            {
-                if (_milestoneRepository == null)
-                    _milestoneRepository = new GenericSqlRepository<Milestone>(_context);
-                
-                return _milestoneRepository;
-            }
-        }
-
-        public UserSqlRepository UserRepository
-        {
-            get
-            {
-                if (_userRepository == null)
-                    _userRepository = new UserSqlRepository(_context);
-
-                return _userRepository;
-            }
-        }
-        #endregion
 
         public void Save()
         {

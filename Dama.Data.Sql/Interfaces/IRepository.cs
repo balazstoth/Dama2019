@@ -7,8 +7,8 @@ namespace Dama.Data.Sql.Interfaces
 {
     public interface IRepository<T> where T : class
     {
-        IEnumerable<T> Get(Expression<Func<T, bool>> filter,
-                           Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
+        IEnumerable<T> Get(Expression<Func<T, bool>> filter = null,
+                           Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
                            params Expression<Func<T, object>>[] includeProperties);
 
         T GetByID(object id);
