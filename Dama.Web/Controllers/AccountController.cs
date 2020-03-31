@@ -26,15 +26,22 @@ namespace Dama.Web.Controllers
     [DisableUser]
     public class AccountController : BaseController
     {
-        private readonly string _superAdmin;
-        private readonly string _executeError;
-        private readonly string _invalidIdError;
-        private readonly string _accessDeniedError;
-        private readonly string _redirectToListUsers;
-        private readonly string _defaultAction;
-        private readonly string _defaultController;
+        private const string _superAdmin = "superAdmin";
+        private readonly string _executeError = AccountMessage.ExecuteError.ToString();
+        private readonly string _invalidIdError = AccountMessage.InvalidId.ToString();
+        private readonly string _accessDeniedError = AccountMessage.AccessDenied.ToString();
+        private readonly string _redirectToListUsers = ActionNames.ListUsersAsync.ToString();
+        private readonly string _defaultAction = ActionNames.Index.ToString();
+        private readonly string _defaultController = ControllerNames.Home.ToString();
         private readonly IUnitOfWork _unitOfWork;
+        private string _userId;
 
+        public string UserId
+        {
+            get => _userId ?? User.Identity.GetUserId();
+            set => _userId = value;
+        }
+        
         public UserManager<User> UserManager { get; private set; }
 
         public UserStore<User> UserStore { get; private set; }
@@ -44,19 +51,23 @@ namespace Dama.Web.Controllers
             get { return HttpContext.GetOwinContext().Authentication; }
         }
 
-        public AccountController(IUnitOfWork unitOfWork)
+        public AccountController()
         {
-            _defaultAction = ActionNames.Index.ToString();
-            _defaultController = ControllerNames.Home.ToString();
-            _accessDeniedError = AccountMessage.AccessDenied.ToString();
-            _executeError = AccountMessage.ExecuteError.ToString();
-            _invalidIdError = AccountMessage.InvalidId.ToString();
-            _redirectToListUsers = ActionNames.ListUsersAsync.ToString();
-            _superAdmin = "superAdmin";
-
-            _unitOfWork = unitOfWork;
+            _unitOfWork = new UnitOfWork();
             UserStore = new UserStore<User>(new DamaContext());
             UserManager = new UserManager<User>(UserStore);
+        }
+
+        /// <summary>
+        /// Other constructor only for unit testing
+        /// </summary>
+        /// <param name="unitOfWork">Mocked IUnitOfWork</param>
+        /// <param name="userManager">Mocked UserManager<User></param>
+        public AccountController(IUnitOfWork unitOfWork, UserManager<User> userManager, string userId = "1")
+        {
+            _unitOfWork = unitOfWork;
+            UserManager = userManager;
+            _userId = userId;
         }
 
         [DisableUser]
@@ -108,19 +119,19 @@ namespace Dama.Web.Controllers
             {
                 user = await UserValidation(id, true);
             }
-            catch (InvalidIdException)
+            catch (InvalidIdException ex)
             {
-                return RedirectToAction(_redirectToListUsers);
+                return RedirectToAction(_redirectToListUsers, new { message = ex.GetType().Name });
             }
-            catch (ChangeOwnAccountException)
+            catch (ChangeOwnAccountException ex)
             {
-                return RedirectToAction(_redirectToListUsers);
+                return RedirectToAction(_redirectToListUsers, new { message = ex.GetType().Name });
             }
 
             user.Blocked = true;
             await UserManager.UpdateAsync(user);
 
-            return RedirectToAction(_redirectToListUsers);
+            return RedirectToAction(_redirectToListUsers, new { message = "success" });
         }
 
         [DisableUser]
@@ -221,7 +232,7 @@ namespace Dama.Web.Controllers
         private async Task<bool> IsActionEnabledAsync(string tartgetId)
         {
             User currentUser, targetUser;
-            var currentUserId = User.Identity.GetUserId();
+            var currentUserId = _userId;
 
             currentUser = _unitOfWork.UserRepository.Get(u => u.Id == currentUserId).FirstOrDefault();
             targetUser = _unitOfWork.UserRepository.Get(u => u.Id == tartgetId).FirstOrDefault();
@@ -232,11 +243,13 @@ namespace Dama.Web.Controllers
             currentUser.RolesCollection = await GetUserRolesAsync(currentUser);
             targetUser.RolesCollection = await GetUserRolesAsync(targetUser);
 
-            var currentUserHighestRole = currentUser.RolesCollection.Select(r => (int)r).ToList().Max();
-            var tartgetUserHighestRole = targetUser.RolesCollection.Select(r => (int)r).Max();
-            int diff = currentUserHighestRole - tartgetUserHighestRole;
+            if (currentUser.RolesCollection.Count == 0 || targetUser.RolesCollection.Count == 0)
+                return true;
 
-            return diff > 0;
+            var currentUserHighestRole = currentUser.RolesCollection.Select(r => (int)r).Max();
+            var targetUserHighestRole = targetUser.RolesCollection.Select(r => (int)r).Max();
+
+            return (currentUserHighestRole - targetUserHighestRole) > 0;
         }
 
         [HttpPost]
@@ -334,7 +347,7 @@ namespace Dama.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var userId = User.Identity.GetUserId();
+                var userId = _userId;
 
                 try
                 {
@@ -378,7 +391,7 @@ namespace Dama.Web.Controllers
         [DisableUser]
         public ActionResult AccessDenied()
         {
-            return View();
+            return View("AccessDenied");
         }
 
         [HttpPost]
@@ -404,7 +417,7 @@ namespace Dama.Web.Controllers
                 throw new InvalidIdException(nameof(id));
             }
 
-            if (id == User.Identity.GetUserId() || (authorize && !(await IsActionEnabledAsync(id))))
+            if (id == _userId || (authorize && !(await IsActionEnabledAsync(id))))
             {
                 TempData[_executeError] = ErrorMessage.RestrictAccount;
                 throw new ChangeOwnAccountException("Cannot change your own account!");

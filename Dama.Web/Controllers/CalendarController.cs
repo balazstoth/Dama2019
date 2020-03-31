@@ -27,6 +27,7 @@ using Milestone = Dama.Data.Models.Milestone;
 using Dama.Data.Sql.Interfaces;
 using System.Linq.Expressions;
 using Dama.Organizer;
+using Dama.Data.Sql.Repositories;
 
 namespace Dama.Web.Controllers
 {
@@ -42,10 +43,10 @@ namespace Dama.Web.Controllers
         private readonly IRepositorySettings _repositorySettings;
         private ActivityQuery _activityQuery;
 
-        public CalendarController(IUnitOfWork unitOfWork, IRepositorySettings repositorySettings)
+        public CalendarController()
         {
-            _unitOfWork = unitOfWork;
-            _repositorySettings = repositorySettings;
+            _unitOfWork = new UnitOfWork();
+            _repositorySettings = new RepositorySettings();
             _userManager = new UserManager<User>(new UserStore<User>(new DamaContext()));
             _colors = new List<SelectListItem>();
             _availableColors = Enum.GetNames(typeof(Color));

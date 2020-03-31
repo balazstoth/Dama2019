@@ -21,6 +21,8 @@ using ControllerNames = Dama.Organizer.Enums.ControllerNames;
 using ViewNames = Dama.Organizer.Enums.ViewNames;
 using System.Data.Entity;
 using Dama.Data.Sql.Interfaces;
+using Dama.Data.Sql.SQL;
+using Dama.Data.Sql.Repositories;
 
 namespace Dama.Web.Controllers
 {
@@ -42,10 +44,10 @@ namespace Dama.Web.Controllers
 
         public string UserId => User.Identity.GetUserId();
 
-        public CalendarEditorController(IUnitOfWork unitOfWork, IRepositorySettings repositorySettings)
+        public CalendarEditorController()
         {
-            _unitOfWork = unitOfWork;
-            _repositorySettings = repositorySettings;
+            _unitOfWork = new UnitOfWork();
+            _repositorySettings = new RepositorySettings();
         }
 
         /// <summary>
