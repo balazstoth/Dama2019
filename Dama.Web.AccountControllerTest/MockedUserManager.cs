@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Dama.Web.AccountControllerTest
 {
-    class MockedUserManager : UserManager<User>
+    public class MockedUserManager : UserManager<User>
     {
         public MockedUserManager(IUserStore<User> userStore) : base(userStore)
         {

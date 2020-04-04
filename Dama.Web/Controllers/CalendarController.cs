@@ -35,35 +35,53 @@ namespace Dama.Web.Controllers
     [DisableUser]
     public class CalendarController : BaseController
     {
-        private readonly UserManager<User> _userManager;
         private readonly List<SelectListItem> _colors;
         private readonly CalendarControllerManager _calendarControllerManager;
         private readonly string[] _availableColors;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepositorySettings _repositorySettings;
         private ActivityQuery _activityQuery;
+        private string _userId;
+
+        public UserManager<User> UserManager { get; private set; }
+
+        public string UserId
+        {
+            get => _userId ?? User.Identity.GetUserId();
+            set => _userId = value;
+        }
 
         public CalendarController()
         {
             _unitOfWork = new UnitOfWork();
             _repositorySettings = new RepositorySettings();
-            _userManager = new UserManager<User>(new UserStore<User>(new DamaContext()));
+            _colors = new List<SelectListItem>();
+            _availableColors = Enum.GetNames(typeof(Color));
+            _colors = _availableColors.Select(c => new SelectListItem() { Text = c.ToString() }).ToList();
+            _calendarControllerManager = new CalendarControllerManager(_unitOfWork);
+            UserManager = new UserManager<User>(new UserStore<User>(new DamaContext()));
+        }
+
+        public CalendarController(IUnitOfWork unitOfWork, UserManager<User> userManager, string userId = "1")
+        {
+            _unitOfWork = unitOfWork;
+            _userId = userId;
+            UserManager = userManager;
+            _repositorySettings = new RepositorySettings();
             _colors = new List<SelectListItem>();
             _availableColors = Enum.GetNames(typeof(Color));
             _colors = _availableColors.Select(c => new SelectListItem() { Text = c.ToString() }).ToList();
             _calendarControllerManager = new CalendarControllerManager(_unitOfWork);
         }
 
-        public string UserId => User.Identity.GetUserId();
-
         public ActionResult Index()
         {
-            return View();
+            return View("Index");
         }
 
         public JsonResult GetActivitiesToDisplayInCalendar()
         {
-            _activityQuery = new ActivityQuery(_unitOfWork, User.Identity.GetUserId());
+            _activityQuery = new ActivityQuery(_unitOfWork, UserId);
             var itemsToDisplay = _activityQuery.GetActivities();
             var jsonResult = new JsonResult { Data = itemsToDisplay, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             return jsonResult;
@@ -213,7 +231,7 @@ namespace Dama.Web.Controllers
         #region Label
         public ActionResult AddNewLabel()
         {
-            return View();
+            return View("AddNewLabel");
         }
 
         public ActionResult ManageLabels()
@@ -232,7 +250,7 @@ namespace Dama.Web.Controllers
 
             if (selectedLabel == null)
             {
-                ViewBag.LabelNotFoundError = Error.LabelNotFound; //Not diplayed correctly
+                ViewBag.LabelNotFoundError = Error.LabelNotFound;
             }
             else
             {

@@ -1,10 +1,11 @@
 ﻿using Dama.Data.Models;
+using Dama.Data.Sql.Interfaces;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System.Data.Entity;
 
 namespace Dama.Data.Sql.SQL
 {
-    public class DamaContext : IdentityDbContext<User>
+    public class DamaContext : IdentityDbContext<User>, IContext
     {
         private const string connectionStringName = "DamaContext";
 

@@ -144,19 +144,19 @@ namespace Dama.Web.Controllers
             {
                 user = await UserValidation(id, true);
             }
-            catch (InvalidIdException)
+            catch (InvalidIdException ex)
             {
-                return RedirectToAction(_redirectToListUsers);
+                return RedirectToAction(_redirectToListUsers, new { message = ex.GetType().Name });
             }
-            catch (ChangeOwnAccountException)
+            catch (ChangeOwnAccountException ex)
             {
-                return RedirectToAction(_redirectToListUsers);
+                return RedirectToAction(_redirectToListUsers, new { message = ex.GetType().Name });
             }
 
             user.Blocked = false;
             await UserManager.UpdateAsync(user);
 
-            return RedirectToAction(_redirectToListUsers);
+            return RedirectToAction(_redirectToListUsers, new { message = "success" });
         }
 
         [DisableUser]

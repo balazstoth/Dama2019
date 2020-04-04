@@ -26,7 +26,7 @@ namespace Dama.Data.UnitTest
             fixedActivities = new List<FixedActivity>() { fixedActivity1, fixedActivity2, fixedActivity3 };
             fixedActivityRepository = new GenericIRepository<FixedActivity>(fixedActivities);
             unitOfWork = new UnitOfWork(fixedActivityRepository: fixedActivityRepository);
-            calendarController = new CalendarController(unitOfWork, new RepositorySettings());
+            //calendarController = new CalendarController(unitOfWork, new RepositorySettings());
         }
 
         private void CreateFixedActivities()
@@ -55,7 +55,5 @@ namespace Dama.Data.UnitTest
                                   new Category("CAT1", "Category 1", Enums.Color.Yellow, 10, "3"), "3", 10,
                                   new DateTime(2020, 03, 29, 10, 30, 0), new DateTime(2020, 03, 29, 18, 10, 0), false);
         }
-
-        //TODO: Write test methods here
     }
 }

@@ -50,7 +50,7 @@ namespace Dama.Data.UnitTest
 
         public T GetByID(object id)
         {
-           return _collection.SingleOrDefault(i => i.Id == (int)id);
+           return _collection.SingleOrDefault(i => i.Id == Convert.ToInt32(id));
         }
 
         public void Insert(T entity)

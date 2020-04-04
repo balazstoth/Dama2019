@@ -8,7 +8,7 @@ namespace Dama.Data.Sql.SQL
     public class UnitOfWork : IDisposable, IUnitOfWork
     {
         private bool _disposed = false;
-        private DamaContext _context;
+        private IContext _context;
       
         public IRepository<FixedActivity> FixedActivityRepository { get; set; }
         public IRepository<UnfixedActivity> UnfixedActivityRepository { get; set; }
@@ -23,14 +23,15 @@ namespace Dama.Data.Sql.SQL
         {
             _context = new DamaContext();
 
-            FixedActivityRepository = new GenericSqlRepository<FixedActivity>(_context);
-            UnfixedActivityRepository = new GenericSqlRepository<UnfixedActivity>(_context);
-            UndefinedActivityRepository = new GenericSqlRepository<UndefinedActivity>(_context);
-            DeadlineActivityRepository = new GenericSqlRepository<DeadlineActivity>(_context);
-            CategoryRepository = new GenericSqlRepository<Category>(_context);
-            LabelRepository = new GenericSqlRepository<Label>(_context);
-            MilestoneRepository = new GenericSqlRepository<Milestone>(_context);
-            UserRepository = new UserSqlRepository(_context);
+            var damaContext = _context as DamaContext;
+            FixedActivityRepository = new GenericSqlRepository<FixedActivity>(damaContext);
+            UnfixedActivityRepository = new GenericSqlRepository<UnfixedActivity>(damaContext);
+            UndefinedActivityRepository = new GenericSqlRepository<UndefinedActivity>(damaContext);
+            DeadlineActivityRepository = new GenericSqlRepository<DeadlineActivity>(damaContext);
+            CategoryRepository = new GenericSqlRepository<Category>(damaContext);
+            LabelRepository = new GenericSqlRepository<Label>(damaContext);
+            MilestoneRepository = new GenericSqlRepository<Milestone>(damaContext);
+            UserRepository = new UserSqlRepository(damaContext);
         }
 
         public UnitOfWork(IRepository<FixedActivity> fixedActivityRepository = null, 
@@ -40,7 +41,8 @@ namespace Dama.Data.Sql.SQL
                             IRepository<Category> categoryRepository = null, 
                             IRepository<Label> labelRepository = null, 
                             IRepository<Milestone> milestoneRepository = null, 
-                            IRepository<User> userRepository = null)
+                            IRepository<User> userRepository = null,
+                            IContext context = null)
         {
             FixedActivityRepository = fixedActivityRepository;
             UnfixedActivityRepository = unfixedActivityRepository;
@@ -50,6 +52,7 @@ namespace Dama.Data.Sql.SQL
             LabelRepository = labelRepository;
             MilestoneRepository = milestoneRepository;
             UserRepository = userRepository;
+            _context = context;
         }
 
         public void Save()

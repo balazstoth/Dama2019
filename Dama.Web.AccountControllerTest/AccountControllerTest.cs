@@ -172,5 +172,46 @@ namespace Dama.Web.AccountControllerTest
             var result = accountController.AccessDenied() as ViewResult;
             Assert.AreEqual("AccessDenied", result.ViewName);
         }
+
+        [TestMethod]
+        public async Task Unblock_RedirectToListUsers_WithInvalidId_WithNullValue_Test()
+        {
+            string id = null;
+
+            var user = (RedirectToRouteResult)(await accountController.Unblock(id));
+            Assert.AreEqual(typeof(InvalidIdException).Name, user.RouteValues["message"]);
+            Assert.AreEqual("ListUsersAsync", user.RouteValues["action"]);
+        }
+
+        [TestMethod]
+        public async Task Unblock_RedirectToListUsers_WithInvalidId_WithEmptyStringValue_Test()
+        {
+            string id = "";
+
+            var user = (RedirectToRouteResult)(await accountController.Unblock(id));
+            Assert.AreEqual(typeof(InvalidIdException).Name, user.RouteValues["message"]);
+            Assert.AreEqual("ListUsersAsync", user.RouteValues["action"]);
+        }
+
+        [TestMethod]
+        public async Task Unblock_RedirectToListUsers_WithInvalidId_WithOwnId_Test()
+        {
+            string id = "1";
+
+            var user = (RedirectToRouteResult)(await accountController.Unblock(id));
+            Assert.AreEqual(typeof(ChangeOwnAccountException).Name, user.RouteValues["message"]);
+            Assert.AreEqual("ListUsersAsync", user.RouteValues["action"]);
+        }
+
+        [TestMethod]
+        public async Task Unblock_RedirectToListUsers_WithValidId_Test()
+        {
+            string id = "id2";
+            accountController.UserId = "id1";
+
+            var user = (RedirectToRouteResult)(await accountController.Unblock(id));
+            Assert.AreEqual("success", user.RouteValues["message"]);
+            Assert.AreEqual("ListUsersAsync", user.RouteValues["action"]);
+        }
     }
 }
