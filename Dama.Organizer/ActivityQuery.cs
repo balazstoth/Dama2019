@@ -7,6 +7,10 @@ using System.Collections.Generic;
 
 namespace Dama.Organizer
 {
+    /// <summary>
+    /// ActivityQuery class is used to query the current activities (with a wide date range) from the database 
+    /// and represent them in a 'viewable' way (To be displayed in calendar properly)
+    /// </summary>
     public class ActivityQuery
     {
         private readonly IUnitOfWork _unitOfWork;

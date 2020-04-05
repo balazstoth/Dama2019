@@ -28,8 +28,8 @@ namespace Dama.Web
             builder.RegisterControllers(Assembly.GetExecutingAssembly());
             builder.RegisterSource(new ViewRegistrationSource());
 
-            builder.RegisterType<RepositorySettings>().As<IRepositorySettings>();
-            builder.RegisterType<UnitOfWork>().As<IUnitOfWork>();
+            //builder.RegisterType<RepositorySettings>().As<IRepositorySettings>();
+            //builder.RegisterType<UnitOfWork>().As<IUnitOfWork>();
 
             var container = builder.Build();
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));

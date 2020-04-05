@@ -676,16 +676,6 @@ namespace Dama.Web.Controllers
             return RedirectToAction(ActionNames.Index.ToString(), ControllerNames.Home.ToString());
         }
 
-        private void FillCollectionsFromDatabase(ActivityContainer container)
-        {
-            container.FixedActivities.AddSortedRange(_unitOfWork.FixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
-            container.UnfixedActivities.AddSortedRange(_unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
-            container.UndefinedActivities.AddSortedRange(_unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
-            container.DeadlineActivities.AddSortedRange(_unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Milestones, a => a.Category, a => a.Labels));
-            container.Categories = _unitOfWork.CategoryRepository.Get(a => a.UserId == container.UserId).ToList();
-            container.Labels = _unitOfWork.LabelRepository.Get(a => a.UserId == container.UserId).ToList();
-        }
-
         public PartialViewResult RefreshActivityListbox()
         {
             var container = new ActivityContainer();
@@ -781,6 +771,36 @@ namespace Dama.Web.Controllers
 
             var result = GetActivityData(activityType);
             return result;
+        }
+
+        public void RemoveItemsFromSelectedDay(string dateValue)
+        {
+            var date = DateTime.Parse(dateValue);
+
+            var fixedToRemove = _unitOfWork.FixedActivityRepository.Get(a => a.UserId == UserId &&
+                                                                             !a.BaseActivity &&
+                                                                             a.Start.HasValue &&
+                                                                             a.Start.Value.Date == date.Date, null, a => a.Labels, a => a.Category);
+
+            var unfixedToRemove = _unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == UserId &&
+                                                                                 !a.BaseActivity &&
+                                                                                 a.Start.HasValue &&
+                                                                                 a.Start.Value.Date == date.Date, null, a => a.Labels, a => a.Category);
+
+            var undefinedToRemove = _unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == UserId &&
+                                                                                    !a.BaseActivity &&
+                                                                                    a.Start.HasValue &&
+                                                                                    a.Start.Value.Date == date.Date, null, a => a.Labels, a => a.Category);
+
+            var deadlineToRemove = _unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == UserId &&
+                                                                                    !a.BaseActivity &&
+                                                                                    a.Start.Date == date.Date, null, a => a.Labels, a => a.Category, a => a.Milestones);
+
+            _unitOfWork.FixedActivityRepository.DeleteRange(fixedToRemove);
+            _unitOfWork.UnfixedActivityRepository.DeleteRange(unfixedToRemove);
+            _unitOfWork.UndefinedActivityRepository.DeleteRange(undefinedToRemove);
+            _unitOfWork.DeadlineActivityRepository.DeleteRange(deadlineToRemove);
+            _unitOfWork.Save();
         }
 
         private bool IsValidForFixedOrOptional(string activityType, string optional)
@@ -955,36 +975,6 @@ namespace Dama.Web.Controllers
             
         }
 
-        public void RemoveItemsFromSelectedDay(string dateValue)
-        {
-            var date = DateTime.Parse(dateValue);
-
-            var fixedToRemove = _unitOfWork.FixedActivityRepository.Get(a => a.UserId == UserId &&
-                                                                             !a.BaseActivity &&
-                                                                             a.Start.HasValue &&
-                                                                             a.Start.Value.Date == date.Date, null, a => a.Labels, a => a.Category);
-
-            var unfixedToRemove = _unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == UserId &&
-                                                                                 !a.BaseActivity &&
-                                                                                 a.Start.HasValue &&
-                                                                                 a.Start.Value.Date == date.Date, null, a => a.Labels, a => a.Category);
-
-            var undefinedToRemove = _unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == UserId &&
-                                                                                    !a.BaseActivity &&
-                                                                                    a.Start.HasValue &&
-                                                                                    a.Start.Value.Date == date.Date, null, a => a.Labels, a => a.Category);
-
-            var deadlineToRemove = _unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == UserId &&
-                                                                                    !a.BaseActivity &&
-                                                                                    a.Start.Date == date.Date, null, a => a.Labels, a => a.Category, a => a.Milestones);
-
-            _unitOfWork.FixedActivityRepository.DeleteRange(fixedToRemove);
-            _unitOfWork.UnfixedActivityRepository.DeleteRange(unfixedToRemove);
-            _unitOfWork.UndefinedActivityRepository.DeleteRange(undefinedToRemove);
-            _unitOfWork.DeadlineActivityRepository.DeleteRange(deadlineToRemove);
-            _unitOfWork.Save();
-        }
-
         private CalendarEditorViewModel GetValidViewModel()
         {
             CalendarEditorViewModel viewModel;
@@ -1018,6 +1008,16 @@ namespace Dama.Web.Controllers
             }
 
             return viewModel;
+        }
+
+        private void FillCollectionsFromDatabase(ActivityContainer container)
+        {
+            container.FixedActivities.AddSortedRange(_unitOfWork.FixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
+            container.UnfixedActivities.AddSortedRange(_unitOfWork.UnfixedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
+            container.UndefinedActivities.AddSortedRange(_unitOfWork.UndefinedActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Category, a => a.Labels));
+            container.DeadlineActivities.AddSortedRange(_unitOfWork.DeadlineActivityRepository.Get(a => a.UserId == container.UserId && a.BaseActivity, null, a => a.Milestones, a => a.Category, a => a.Labels));
+            container.Categories = _unitOfWork.CategoryRepository.Get(a => a.UserId == container.UserId).ToList();
+            container.Labels = _unitOfWork.LabelRepository.Get(a => a.UserId == container.UserId).ToList();
         }
 
         private CalendarEditorViewModel FillViewModelForFilters()

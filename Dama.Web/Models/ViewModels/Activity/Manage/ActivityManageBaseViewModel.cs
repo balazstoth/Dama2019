@@ -11,11 +11,11 @@ namespace Dama.Web.Models.ViewModels.Activity.Manage
         public string Id { get; set; }
 
         [Required]
-        [MinLength(minNameLength, ErrorMessage = "Minimum name lenght: {0} characters")]
-        [MaxLength(maxNameLength, ErrorMessage = "Maximum name lenght: {0} characters")]
+        [MinLength(minNameLength, ErrorMessage = "Minimum name lenght: {1} characters")]
+        [MaxLength(maxNameLength, ErrorMessage = "Maximum name lenght: {1} characters")]
         public string Name { get; set; }
 
-        [MaxLength(maxDescriptionLength, ErrorMessage = "Maximum description length: {0} characters")]
+        [MaxLength(maxDescriptionLength, ErrorMessage = "Maximum description length: {1} characters")]
         public string Description { get; set; }
 
         public string Color { get; set; }

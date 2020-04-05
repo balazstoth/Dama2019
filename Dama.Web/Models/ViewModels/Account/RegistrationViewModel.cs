@@ -12,8 +12,8 @@ namespace Dama.Web.Models.ViewModels.Account
         public string UserName { get; set; }
 
         [Required]
-        [MinLength(minPasswordLength, ErrorMessage = "Minimum lenght: {0}")]
-        [MaxLength(maxPasswordLength, ErrorMessage = "Maximum lenght: {0}")]
+        [MinLength(minPasswordLength, ErrorMessage = "Minimum lenght: {1}")]
+        [MaxLength(maxPasswordLength, ErrorMessage = "Maximum lenght: {1}")]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; }

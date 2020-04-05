@@ -8,8 +8,8 @@ namespace Dama.Web.Models.ViewModels.Label
         private const int maxNameLength = 30;
 
         [Required]
-        [MinLength(minNameLength, ErrorMessage = "Minimum name length: {0} characters")]
-        [MaxLength(maxNameLength, ErrorMessage = "Maximum name length: {0} characters")]
+        [MinLength(minNameLength, ErrorMessage = "Minimum name length: {1} characters")]
+        [MaxLength(maxNameLength, ErrorMessage = "Maximum name length: {1} characters")]
         public string Name { get; set; }
     }
 }

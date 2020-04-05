@@ -12,11 +12,11 @@ namespace Dama.Web.Models.ViewModels.Category
         private const int maxDescriptionLength = 50;
 
         [Required]
-        [MinLength(minNameLength, ErrorMessage = "Minimum name length: {0} characters")]
-        [MaxLength(maxNameLength, ErrorMessage = "Maximum name length: {0} characters")]
+        [MinLength(minNameLength, ErrorMessage = "Minimum name length: {1} characters")]
+        [MaxLength(maxNameLength, ErrorMessage = "Maximum name length: {1} characters")]
         public string Name { get; set; }
 
-        [MaxLength(maxDescriptionLength, ErrorMessage = "Maximum description length: {0} characters")]
+        [MaxLength(maxDescriptionLength, ErrorMessage = "Maximum description length: {1} characters")]
         public string Description { get; set; }
 
         public IEnumerable<SelectListItem> Color { get; set; }

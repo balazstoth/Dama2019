@@ -41,11 +41,8 @@ namespace Dama.Web.Controllers
             get => _userId ?? User.Identity.GetUserId();
             set => _userId = value;
         }
-        
         public UserManager<User> UserManager { get; private set; }
-
         public UserStore<User> UserStore { get; private set; }
-
         public IAuthenticationManager AuthenticationManager
         {
             get { return HttpContext.GetOwinContext().Authentication; }
@@ -100,13 +97,6 @@ namespace Dama.Web.Controllers
                 return RedirectToAction(_defaultAction, _defaultController);
 
             return View();
-        }
-
-        private async Task SignInAsync(User user, bool remember)
-        {
-            AuthenticationManager.SignOut();
-            var id = await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);
-            AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = remember }, id);
         }
 
         [DisableUser]
@@ -407,6 +397,13 @@ namespace Dama.Web.Controllers
         {
             AuthenticationManager.SignOut();
             return RedirectToAction(_defaultAction, _defaultController);
+        }
+
+        private async Task SignInAsync(User user, bool remember)
+        {
+            AuthenticationManager.SignOut();
+            var id = await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);
+            AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = remember }, id);
         }
 
         private async Task<User> UserValidation(string id, bool authorize)
