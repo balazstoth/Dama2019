@@ -48,7 +48,7 @@ namespace Dama.Data.UnitTest
             return items.AsEnumerable<T>();
         }
 
-        public T GetByID(object id)
+        public T GetById(object id)
         {
            return _collection.SingleOrDefault(i => i.Id == Convert.ToInt32(id));
         }
@@ -60,7 +60,7 @@ namespace Dama.Data.UnitTest
 
         public void Update(T entityToUpdate)
         {
-            Delete(GetByID(entityToUpdate.Id));
+            Delete(GetById(entityToUpdate.Id));
             _collection.Add(entityToUpdate);
         }
     }

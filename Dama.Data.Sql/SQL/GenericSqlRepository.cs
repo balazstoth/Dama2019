@@ -78,7 +78,7 @@ namespace Dama.Data.Sql.SQL
             return query.ToList();
         }
 
-        public virtual T GetByID(object id)
+        public virtual T GetById(object id)
         {
             int parsedId;
 

@@ -77,28 +77,6 @@ namespace Dama.Web.AccountControllerTest
         }
 
         [TestMethod]
-        public void LoginReturnsValidModelTest()
-        {
-            var userStore = new Mock<IUserStore<User>>();
-            userStore.As<IUserPasswordStore<User>>()
-                .Setup(u => u.FindByNameAsync(It.IsAny<string>()))
-                .ReturnsAsync((string s) => new User() { UserName = s, Password = "password" });
-
-            var controller = new AccountController(unitOfWork, new MockedUserManager(userStore.Object));
-            var viewModel = new LoginViewModel()
-            {
-                UserName = "username",
-                Password = "password"
-            };
-
-            var result = accountController.Login(viewModel).Result;
-            Assert.IsInstanceOfType(result, typeof(ViewResult));
-            
-            var viewResult = result as ViewResult;
-            Assert.IsTrue(viewResult.ViewData.ModelState.IsValid);
-        }
-
-        [TestMethod]
         public async Task Block_RedirectToListUsers_WithInvalidId_WithNullValue_Test()
         {
             string id = null;

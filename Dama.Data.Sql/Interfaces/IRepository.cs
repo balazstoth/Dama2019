@@ -11,7 +11,7 @@ namespace Dama.Data.Sql.Interfaces
                            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
                            params Expression<Func<T, object>>[] includeProperties);
 
-        T GetByID(object id);
+        T GetById(object id);
 
         void Insert(T entity);
 

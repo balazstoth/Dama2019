@@ -46,7 +46,7 @@ namespace Dama.Web.AccountControllerTest
             return items.AsEnumerable();
         }
 
-        public User GetByID(object id)
+        public User GetById(object id)
         {
             return _collection.SingleOrDefault(i => i.Id == id.ToString());
         }
@@ -58,7 +58,7 @@ namespace Dama.Web.AccountControllerTest
 
         public void Update(User entityToUpdate)
         {
-            Delete(GetByID(entityToUpdate.Id));
+            Delete(GetById(entityToUpdate.Id));
             _collection.Add(entityToUpdate);
         }
     }

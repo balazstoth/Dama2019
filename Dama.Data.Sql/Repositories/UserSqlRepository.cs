@@ -74,7 +74,7 @@ namespace Dama.Data.Sql.Repositories
             return query.ToList();
         }
 
-        public virtual User GetByID(object id)
+        public virtual User GetById(object id)
         {
             return dbSet.Find(id);
         }

@@ -102,7 +102,7 @@ namespace Dama.Web.Controllers
 
         public ActionResult DeleteCategory(string categoryId)
         {
-            var selectedCategory = _unitOfWork.CategoryRepository.GetByID(categoryId);
+            var selectedCategory = _unitOfWork.CategoryRepository.GetById(categoryId);
 
             if (selectedCategory == null)
             {
@@ -154,7 +154,7 @@ namespace Dama.Web.Controllers
         public ActionResult EditCategory(string categoryId)
         {
             EditCategoryViewModel viewModel = null;
-            var category = _unitOfWork.CategoryRepository.GetByID(categoryId);
+            var category = _unitOfWork.CategoryRepository.GetById(categoryId);
 
             if (category != null)
             {
@@ -193,7 +193,7 @@ namespace Dama.Web.Controllers
                     }
                 }
 
-                var currentCategory = _unitOfWork.CategoryRepository.GetByID(currentId);
+                var currentCategory = _unitOfWork.CategoryRepository.GetById(currentId);
                 currentCategory.Name = viewModel.Name;
                 currentCategory.Description = viewModel.Description;
                 currentCategory.Priority = viewModel.Priority;
@@ -246,7 +246,7 @@ namespace Dama.Web.Controllers
 
         public ActionResult DeleteLabel(string labelId)
         {
-            var selectedLabel = _unitOfWork.LabelRepository.GetByID(labelId);
+            var selectedLabel = _unitOfWork.LabelRepository.GetById(labelId);
 
             if (selectedLabel == null)
             {
@@ -297,7 +297,7 @@ namespace Dama.Web.Controllers
         #endregion
 
         #region Activity
-        /// <param name="categoryId"> If the Id is not 0, it is managed as sorted by category</param>
+        /// <param name="categoryId"> If the Id is not -1, it is managed as sorted by category</param>
         public ActionResult ManageActivities(int categoryId = -1)
         {
             Predicate<Activity> predicate;
@@ -486,10 +486,10 @@ namespace Dama.Web.Controllers
                 DeadlineActivityManageViewModel = deadlineActivityViewModel
             };
 
-            return View(container);
+            return View("AddNewActivity", container);
         }
 
-        public List<SelectListItem> AddRepeatTypeToProcess()
+        private List<SelectListItem> AddRepeatTypeToProcess()
         {
             var enums = Enum.GetValues(typeof(RepeatPeriod)).Cast<RepeatPeriod>();
 
@@ -503,7 +503,7 @@ namespace Dama.Web.Controllers
                     .ToList();
         }
 
-        public List<SelectListItem> AddCategoriesToProcess(string userId)
+        private List<SelectListItem> AddCategoriesToProcess(string userId)
         {
             var categorySelectItemList = new List<SelectListItem>()
             {
@@ -520,7 +520,7 @@ namespace Dama.Web.Controllers
             return categorySelectItemList;
         }
 
-        public List<SelectListItem> AddLabelsToProcess(string userId)
+        private List<SelectListItem> AddLabelsToProcess(string userId)
         {
             var labels = _unitOfWork.LabelRepository.Get(l => l.UserId == userId).Select(l => l.Name).Distinct();
             var labelSelectItems = labels.Select(l => new SelectListItem() { Text = l }).ToList();
