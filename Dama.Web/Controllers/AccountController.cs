@@ -222,7 +222,7 @@ namespace Dama.Web.Controllers
         private async Task<bool> IsActionEnabledAsync(string tartgetId)
         {
             User currentUser, targetUser;
-            var currentUserId = _userId;
+            var currentUserId = UserId;
 
             currentUser = _unitOfWork.UserRepository.Get(u => u.Id == currentUserId).FirstOrDefault();
             targetUser = _unitOfWork.UserRepository.Get(u => u.Id == tartgetId).FirstOrDefault();
@@ -337,7 +337,7 @@ namespace Dama.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var userId = _userId;
+                var userId = UserId;
 
                 try
                 {
@@ -414,7 +414,7 @@ namespace Dama.Web.Controllers
                 throw new InvalidIdException(nameof(id));
             }
 
-            if (id == _userId || (authorize && !(await IsActionEnabledAsync(id))))
+            if (id == UserId || (authorize && !(await IsActionEnabledAsync(id))))
             {
                 TempData[_executeError] = ErrorMessage.RestrictAccount;
                 throw new ChangeOwnAccountException("Cannot change your own account!");
