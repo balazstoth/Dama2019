@@ -10,27 +10,23 @@ namespace Dama.Generate
     {
         private bool _isFirst;
 
-        #region Properties
         public DateTime Start { get; set; }
-
         public DateTime End { get; set; }
-
         public TimeSpan FullTimeSpan { get { return End.TimeOfDay - Start.TimeOfDay; } }
-
         public TimeSpan Break { get; set; }
-
         public TimeSpan RemainingTimeSpan => GetRemainingTimeSpan();
 
-        //First search
+        /// <summary>
+        /// Properties used for the main search 
+        /// </summary>
         public List<IDefinedActivity> tmpActivitiesFirst { get; set; }
+        public BestResultForMainSearch BestResultFirst { get; set; }
 
-        public BestResultFirst BestResultFirst { get; set; }
-
-        //Last search
-        public List<FlexibleItem> tmpActivitiesLast { get; set; }
-
-        public BestResultLast BestResultLast { get; set; }
-        #endregion
+        /// <summary>
+        /// Properties used for the side search 
+        /// </summary>
+        public List<FlexibleActivityItem> tmpActivitiesLast { get; set; }
+        public BestResultForSideSearch BestResultLast { get; set; }
 
         public FreeSlot(DateTime start, DateTime end, TimeSpan breakValue, bool first = true)
         {
@@ -42,12 +38,12 @@ namespace Dama.Generate
             if (_isFirst)
             {
                 tmpActivitiesFirst = new List<IDefinedActivity>();
-                BestResultFirst = new BestResultFirst(new List<IDefinedActivity>(), Break);
+                BestResultFirst = new BestResultForMainSearch(new List<IDefinedActivity>(), Break);
             }
             else
             {
-                tmpActivitiesLast = new List<FlexibleItem>();
-                BestResultLast = new BestResultLast(new List<FlexibleItem>(), Break);
+                tmpActivitiesLast = new List<FlexibleActivityItem>();
+                BestResultLast = new BestResultForSideSearch(new List<FlexibleActivityItem>(), Break);
             }
         }
 

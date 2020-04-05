@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace Dama.Generate
 {
+    /// <summary>
+    /// Tree datastructure used for Generation 
+    /// </summary>
     public class Tree<T> where T : class
     {
         public Leaf<T> RootItem { get; set; }

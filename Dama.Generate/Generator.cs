@@ -6,11 +6,19 @@ using System.Linq;
 
 namespace Dama.Generate
 {
-    public class Generate
+    /// <summary>
+    /// Main feature of the software which tries to fill empty slots with the selected acitivities
+    /// This class is responsible for finding the best coverage for each free slots
+    /// (It uses the optional activities only)
+    /// </summary>
+    /// <param name="freeTimeList">Collection that contains all the remained free slots during a day</param>
+    /// <param name="activities">Collection that contains all the optional activities which needs to be placed</param>
+    /// <param name="breakValue">TimeSpan that determines the minimal break value among activities</param>
+    public class Generator
     {
-        public List<BestResultFirst> BestResultsForFirst { get; set; } //This is a list contains one BestResultFirst element for each freeTime object
+        public List<BestResultForMainSearch> BestResultsForFirst { get; set; } //This is a list contains one BestResultFirst element for each freeTime object
 
-        public List<BestResultLast> BestResultsForLast { get; set; }
+        public List<BestResultForSideSearch> BestResultsForLast { get; set; }
 
         public List<FreeSlot> FreeSlotList { get; set; } //All the freeTime objects
 
@@ -22,10 +30,9 @@ namespace Dama.Generate
 
         public TimeSpan Break { get; set; }
 
-        public List<FinalItem> FinalResult { get; set; }
+        public List<FinalActivityItem> FinalResult { get; set; }
 
-        //Constructor
-        public Generate(IEnumerable<FreeSlot> freeTimeList, IEnumerable<Activity> activities, TimeSpan breakValue)
+        public Generator(IEnumerable<FreeSlot> freeTimeList, IEnumerable<Activity> activities, TimeSpan breakValue)
         {
             FreeSlotList = freeTimeList.OrderByDescending(x => x.FullTimeSpan).ToList();
             PriorityListFirst = new List<IDefinedActivity>(Enumerable.Union(
@@ -33,14 +40,14 @@ namespace Dama.Generate
                                                         new List<IDefinedActivity>((activities.Where(x => x is UnfixedActivity).Select(x => x as UnfixedActivity)))));
             PriorityListFirst = PriorityListFirst.OrderByDescending(x => x.Priority).ToList();
             PriorityListSecond = activities.Where(x => x is UndefinedActivity).Select(x => x as UndefinedActivity).ToList();
-            BestResultsForFirst = new List<BestResultFirst>();
-            BestResultsForLast = new List<BestResultLast>();
+            BestResultsForFirst = new List<BestResultForMainSearch>();
+            BestResultsForLast = new List<BestResultForSideSearch>();
             FreeSlotsForUndefined = new List<FreeSlot>();
             Break = breakValue;
             FinalResult = Start();
         }
 
-        private List<FinalItem> Start()
+        private List<FinalActivityItem> Start()
         {
             GenerateFirst();
             GenerateFinal();
@@ -112,14 +119,14 @@ namespace Dama.Generate
         }
         private void UpdateBestResult(FreeSlot freeSlot)
         {
-            BestResultFirst bestResult = new BestResultFirst(new List<IDefinedActivity>(freeSlot.tmpActivitiesFirst), Break);
+            BestResultForMainSearch bestResult = new BestResultForMainSearch(new List<IDefinedActivity>(freeSlot.tmpActivitiesFirst), Break);
 
             if (freeSlot.BestResultFirst.CoverTime < bestResult.CoverTime)
                 freeSlot.BestResultFirst = bestResult;
         }
-        private void UpdateBestResultAfterDivide(FreeSlot freeSlot, BestResultFirst result)
+        private void UpdateBestResultAfterDivide(FreeSlot freeSlot, BestResultForMainSearch result)
         {
-            BestResultFirst newBestResult = new BestResultFirst(new List<IDefinedActivity>(result.ResultList), Break);
+            BestResultForMainSearch newBestResult = new BestResultForMainSearch(new List<IDefinedActivity>(result.ResultList), Break);
 
             if (newBestResult.CoverTime > freeSlot.BestResultFirst.CoverTime)
                 freeSlot.BestResultFirst = newBestResult;
@@ -243,7 +250,7 @@ namespace Dama.Generate
                 SaveBestResults(result);
 
                 //Temp!!
-                foreach (BestResultFirst bestResult in BestResultsForFirst)
+                foreach (BestResultForMainSearch bestResult in BestResultsForFirst)
                     bestResult.ResultList = bestResult.ResultList.OrderBy(a => a.Start).ToList();
 
 
@@ -289,7 +296,7 @@ namespace Dama.Generate
                     if (isFixed)
                     {
                         var dividedTimes = DivideFreeSlotsIntoTwoParts(freeSlot, freeSlot.tmpActivitiesFirst);
-                        var tmpBestResult = new BestResultFirst(new List<IDefinedActivity>(), Break);
+                        var tmpBestResult = new BestResultForMainSearch(new List<IDefinedActivity>(), Break);
                         tmpBestResult.ResultList.AddRange(freeSlot.tmpActivitiesFirst);
 
                         foreach (var time in dividedTimes)
@@ -328,15 +335,15 @@ namespace Dama.Generate
         #endregion
 
         #region FinalSelection
-        private List<FinalItem> CreateFinalListFromResults()
+        private List<FinalActivityItem> CreateFinalListFromResults()
         {
-            var finalList = new List<FinalItem>();
+            var finalList = new List<FinalActivityItem>();
 
             foreach (var result in BestResultsForFirst)
             {
                 foreach (var activity in result.ResultList)
                 {
-                    var finalItem = new FinalItem(activity as Activity, activity.Start.GetValueOrDefault(), activity.TimeSpan);
+                    var finalItem = new FinalActivityItem(activity as Activity, activity.Start.GetValueOrDefault(), activity.TimeSpan);
                     finalList.Add(finalItem);
                 }
             }
@@ -345,7 +352,7 @@ namespace Dama.Generate
             {
                 foreach (var flexibleItem in result.ResultList)
                 {
-                    finalList.Add(new FinalItem(flexibleItem.UndefinedActivity, flexibleItem.Start, flexibleItem.TimeSpan));
+                    finalList.Add(new FinalActivityItem(flexibleItem.UndefinedActivity, flexibleItem.Start, flexibleItem.TimeSpan));
                 }
             }
 
@@ -388,7 +395,7 @@ namespace Dama.Generate
             {
                 if (IsCoverFull(freeSlot, undefinedActivity))
                 {
-                    var newItem = new FlexibleItem(undefinedActivity, freeSlot.Start + GetUndefinedActivityTimeSpan(freeSlot), freeSlot.End);
+                    var newItem = new FlexibleActivityItem(undefinedActivity, freeSlot.Start + GetUndefinedActivityTimeSpan(freeSlot), freeSlot.End);
                     freeSlot.BestResultLast.ResultList.Add(newItem);
                     break;
                 }
@@ -397,7 +404,7 @@ namespace Dama.Generate
                     if (Fit(freeSlot, undefinedActivity))
                     {
                         var newStart = freeSlot.Start + GetUndefinedActivityTimeSpan(freeSlot);
-                        var newItem = new FlexibleItem(undefinedActivity, newStart, newStart + TimeSpan.FromMinutes(undefinedActivity.MaximumTime));
+                        var newItem = new FlexibleActivityItem(undefinedActivity, newStart, newStart + TimeSpan.FromMinutes(undefinedActivity.MaximumTime));
                         freeSlot.BestResultLast.ResultList.Add(newItem);
                     }
                 }

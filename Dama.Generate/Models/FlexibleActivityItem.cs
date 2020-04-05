@@ -3,14 +3,14 @@ using System;
 
 namespace Dama.Generate
 {
-    public class FlexibleItem
+    public class FlexibleActivityItem
     {
         public UndefinedActivity UndefinedActivity { get; set; }
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
         public TimeSpan TimeSpan => End - Start;
 
-        public FlexibleItem(UndefinedActivity undefinedActivity, DateTime start, DateTime end)
+        public FlexibleActivityItem(UndefinedActivity undefinedActivity, DateTime start, DateTime end)
         {
             if (undefinedActivity == null)
                 throw new ArgumentNullException("undefinedActivity");

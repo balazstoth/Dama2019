@@ -9,9 +9,7 @@ namespace Dama.Organizer.Extensions
     {
         public static IEnumerable<UserRole> ToUserRole(this IEnumerable<string> roleCollection)
         {
-           return roleCollection
-                        .Select(role => 
-                                (UserRole) Enum.Parse(typeof(UserRole), role));
+           return roleCollection.Select(role => (UserRole) Enum.Parse(typeof(UserRole), role));
         }
     }
 }

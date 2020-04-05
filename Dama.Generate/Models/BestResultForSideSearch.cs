@@ -4,15 +4,13 @@ using System.Linq;
 
 namespace Dama.Generate
 {
-    public class BestResultLast
+    public class BestResultForSideSearch
     {
-        public List<FlexibleItem> ResultList { get; set; }
-
+        public List<FlexibleActivityItem> ResultList { get; set; }
         public TimeSpan Break { get; set; }
-
         public TimeSpan CoverTime => GetCoverTime();
 
-        public BestResultLast(IEnumerable<FlexibleItem> results, TimeSpan breakValue)
+        public BestResultForSideSearch(IEnumerable<FlexibleActivityItem> results, TimeSpan breakValue)
         {
             if (results == null)
                 throw new ArgumentNullException("results");

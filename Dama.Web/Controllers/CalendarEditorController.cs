@@ -41,12 +41,24 @@ namespace Dama.Web.Controllers
         private readonly DateTime dayStart = new DateTime(DateTime.Now.Year, DateTime.Today.Month, DateTime.Today.Day, 8, 0, 0);
         private readonly DateTime dayEnd = new DateTime(DateTime.Now.Year, DateTime.Today.Month, DateTime.Today.Day, 20, 0, 0);
         private readonly TimeSpan breakTime = new TimeSpan(0, 5, 0);
+        private string _userId;
 
-        public string UserId => User.Identity.GetUserId();
+        public string UserId
+        {
+            get => _userId ?? User.Identity.GetUserId();
+            set => _userId = value;
+        }
 
         public CalendarEditorController()
         {
             _unitOfWork = new UnitOfWork();
+            _repositorySettings = new RepositorySettings();
+        }
+
+        public CalendarEditorController(IUnitOfWork unitOfWork, string userId = "1")
+        {
+            _unitOfWork = unitOfWork;
+            _userId = userId;
             _repositorySettings = new RepositorySettings();
         }
 
@@ -802,7 +814,7 @@ namespace Dama.Web.Controllers
             container.UnfixedActivities.Clear();
             container.DeadlineActivities.Clear();
             container.CalendarEditorViewModel = new CalendarEditorViewModel();
-            container.UserId = User.Identity.GetUserId();
+            container.UserId = UserId;
             container.SelectedDate = null;
             container.IsAsc = true;
             container.Filter.ResetValues();

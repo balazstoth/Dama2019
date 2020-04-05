@@ -5,25 +5,26 @@ using System.Linq;
 
 namespace Dama.Generate
 {
+    /// <summary>
+    /// Main feature of the software which tries to fill empty slots with the selected acitivities
+    /// This class calculates and merges the remaining free slots which can be filled be Generator class
+    /// </summary>
+    /// <param name="fixedActivities">Collection that contains all the mandatory activities which are important to be inculded to the current day</param>
+    /// <param name="optionalActivities">Collection that contains all the optional activities which are less important to be inculded to the current day</param>
+    /// <param name="start">DateTime that determines when the current day 'starts'</param>
+    /// <param name="end">DateTime that determines when the current day 'ends'</param>
+    /// <param name="timeSpan">TimeSpan that determines the minimal break value among activities</param>
     public class AutoFill
     {
-        private Generate _generate;
+        private Generator _generate;
 
-        #region Properties
         public IEnumerable<Activity> OptionalActivities { get; set; }
-
         public List<FixedActivity> SortedFixedActivities { get; set; }
-
         public DateTime TimeFrameStart { get; set; }
-
         public DateTime TimeFrameEnd { get; set; }
-
         public TimeSpan Break { get; set; }
-
         public List<FreeSlot> FreeTimeList { get; set; }
-
-        public List<FinalItem> FinalResult { get { return _generate.FinalResult; } }
-        #endregion
+        public List<FinalActivityItem> FinalResult { get { return _generate.FinalResult; } }
 
         public AutoFill(IEnumerable<FixedActivity> fixedActivities, IEnumerable<Activity> optionalActivities, DateTime start, DateTime end, TimeSpan timeSpan)
         {
@@ -38,14 +39,13 @@ namespace Dama.Generate
             TimeFrameEnd = end;
             Break = timeSpan;
             SortedFixedActivities = SortFixedActivities(SetCommonDateForActivities(start.Date, fixedActivities.ToList()));
-            Start();
+            StartGenerating();
         }
 
-        #region Methods
-        public void Start()
+        public void StartGenerating()
         {
             FreeTimeList = GetFreeTimeList();
-            _generate = new Generate(FreeTimeList, OptionalActivities, Break);
+            _generate = new Generator(FreeTimeList, OptionalActivities, Break);
             _generate.FinalResult = SetValidStartTimeForItems();
             SetStartAndEndValues();
         }
@@ -199,15 +199,15 @@ namespace Dama.Generate
             return fixedActivities;
         }
 
-        private List<FinalItem> SetValidStartTimeForItems()
+        private List<FinalActivityItem> SetValidStartTimeForItems()
         {
             var unfixedActivities = FinalResult.Where(a => a.Activity.ActivityType == Data.Enums.ActivityType.UnfixedActivity).ToList();
-            var dictionary = new Dictionary<DateTime, List<FinalItem>>();
+            var dictionary = new Dictionary<DateTime, List<FinalActivityItem>>();
 
             foreach (var item in unfixedActivities)
             {
                 if(!dictionary.ContainsKey(item.Start))
-                    dictionary[item.Start] = new List<FinalItem>();
+                    dictionary[item.Start] = new List<FinalActivityItem>();
 
                 dictionary[item.Start].Add(item);
             }
@@ -246,6 +246,5 @@ namespace Dama.Generate
                 }
             }
         }
-        #endregion
     }
 }

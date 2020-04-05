@@ -3,7 +3,7 @@ using System;
 
 namespace Dama.Generate
 {
-    public class FinalItem
+    public class FinalActivityItem
     {
         public Activity Activity { get; set; }
 
@@ -11,7 +11,7 @@ namespace Dama.Generate
 
         public TimeSpan TimeSpan { get; set; }
 
-        public FinalItem(Activity activity, DateTime start, TimeSpan timeSpan)
+        public FinalActivityItem(Activity activity, DateTime start, TimeSpan timeSpan)
         {
             if (activity == null)
                 throw new ArgumentNullException("activity");
