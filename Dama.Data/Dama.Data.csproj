@@ -84,7 +84,7 @@
     <Compile Include="Models\FixedActivity\FixedActivity.cs" />
     <Compile Include="Models\FixedActivity\FixedActivityBuilder.cs" />
     <Compile Include="Models\Label.cs" />
-    <Compile Include="Enums\CreatinType.cs" />
+    <Compile Include="Enums\CreationType.cs" />
     <Compile Include="Models\Repeat.cs" />
     <Compile Include="Models\UndefinedActivity\UndefinedActivity.cs" />
     <Compile Include="Models\UndefinedActivity\UndefinedActivityBuilder.cs" />

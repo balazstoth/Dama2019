@@ -81,7 +81,6 @@ namespace Dama.Generate
 
             return TimeSpan.FromMinutes(sum);
         }
-
         private bool Fit(IDefinedActivity activity, FreeSlot frame, List<IDefinedActivity> temporaryStorage)
         {
             //Check if the FixActivity is insertable because of the ufas are in the tmpStorage
@@ -185,17 +184,40 @@ namespace Dama.Generate
             if (bestResultList.Count == 0)
                 return new List<FreeSlot>() { new FreeSlot(baseFreeSlot.Start, baseFreeSlot.End, Break, first) };
 
-            bestResultList = bestResultList.OrderBy(x => x.Start).ToList();
+            var unfixedActivities = bestResultList.Where(a => a is UnfixedActivity).Select(a => a as UnfixedActivity);
+            var activitiesWithStartValue = bestResultList.Where(a => a is FixedActivity).ToList();
+            var dictionary = new Dictionary<DateTime, List<UnfixedActivity>>();
+
+            foreach (var item in unfixedActivities)
+            {
+                if (!dictionary.ContainsKey(item.Start.GetValueOrDefault()))
+                    dictionary[item.Start.GetValueOrDefault()] = new List<UnfixedActivity>();
+
+                dictionary[item.Start.GetValueOrDefault()].Add(item);
+            }
+
+            foreach (var key in dictionary.Keys)
+            {
+                var time = key;
+                foreach (var activity in dictionary[key])
+                {
+                    activity.Start = time;
+                    activitiesWithStartValue.Add(activity);
+                    time = time + activity.TimeSpan + Break;
+                }
+            }
+
+            activitiesWithStartValue = activitiesWithStartValue.OrderBy(x => x.Start).ToList();
 
             var freeTimeList = new List<FreeSlot>();
             DateTime currentTime;
 
-            if (bestResultList.First().Start > baseFreeSlot.Start)
+            if (activitiesWithStartValue.First().Start > baseFreeSlot.Start)
                 currentTime = baseFreeSlot.Start;
             else
-                currentTime = bestResultList.First().Start.GetValueOrDefault() + bestResultList.First().TimeSpan + Break;
+                currentTime = activitiesWithStartValue.First().Start.GetValueOrDefault() + activitiesWithStartValue.First().TimeSpan + Break;
 
-            foreach (var result in bestResultList)
+            foreach (var result in activitiesWithStartValue)
             {
                 if ((result.Start - Break) > currentTime)
                     freeTimeList.Add(new FreeSlot(currentTime, result.Start.GetValueOrDefault() - Break, Break, first));
@@ -246,13 +268,11 @@ namespace Dama.Generate
 
             foreach (var freeSlot in FreeSlotList) //Iterate through all the freeTimes, starting with the largest one
             {
-                Tree<FreeSlot> result = SearchFirst(greatestPriority, freeSlot);
+                var result = SearchFirst(greatestPriority, freeSlot);
                 SaveBestResults(result);
 
-                //Temp!!
-                foreach (BestResultForMainSearch bestResult in BestResultsForFirst)
+                foreach (var bestResult in BestResultsForFirst)
                     bestResult.ResultList = bestResult.ResultList.OrderBy(a => a.Start).ToList();
-
 
                 RemoveUsedItems(result);
                 FreeSlotsForUndefined.AddRange(DivideFreeSlot(freeSlot, GetAllBestResults(result), false));
@@ -263,7 +283,7 @@ namespace Dama.Generate
             List<IDefinedActivity> selectedActivities;
             var tree = new Tree<FreeSlot>(priority, freeSlot);
 
-            for (int i = 0; i < (tree.Count); i++)
+            for (int i = 0; i < tree.Count; i++)
             {
                 selectedActivities = GetItemOnPriorityLevel(priority); //Contains the items which have the highest priority value
                 FirstRecursion(selectedActivities, tree[i].Value); //A specified priority level
@@ -274,7 +294,7 @@ namespace Dama.Generate
                     break;
 
                 var dividedFreeTimeList = DivideFreeSlot(tree[i].Value, tree[i].Value.BestResultFirst.ResultList.ToList());
-                tree[i].Leaves.AddRange(dividedFreeTimeList.Select(x => new Leaf<FreeSlot>(priority, x)));
+                tree[i].Leaves.AddRange(dividedFreeTimeList.Select(fs => new Leaf<FreeSlot>(priority, fs)));
             }
 
             return tree;
@@ -289,9 +309,7 @@ namespace Dama.Generate
                     UpdateBestResult(freeSlot);
 
                     if (IsFinished(freeSlot))
-                    {
                         return true;
-                    }
                     
                     if (isFixed)
                     {
@@ -321,13 +339,9 @@ namespace Dama.Generate
                     }
 
                     if (remove)
-                    {
                         freeSlot.tmpActivitiesFirst.Clear();
-                    }
                     else
-                    {
                         freeSlot.tmpActivitiesFirst.RemoveAt(freeSlot.tmpActivitiesFirst.Count - 1);
-                    }
                 }
             }
             return false;
@@ -395,7 +409,7 @@ namespace Dama.Generate
             {
                 if (IsCoverFull(freeSlot, undefinedActivity))
                 {
-                    var newItem = new FlexibleActivityItem(undefinedActivity, freeSlot.Start + GetUndefinedActivityTimeSpan(freeSlot), freeSlot.End);
+                    var newItem = new FlexibleActivityItem(undefinedActivity, freeSlot.Start, freeSlot.End);
                     freeSlot.BestResultLast.ResultList.Add(newItem);
                     break;
                 }
@@ -403,9 +417,10 @@ namespace Dama.Generate
                 {
                     if (Fit(freeSlot, undefinedActivity))
                     {
-                        var newStart = freeSlot.Start + GetUndefinedActivityTimeSpan(freeSlot);
+                        var newStart = freeSlot.Start;
                         var newItem = new FlexibleActivityItem(undefinedActivity, newStart, newStart + TimeSpan.FromMinutes(undefinedActivity.MaximumTime));
                         freeSlot.BestResultLast.ResultList.Add(newItem);
+                        freeSlot.Start = newStart + TimeSpan.FromMinutes(undefinedActivity.MaximumTime) + Break;
                     }
                 }
             }

@@ -20,5 +20,10 @@ namespace Dama.Generate
             Activity = activity;
             Start = start;
         }
+
+        public override string ToString()
+        {
+            return $"{Start.ToShortTimeString()} - {(Start + TimeSpan).ToShortTimeString()}";
+        }
     }
 }
